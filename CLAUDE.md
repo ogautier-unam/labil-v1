@@ -2,7 +2,7 @@
 
 **Guide de référence pour les sessions Claude**
 **Projet :** CrisisConnect (IHDCM032 — LABIL)
-**Stack :** .NET 9 · PostgreSQL · Docker · Clean Architecture
+**Stack :** .NET 10 · PostgreSQL · Docker · Clean Architecture
 
 ---
 
@@ -45,13 +45,14 @@
 ### Versions exactes
 | Technologie | Version | Notes |
 |-------------|---------|-------|
-| .NET | **9.0** | `dotnet --version` → `9.0.x` |
-| ASP.NET Core | **9.0** | Web API REST |
-| Entity Framework Core | **9.x** | ORM principal |
-| Npgsql.EF Core | **9.x** | Provider PostgreSQL |
-| PostgreSQL | **16** | Image Docker `postgres:16-alpine` |
+| .NET | **10.0** | `dotnet --version` → `10.0.x` |
+| ASP.NET Core | **10.0** | Web API REST |
+| Entity Framework Core | **10.x** | ORM principal |
+| Npgsql.EF Core | **10.x** | Provider PostgreSQL |
+| PostgreSQL | **17** | Image Docker `postgres:17-alpine` |
 | Docker | 24+ | `docker --version` |
 | Docker Compose | v2 | `docker compose` (sans tiret) |
+| dotnet-ef (tool) | **10.x** | `dotnet tool update --global dotnet-ef` |
 
 ### Packages NuGet principaux
 ```
@@ -66,14 +67,16 @@ AutoMapper
 # Infrastructure
 Microsoft.EntityFrameworkCore
 Npgsql.EntityFrameworkCore.PostgreSQL
-Microsoft.EntityFrameworkCore.Design
+Microsoft.EntityFrameworkCore.Design   # requis aussi dans API pour dotnet-ef
+EFCore.NamingConventions               # UseSnakeCaseNamingConvention()
 Microsoft.AspNetCore.Authentication.JwtBearer
 BCrypt.Net-Next
 
 # API
-Swashbuckle.AspNetCore           # Swagger/OpenAPI
-Microsoft.AspNetCore.OpenApi     # .NET 9 natif
-Serilog.AspNetCore               # Logging structuré
+Swashbuckle.AspNetCore                       # Swagger/OpenAPI
+Microsoft.EntityFrameworkCore.Design         # requis par dotnet-ef (startup project)
+FluentValidation.DependencyInjectionExtensions  # AddValidatorsFromAssembly()
+Serilog.AspNetCore                           # Logging structuré
 ```
 
 ---
@@ -222,7 +225,7 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -254,7 +257,7 @@ services:
 
 ### Dockerfile (multi-stage)
 ```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["src/CrisisConnect.API/CrisisConnect.API.csproj", "src/CrisisConnect.API/"]
 COPY ["src/CrisisConnect.Application/CrisisConnect.Application.csproj", "src/CrisisConnect.Application/"]
@@ -262,9 +265,9 @@ COPY ["src/CrisisConnect.Infrastructure/CrisisConnect.Infrastructure.csproj", "s
 COPY ["src/CrisisConnect.Domain/CrisisConnect.Domain.csproj", "src/CrisisConnect.Domain/"]
 RUN dotnet restore "src/CrisisConnect.API/CrisisConnect.API.csproj"
 COPY . .
-RUN dotnet publish "src/CrisisConnect.API/CrisisConnect.API.csproj" -c Release -o /app/publish
+RUN dotnet publish "src/CrisisConnect.API/CrisisConnect.API.csproj" -c Release -o /app/publish --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "CrisisConnect.API.dll"]
@@ -579,8 +582,21 @@ packages/
 
 ### Migration EF Core échoue
 - Vérifier que `AppDbContext` est bien enregistré dans `Program.cs`
-- Vérifier que `IDesignTimeDbContextFactory<AppDbContext>` existe dans Infrastructure si nécessaire
+- `Microsoft.EntityFrameworkCore.Design` doit être présent dans **les deux** projets : `Infrastructure` ET `API` (startup project)
+- Le tool `dotnet-ef` doit être en version **10.x** : `dotnet tool update --global dotnet-ef`
 - Toujours spécifier `--project` et `--startup-project` (ne pas omettre)
+- Les Value Objects utilisés dans des entités (ex. `Adresse` dans `Personne`) doivent être configurés avec `OwnsOne()` dans leur `IEntityTypeConfiguration`, sinon EF Core tente de les traiter comme entités et lève une erreur de clé primaire manquante
+
+### `[ERR] Failed executing DbCommand` lors de `database update`
+- C'est un comportement **normal** au premier `database update` : EF Core cherche la table `__EFMigrationsHistory` qui n'existe pas encore, échoue (loggé ERR), puis la crée et applique les migrations. `Done.` en fin de sortie = succès.
+
+### AutoMapper v16+ : API changée
+- Ne plus utiliser : `services.AddAutoMapper(typeof(MappingProfile).Assembly)`
+- Utiliser : `services.AddAutoMapper(cfg => cfg.AddMaps(typeof(MappingProfile).Assembly))`
+
+### Serilog masque les messages de démarrage ASP.NET Core
+- Ajouter l'override `"Microsoft.Hosting.Lifetime": "Information"` dans `appsettings.json` pour voir "Now listening on: ..."
+- Ajouter `if (!app.Environment.IsDevelopment()) app.UseHttpsRedirection()` pour éviter le warning HTTPS en dev
 
 ### Erreur de connexion PostgreSQL
 - Vérifier que le container `db` est healthy : `docker compose ps`
@@ -610,4 +626,14 @@ packages/
 - En fin de session : simplifier en résumé dans l'historique
 
 ### Historique des sessions
-_(à remplir au fur et à mesure)_
+
+#### Session 1 — 2026-02-28 — Setup initial
+✅ Solution .NET 10 + 7 projets (4 src, 3 tests) avec références Clean Architecture
+✅ Packages NuGet installés (MediatR 14, FluentValidation 12, AutoMapper 16, EF Core 10, Npgsql 10, Serilog 10, Swashbuckle 10)
+✅ Structure Domain (entités, value objects, enums, interfaces, exceptions)
+✅ Structure Application (CQRS CreateProposition/GetPropositions, behaviours, mappings)
+✅ Structure Infrastructure (AppDbContext, configurations EF, repository, DI)
+✅ API (Program.cs, PropositionsController, appsettings Serilog, Swagger dev-only)
+✅ Docker (Dockerfile sdk:10.0, docker-compose.yml postgres:17-alpine, override.yml)
+✅ Migration InitialCreate appliquée (`src/CrisisConnect.Infrastructure/Migrations/`)
+✅ API fonctionnelle sur http://localhost:5072 — Swagger sur /swagger
