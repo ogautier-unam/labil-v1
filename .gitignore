@@ -17,3 +17,6 @@ packages/
 
 # Logs
 *.log
+
+# Claude Code
+.claude/

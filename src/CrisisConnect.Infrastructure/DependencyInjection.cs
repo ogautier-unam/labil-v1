@@ -1,6 +1,8 @@
 using CrisisConnect.Domain.Interfaces.Repositories;
+using CrisisConnect.Domain.Interfaces.Services;
 using CrisisConnect.Infrastructure.Persistence;
 using CrisisConnect.Infrastructure.Persistence.Repositories;
+using CrisisConnect.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +18,14 @@ public static class DependencyInjection
                    .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IPropositionRepository, PropositionRepository>();
+        services.AddScoped<IPersonneRepository, PersonneRepository>();
+        services.AddScoped<IMissionRepository, MissionRepository>();
+        services.AddScoped<IMatchingRepository, MatchingRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+        services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
 
         return services;
     }
