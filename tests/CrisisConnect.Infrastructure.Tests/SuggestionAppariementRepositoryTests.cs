@@ -75,4 +75,23 @@ public class SuggestionAppariementRepositoryTests
         var chargée = await repo.GetByIdAsync(suggestion.Id);
         Assert.True(chargée!.EstAcknowledged);
     }
+
+    [Fact]
+    public async Task GetByDemandeAsync_FiltreParDemande()
+    {
+        await using var ctx = DbContextFactory.Créer();
+        var repo = new SuggestionAppariementRepository(ctx);
+
+        var demandeId = Guid.NewGuid();
+        await repo.AddAsync(new SuggestionAppariement(Guid.NewGuid(), demandeId, 0.85, "Correspondance A"));
+        await repo.AddAsync(new SuggestionAppariement(Guid.NewGuid(), demandeId, 0.65, "Correspondance B"));
+        await repo.AddAsync(new SuggestionAppariement(Guid.NewGuid(), Guid.NewGuid(), 0.55, "Autre demande"));
+
+        var résultats = await repo.GetByDemandeAsync(demandeId);
+
+        Assert.Equal(2, résultats.Count);
+        Assert.All(résultats, s => Assert.Equal(demandeId, s.DemandeId));
+        // Doit être trié par score décroissant
+        Assert.True(résultats[0].ScoreCorrespondance >= résultats[1].ScoreCorrespondance);
+    }
 }

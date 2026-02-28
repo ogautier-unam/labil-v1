@@ -53,4 +53,28 @@ public class AnnulerTransactionCommandHandlerTests
         await Assert.ThrowsAsync<NotFoundException>(
             () => handler.Handle(new AnnulerTransactionCommand(Guid.NewGuid()), CancellationToken.None));
     }
+
+    [Fact]
+    public async Task AnnulerTransaction_PropositionNonEnTransaction_TransactionAnnuléeSansModifierProposition()
+    {
+        // Arrange — offre déjà active (non en transaction) : le handler ne doit pas appeler LibererDeTransaction
+        var offre = new Offre("Titre", "Desc", Guid.NewGuid()); // statut Active par défaut
+
+        var transaction = new Transaction(offre.Id, Guid.NewGuid());
+        _transactionRepo.GetByIdAsync(transaction.Id, Arg.Any<CancellationToken>())
+            .Returns(transaction);
+        _propositionRepo.GetByIdAsync(offre.Id, Arg.Any<CancellationToken>())
+            .Returns(offre);
+
+        var handler = CréerHandler();
+
+        // Act
+        await handler.Handle(new AnnulerTransactionCommand(transaction.Id), CancellationToken.None);
+
+        // Assert
+        Assert.Equal(StatutTransaction.Annulee, transaction.Statut);
+        Assert.Equal(StatutProposition.Active, offre.Statut); // inchangé
+        await _transactionRepo.Received(1).UpdateAsync(transaction, Arg.Any<CancellationToken>());
+        await _propositionRepo.DidNotReceive().UpdateAsync(Arg.Any<Proposition>(), Arg.Any<CancellationToken>());
+    }
 }

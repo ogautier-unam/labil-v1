@@ -52,4 +52,25 @@ public class ConfirmerTransactionCommandHandlerTests
         await Assert.ThrowsAsync<NotFoundException>(
             () => handler.Handle(new ConfirmerTransactionCommand(Guid.NewGuid()), CancellationToken.None));
     }
+
+    [Fact]
+    public async Task ConfirmerTransaction_PropositionIntrouvable_SeulementTransactionMiseAJour()
+    {
+        // Arrange — proposition null : le handler doit confirmer la transaction sans lever d'exception
+        var transaction = new Transaction(Guid.NewGuid(), Guid.NewGuid());
+        _transactionRepo.GetByIdAsync(transaction.Id, Arg.Any<CancellationToken>())
+            .Returns(transaction);
+        _propositionRepo.GetByIdAsync(transaction.PropositionId, Arg.Any<CancellationToken>())
+            .Returns((Proposition?)null);
+
+        var handler = CréerHandler();
+
+        // Act
+        await handler.Handle(new ConfirmerTransactionCommand(transaction.Id), CancellationToken.None);
+
+        // Assert
+        Assert.Equal(Domain.Enums.StatutTransaction.Confirmee, transaction.Statut);
+        await _transactionRepo.Received(1).UpdateAsync(transaction, Arg.Any<CancellationToken>());
+        await _propositionRepo.DidNotReceive().UpdateAsync(Arg.Any<Proposition>(), Arg.Any<CancellationToken>());
+    }
 }

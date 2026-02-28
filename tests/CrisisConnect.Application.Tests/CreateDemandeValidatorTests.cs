@@ -33,4 +33,13 @@ public class CreateDemandeValidatorTests
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.PropertyName == "CreePar");
     }
+
+    [Fact]
+    public async Task Invalide_DescriptionVide_EchecSurDescription()
+    {
+        var cmd = new CreateDemandeCommand("Titre valide", "", Guid.NewGuid());
+        var result = await _validator.ValidateAsync(cmd);
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.PropertyName == "Description");
+    }
 }
