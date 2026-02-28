@@ -1,0 +1,42 @@
+@page
+@model CrisisConnect.Web.Pages.Propositions.OffresModel
+@{
+    ViewData["Title"] = "Offres";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Offres disponibles</h1>
+</div>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+else if (!Model.Offres.Any())
+{
+    <div class="alert alert-info">Aucune offre pour le moment.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        @foreach (var offre in Model.Offres)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@offre.Titre</h5>
+                        <p class="card-text text-muted small">@offre.Description</p>
+                        @if (offre.LivraisonIncluse)
+                        {
+                            <span class="badge bg-info text-dark mb-2">Livraison incluse</span>
+                        }
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <span class="badge bg-secondary">@offre.Statut</span>
+                        <small class="text-muted">@offre.CreeLe.ToString("dd/MM/yyyy")</small>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

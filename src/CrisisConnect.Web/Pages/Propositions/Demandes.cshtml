@@ -1,0 +1,56 @@
+@page
+@model CrisisConnect.Web.Pages.Propositions.DemandesModel
+@{
+    ViewData["Title"] = "Demandes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Demandes en cours</h1>
+</div>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+else if (!Model.Demandes.Any())
+{
+    <div class="alert alert-info">Aucune demande pour le moment.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Titre</th>
+                    <th>Urgence</th>
+                    <th>Région</th>
+                    <th>Statut</th>
+                    <th>Créé le</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model.Demandes)
+                {
+                    var urgenceCss = d.Urgence switch
+                    {
+                        "Critique" => "bg-danger",
+                        "Haute"    => "bg-warning text-dark",
+                        "Moyenne"  => "bg-info text-dark",
+                        _          => "bg-secondary"
+                    };
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">@d.Titre</div>
+                            <div class="text-muted small">@d.Description</div>
+                        </td>
+                        <td><span class="badge @urgenceCss">@d.Urgence</span></td>
+                        <td>@(d.RegionSeverite ?? "—")</td>
+                        <td><span class="badge bg-secondary">@d.Statut</span></td>
+                        <td>@d.CreeLe.ToString("dd/MM/yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

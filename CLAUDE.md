@@ -2,7 +2,7 @@
 
 **Guide de référence pour les sessions Claude**
 **Projet :** CrisisConnect (IHDCM032 — LABIL)
-**Stack :** .NET 10 · PostgreSQL · Docker · Clean Architecture
+**Stack :** .NET 10 · PostgreSQL · Docker · Clean Architecture · Razor Pages · Bootstrap 5.3
 
 ---
 
@@ -54,6 +54,8 @@
 | Docker | 24+ | `docker --version` |
 | Docker Compose | v2 | `docker compose` (sans tiret) |
 | dotnet-ef (tool) | **10.x** | `dotnet tool update --global dotnet-ef` |
+| Bootstrap | **5.3.3** | Bundlé dans `CrisisConnect.Web/wwwroot/lib/bootstrap/` |
+| Razor Pages | **10.0** | `CrisisConnect.Web` — front-end ASP.NET Core |
 
 ### Packages NuGet principaux
 ```
@@ -702,3 +704,25 @@ packages/
 ✅ AppDbContext + DependencyInjection mis a jour
 ✅ Migration AddDomainModel (20260228155244) appliquee
 ✅ Build : 0 erreur — commit b52e73e (53 fichiers, 3932 insertions)
+
+#### Session 4 — 2026-02-28 — Use cases GET + Controllers + Projet Web
+✅ Fix NotificationDto (Sujet→Type, CreeLe→DateCreation — alignement entite Notification)
+✅ GetAllAsync ajouté dans ITransactionRepository + TransactionRepository
+✅ Use cases : GetOffres, GetOffreById, GetDemandes, GetDemandeById, GetTransactions, GetTransactionByIdQuery
+✅ Use cases lifecycle : ConfirmerTransaction (Clore proposition), AnnulerTransaction (LibererDeTransaction)
+✅ Use cases config : GetConfigCatastropheQuery, CreateConfigCatastropheCommand + Validator
+✅ ConfigCatastropheDto ajouté ; MappingProfile mis a jour
+✅ PropositionsController : GET /offres, GET /offres/{id}, GET /demandes, GET /demandes/{id}
+✅ TransactionsController : GET, GET/{id}, PATCH/{id}/confirmer, PATCH/{id}/annuler
+✅ ConfigCatastropheController : GET /api/config-catastrophe, POST (Responsable)
+✅ Build : 0 erreur — commit 5781248 (29 fichiers, 521 insertions)
+
+#### Session 5 — 2026-02-28 — Front-end Razor Pages + Bootstrap 5.3
+✅ Projet CrisisConnect.Web créé (dotnet new razor, net10.0) + ajouté à la solution
+✅ Bootstrap 5.3.3 bundlé par le template (wwwroot/lib/bootstrap/) — aucune mise a jour nécessaire
+✅ Models/ : OffreModel, DemandeModel, TransactionModel, PropositionModel (types simples, pas de ref Domain)
+✅ Services/ApiClient.cs : GetOffresAsync, GetDemandesAsync, GetPropositionsAsync, GetTransactionsAsync, Get*ByIdAsync
+✅ Program.cs : AddHttpClient<ApiClient>(BaseAddress depuis ApiSettings:BaseUrl)
+✅ appsettings.json : BaseUrl=http://localhost:8080 (prod) / appsettings.Development.json : BaseUrl=http://localhost:5072
+✅ _Layout.cshtml : navbar Bootstrap 5.3 (rouge CrisisConnect), dropdown Propositions, liens Transactions/Auth
+✅ Pages : Index (tableau de bord 3 cards), Propositions/Index, Propositions/Offres, Propositions/Demandes, Transactions/Index, Auth/Login

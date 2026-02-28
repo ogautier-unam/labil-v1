@@ -1,0 +1,39 @@
+@page
+@model CrisisConnect.Web.Pages.Auth.LoginModel
+@{
+    ViewData["Title"] = "Connexion";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">Connexion</h4>
+            </div>
+            <div class="card-body">
+                @if (Model.ErrorMessage is not null)
+                {
+                    <div class="alert alert-danger">@Model.ErrorMessage</div>
+                }
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Adresse e-mail</label>
+                        <input asp-for="Email" class="form-control" type="email" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MotDePasse" class="form-label">Mot de passe</label>
+                        <input asp-for="MotDePasse" class="form-control" type="password" autocomplete="current-password" />
+                        <span asp-validation-for="MotDePasse" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">Se connecter</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
