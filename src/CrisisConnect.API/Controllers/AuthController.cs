@@ -1,8 +1,12 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Auth.Login;
+using CrisisConnect.Application.UseCases.Auth.Logout;
 using CrisisConnect.Application.UseCases.Auth.RefreshToken;
 using CrisisConnect.Application.UseCases.Auth.Register;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CrisisConnect.API.Controllers;
@@ -46,5 +50,22 @@ public class AuthController : ControllerBase
     {
         var result = await _mediator.Send(new RefreshTokenCommand(request.RefreshToken), cancellationToken);
         return Ok(result);
+    }
+
+    /// <summary>Déconnexion — révoque tous les refresh tokens de l'acteur courant.</summary>
+    [HttpPost("logout")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                     ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        if (!Guid.TryParse(userIdStr, out var userId))
+            return Unauthorized();
+
+        await _mediator.Send(new LogoutCommand(userId), cancellationToken);
+        return NoContent();
     }
 }

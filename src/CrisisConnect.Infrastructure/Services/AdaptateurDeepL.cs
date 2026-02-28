@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CrisisConnect.Domain.Interfaces.Services;
 
 namespace CrisisConnect.Infrastructure.Services;
@@ -30,9 +31,12 @@ public class AdaptateurDeepL : IServiceTraduction
         var response = await _httpClient.PostAsync("https://api-free.deepl.com/v2/translate", content, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        // Parse simplifiée — en production utiliser un DTO JSON
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
-        return body; // TODO: extraire le champ "text" du JSON
+        using var doc = JsonDocument.Parse(body);
+        return doc.RootElement
+                   .GetProperty("translations")[0]
+                   .GetProperty("text")
+                   .GetString() ?? texte;
     }
 
     public Task<IReadOnlyList<string>> LanguesSupporteesAsync(CancellationToken cancellationToken = default)

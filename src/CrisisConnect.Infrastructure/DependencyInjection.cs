@@ -46,6 +46,7 @@ public static class DependencyInjection
         // Services d'authentification
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<INotificationService, NotificationService>();
 
         // P5 — Adapter traduction (corpus interne par défaut)
         services.AddScoped<IServiceTraduction, AdaptateurCorpusInterne>();
