@@ -769,3 +769,15 @@ packages/
 ✅ Pages/Propositions/Offres.cshtml : formulaire "Publier une offre" (collapse) + bouton "+ Panier" par offre active
 ✅ _Layout.cshtml : lien "Mon panier" dans navbar (visible si connecté)
 ✅ Build : 0 erreur
+
+#### Session 10 — 2026-02-28 — Web interactif complet + Infrastructure.Tests
+✅ ApiClient : ConfirmerTransactionAsync, AnnulerTransactionAsync, CreateDemandeAsync
+✅ Transactions/Index.cshtml.cs : OnPostConfirmerAsync + OnPostAnnulerAsync (constantes KeySuccess/KeyError)
+✅ Transactions/Index.cshtml : boutons Confirmer/Annuler par transaction EnCours (avec confirm JS)
+✅ Demandes.cshtml.cs : OnPostPublierAsync (titre, description, urgence, région)
+✅ Demandes.cshtml : formulaire collapse "Publier une demande" + select NiveauUrgence
+✅ Infrastructure.Tests : DbContextFactory (InMemory, base isolée par test)
+✅ OffreRepositoryTests (4 tests : Add+GetById, GetAll, GetById inexistant, Update statut)
+✅ TransactionRepositoryTests (4 tests : Add+GetById+Discussion, GetAll, Update statut, GetByPropositionId)
+✅ Packages : Microsoft.EntityFrameworkCore.InMemory 10.0.3 + Microsoft.EntityFrameworkCore 10.0.3
+✅ Total : 63 tests, 0 échec (Domain 33, Application 22, Infrastructure 8)

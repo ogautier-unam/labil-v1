@@ -2,11 +2,24 @@
 @model CrisisConnect.Web.Pages.Transactions.TransactionsIndexModel
 @{
     ViewData["Title"] = "Transactions";
+    var isAuth = User.Identity?.IsAuthenticated ?? false;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3">Transactions</h1>
 </div>
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ok
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger">@err</div>
+}
 
 @if (Model.ErrorMessage is not null)
 {
@@ -26,6 +39,7 @@ else
                     <th>Proposition</th>
                     <th>Statut</th>
                     <th>Date</th>
+                    @if (isAuth) { <th>Actions</th> }
                 </tr>
             </thead>
             <tbody>
@@ -42,6 +56,34 @@ else
                         <td class="font-monospace small">@t.PropositionId.ToString()[..8]…</td>
                         <td><span class="badge @statutCss">@t.Statut</span></td>
                         <td>@t.DateCreation.ToString("dd/MM/yyyy HH:mm")</td>
+                        @if (isAuth)
+                        {
+                            <td>
+                                @if (t.Statut == "EnCours")
+                                {
+                                    <div class="d-flex gap-1">
+                                        <form method="post" asp-page-handler="Confirmer">
+                                            <input type="hidden" name="transactionId" value="@t.Id" />
+                                            <button class="btn btn-success btn-sm"
+                                                    onclick="return confirm('Confirmer cette transaction ?')">
+                                                ✓ Confirmer
+                                            </button>
+                                        </form>
+                                        <form method="post" asp-page-handler="Annuler">
+                                            <input type="hidden" name="transactionId" value="@t.Id" />
+                                            <button class="btn btn-outline-danger btn-sm"
+                                                    onclick="return confirm('Annuler cette transaction ?')">
+                                                ✕ Annuler
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>

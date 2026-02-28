@@ -80,6 +80,28 @@ public class ApiClient
         return await response.Content.ReadFromJsonAsync<TransactionModel>(ct);
     }
 
+    public async Task<bool> ConfirmerTransactionAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/transactions/{id}/confirmer", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> AnnulerTransactionAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/transactions/{id}/annuler", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<DemandeModel?> CreateDemandeAsync(
+        string titre, string description, Guid creePar, string urgence, string? regionSeverite = null,
+        CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("api/propositions/demandes",
+            new { Titre = titre, Description = description, CreePar = creePar, Urgence = urgence, RegionSeverite = regionSeverite }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<DemandeModel>(ct);
+    }
+
     // ── Paniers ───────────────────────────────────────────────────────────────
 
     public Task<PanierModel?> GetPanierAsync(Guid proprietaireId, CancellationToken ct = default)

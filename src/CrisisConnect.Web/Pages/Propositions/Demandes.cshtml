@@ -2,11 +2,67 @@
 @model CrisisConnect.Web.Pages.Propositions.DemandesModel
 @{
     ViewData["Title"] = "Demandes";
+    var isAuth = User.Identity?.IsAuthenticated ?? false;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3">Demandes en cours</h1>
+    @if (isAuth)
+    {
+        <button class="btn btn-primary btn-sm" type="button"
+                data-bs-toggle="collapse" data-bs-target="#formPublier">
+            + Publier une demande
+        </button>
+    }
 </div>
+
+@if (isAuth)
+{
+    <div class="collapse mb-4" id="formPublier">
+        <div class="card card-body">
+            <form method="post" asp-page-handler="Publier">
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label for="Titre" class="form-label">Titre</label>
+                        <input asp-for="Titre" id="Titre" class="form-control" required />
+                    </div>
+                    <div class="col-md-7">
+                        <label for="Description" class="form-label">Description</label>
+                        <input asp-for="Description" id="Description" class="form-control" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="Urgence" class="form-label">Niveau d'urgence</label>
+                        <select asp-for="Urgence" id="Urgence" class="form-select">
+                            <option value="Faible">Faible</option>
+                            <option value="Moyen" selected>Moyen</option>
+                            <option value="Haute">Haute</option>
+                            <option value="Critique">Critique</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="RegionSeverite" class="form-label">Région / Zone <span class="text-muted">(optionnel)</span></label>
+                        <input asp-for="RegionSeverite" id="RegionSeverite" class="form-control" />
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success btn-sm w-100">Publier</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ok
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger">@err</div>
+}
 
 @if (Model.ErrorMessage is not null)
 {
@@ -36,7 +92,7 @@ else
                     {
                         "Critique" => "bg-danger",
                         "Haute"    => "bg-warning text-dark",
-                        "Moyenne"  => "bg-info text-dark",
+                        "Moyen"    => "bg-info text-dark",
                         _          => "bg-secondary"
                     };
                     <tr>
