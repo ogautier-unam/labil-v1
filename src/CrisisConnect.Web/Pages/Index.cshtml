@@ -13,9 +13,12 @@
 
     <div class="col-md-4">
         <div class="card h-100 border-primary">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <span>Offres</span>
+                <span class="badge bg-white text-primary fs-6">@Model.NombreOffres</span>
+            </div>
             <div class="card-body">
-                <h5 class="card-title">Offres</h5>
-                <p class="card-text text-muted">Consultez les ressources disponibles proposées par les acteurs.</p>
+                <p class="card-text text-muted">Ressources disponibles proposées par les acteurs.</p>
                 <a asp-page="/Propositions/Offres" class="btn btn-outline-primary btn-sm">Voir les offres</a>
             </div>
         </div>
@@ -23,9 +26,12 @@
 
     <div class="col-md-4">
         <div class="card h-100 border-warning">
+            <div class="card-header bg-warning d-flex justify-content-between align-items-center">
+                <span>Demandes</span>
+                <span class="badge bg-white text-warning fs-6">@Model.NombreDemandes</span>
+            </div>
             <div class="card-body">
-                <h5 class="card-title">Demandes</h5>
-                <p class="card-text text-muted">Consultez les besoins exprimés par les citoyens et coordinateurs.</p>
+                <p class="card-text text-muted">Besoins exprimés par les citoyens et coordinateurs.</p>
                 <a asp-page="/Propositions/Demandes" class="btn btn-outline-warning btn-sm">Voir les demandes</a>
             </div>
         </div>
@@ -33,9 +39,12 @@
 
     <div class="col-md-4">
         <div class="card h-100 border-success">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <span>Transactions</span>
+                <span class="badge bg-white text-success fs-6">@Model.NombreTransactions</span>
+            </div>
             <div class="card-body">
-                <h5 class="card-title">Transactions</h5>
-                <p class="card-text text-muted">Suivez l'état des échanges entre offres et demandes.</p>
+                <p class="card-text text-muted">Échanges en cours entre offres et demandes.</p>
                 <a asp-page="/Transactions/Index" class="btn btn-outline-success btn-sm">Voir les transactions</a>
             </div>
         </div>
