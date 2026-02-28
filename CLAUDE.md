@@ -1,0 +1,613 @@
+# CLAUDE.md — CrisisConnect
+
+**Guide de référence pour les sessions Claude**
+**Projet :** CrisisConnect (IHDCM032 — LABIL)
+**Stack :** .NET 9 · PostgreSQL · Docker · Clean Architecture
+
+---
+
+## ⚠️ Principes de Travail — LIRE EN PREMIER
+
+1. **Jamais d'affirmation sans preuve.** Dire "j'ai modifié X dans le fichier Y à la ligne Z", pas "c'est fait".
+2. **Vérifier avant d'affirmer.** Lire les fichiers, faire des recherches, tester — ne jamais supposer.
+3. **Diagnostiquer avant de modifier.** Investiguer la cause racine d'abord. Jamais de modifications à l'aveugle.
+4. **Être précis.** Référencer les chemins de fichiers et numéros de ligne dans chaque affirmation.
+5. **Documenter ce qui a réellement été fait.** Les messages de commit listent des changements concrets.
+6. **Ne jamais push sans demander.** Toujours demander la permission avant `git push`, même si ça semble logique.
+7. **Pas d'affirmations absolues.** Éviter "ça va marcher" ou "le build devrait passer" — les résultats externes ne sont pas garantis.
+
+---
+
+## 📋 Contexte du Projet
+
+**CrisisConnect** est une plateforme de gestion de crise permettant de coordonner des bénévoles lors d'événements d'urgence (catastrophes naturelles, crises sanitaires, etc.).
+
+### Acteurs principaux
+| Acteur | Rôle |
+|--------|------|
+| `Citoyen` | Signale un besoin, suit les propositions |
+| `Bénévole` | Accepte/refuse des missions, consulte son planning |
+| `Coordinateur` | Crée des missions, valide les matchings |
+| `Responsable` | Supervision globale, tableau de bord, accès statistiques |
+
+### Fonctionnalités clés
+1. **Gestion des propositions de missions** (création, affectation, suivi)
+2. **Matching bénévoles/missions** (compétences, disponibilité, localisation)
+3. **Authentification & rôles** (JWT, attributionRole, mandat temporel)
+4. **Notifications** (email, push, in-app)
+5. **Journal d'audit** (toutes les actions sensibles tracées)
+6. **Intégration services externes** (cartographie, météo) via Adapter pattern
+
+---
+
+## 🛠️ Stack Technique
+
+### Versions exactes
+| Technologie | Version | Notes |
+|-------------|---------|-------|
+| .NET | **9.0** | `dotnet --version` → `9.0.x` |
+| ASP.NET Core | **9.0** | Web API REST |
+| Entity Framework Core | **9.x** | ORM principal |
+| Npgsql.EF Core | **9.x** | Provider PostgreSQL |
+| PostgreSQL | **16** | Image Docker `postgres:16-alpine` |
+| Docker | 24+ | `docker --version` |
+| Docker Compose | v2 | `docker compose` (sans tiret) |
+
+### Packages NuGet principaux
+```
+# Domain (aucune dépendance externe)
+# rien
+
+# Application
+MediatR
+FluentValidation
+AutoMapper
+
+# Infrastructure
+Microsoft.EntityFrameworkCore
+Npgsql.EntityFrameworkCore.PostgreSQL
+Microsoft.EntityFrameworkCore.Design
+Microsoft.AspNetCore.Authentication.JwtBearer
+BCrypt.Net-Next
+
+# API
+Swashbuckle.AspNetCore           # Swagger/OpenAPI
+Microsoft.AspNetCore.OpenApi     # .NET 9 natif
+Serilog.AspNetCore               # Logging structuré
+```
+
+---
+
+## 🏗️ Architecture — Clean Architecture
+
+### 4 projets (1 solution)
+
+```
+CrisisConnect.sln
+├── src/
+│   ├── CrisisConnect.Domain/          ← Entités, Value Objects, Interfaces, Enums
+│   ├── CrisisConnect.Application/     ← Use Cases, DTOs, CQRS (MediatR), Validators
+│   ├── CrisisConnect.Infrastructure/  ← EF Core, Repositories, Services externes
+│   └── CrisisConnect.API/             ← Controllers, Middleware, DI, Swagger, Program.cs
+└── tests/
+    ├── CrisisConnect.Domain.Tests/
+    ├── CrisisConnect.Application.Tests/
+    └── CrisisConnect.Infrastructure.Tests/
+```
+
+### Règle de dépendance (stricte)
+```
+API → Application → Domain
+Infrastructure → Application → Domain
+```
+- `Domain` : **zéro dépendance** externe
+- `Application` : dépend uniquement de `Domain`
+- `Infrastructure` : implémente les interfaces de `Domain`/`Application`
+- `API` : orchestre tout, inject les implémentations
+
+### Structure interne Domain
+```
+CrisisConnect.Domain/
+├── Entities/
+│   ├── Acteur.cs              # abstract
+│   ├── Personne.cs            # : Acteur
+│   ├── Entite.cs              # : Acteur
+│   ├── Proposition.cs
+│   ├── Mission.cs
+│   ├── Matching.cs
+│   ├── Transaction.cs
+│   ├── Notification.cs
+│   ├── JournalEntree.cs
+│   └── Configuration/
+│       ├── TypeRole.cs
+│       ├── NiveauBadge.cs
+│       └── ...
+├── ValueObjects/
+│   ├── Adresse.cs
+│   ├── Localisation.cs        # lat/lon
+│   └── PlageTempsorelle.cs
+├── Enums/
+│   ├── StatutProposition.cs   # Ouverte/Affectee/Cloturee
+│   ├── StatutMission.cs       # Planifiee/EnCours/Terminee/Annulee
+│   ├── StatutMatching.cs      # EnAttente/Accepte/Refuse
+│   ├── StatutTransaction.cs
+│   ├── StatutPanier.cs
+│   └── Visibilite.cs
+├── Interfaces/
+│   ├── Repositories/          # IPropositionRepository, etc.
+│   └── Services/              # INotificationService, ICartoService, etc.
+└── Exceptions/
+    ├── DomainException.cs
+    └── NotFoundException.cs
+```
+
+### Structure interne Application
+```
+CrisisConnect.Application/
+├── UseCases/
+│   ├── Propositions/
+│   │   ├── CreateProposition/
+│   │   │   ├── CreatePropositionCommand.cs
+│   │   │   ├── CreatePropositionCommandHandler.cs
+│   │   │   └── CreatePropositionValidator.cs
+│   │   └── GetPropositions/
+│   │       ├── GetPropositionsQuery.cs
+│   │       └── GetPropositionsQueryHandler.cs
+│   ├── Matching/
+│   ├── Auth/
+│   └── ...
+├── DTOs/
+│   ├── PropositionDto.cs
+│   └── ...
+├── Mappings/
+│   └── MappingProfile.cs      # AutoMapper
+└── Common/
+    ├── Behaviours/
+    │   ├── ValidationBehaviour.cs
+    │   └── LoggingBehaviour.cs
+    └── Interfaces/
+        └── ICurrentUserService.cs
+```
+
+### Structure interne Infrastructure
+```
+CrisisConnect.Infrastructure/
+├── Persistence/
+│   ├── AppDbContext.cs
+│   ├── Configurations/        # IEntityTypeConfiguration<T>
+│   │   ├── PropositionConfiguration.cs
+│   │   └── ...
+│   ├── Repositories/
+│   │   ├── PropositionRepository.cs
+│   │   └── ...
+│   └── Migrations/            # EF Core migrations (auto-générées)
+├── Services/
+│   ├── JwtService.cs
+│   ├── NotificationService.cs
+│   ├── CartoAdapter.cs        # Adapter pattern (service externe)
+│   └── MeteoAdapter.cs
+└── DependencyInjection.cs     # Extension AddInfrastructure()
+```
+
+---
+
+## 🐳 Docker
+
+### Fichiers Docker
+```
+CrisisConnect/
+├── docker-compose.yml
+├── docker-compose.override.yml    # dev local (hot reload, ports)
+├── .env                           # variables d'environnement (non commité)
+├── .env.example                   # template commité
+└── src/CrisisConnect.API/
+    └── Dockerfile
+```
+
+### docker-compose.yml (production-like)
+```yaml
+services:
+  api:
+    build:
+      context: .
+      dockerfile: src/CrisisConnect.API/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__Default=${DB_CONNECTION_STRING}
+      - Jwt__Secret=${JWT_SECRET}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+```
+
+### docker-compose.override.yml (dev)
+```yaml
+services:
+  api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    volumes:
+      - ./src:/app/src    # hot reload
+```
+
+### Dockerfile (multi-stage)
+```dockerfile
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+COPY ["src/CrisisConnect.API/CrisisConnect.API.csproj", "src/CrisisConnect.API/"]
+COPY ["src/CrisisConnect.Application/CrisisConnect.Application.csproj", "src/CrisisConnect.Application/"]
+COPY ["src/CrisisConnect.Infrastructure/CrisisConnect.Infrastructure.csproj", "src/CrisisConnect.Infrastructure/"]
+COPY ["src/CrisisConnect.Domain/CrisisConnect.Domain.csproj", "src/CrisisConnect.Domain/"]
+RUN dotnet restore "src/CrisisConnect.API/CrisisConnect.API.csproj"
+COPY . .
+RUN dotnet publish "src/CrisisConnect.API/CrisisConnect.API.csproj" -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "CrisisConnect.API.dll"]
+```
+
+### .env.example
+```env
+POSTGRES_DB=crisisconnect
+POSTGRES_USER=crisisconnect_user
+POSTGRES_PASSWORD=change_me_in_production
+DB_CONNECTION_STRING=Host=db;Database=crisisconnect;Username=crisisconnect_user;Password=change_me_in_production
+JWT_SECRET=change_me_minimum_32_characters_long
+```
+
+---
+
+## 💾 Base de Données (EF Core + PostgreSQL)
+
+### Connection string (appsettings.Development.json)
+```json
+{
+  "ConnectionStrings": {
+    "Default": "Host=localhost;Port=5432;Database=crisisconnect;Username=crisisconnect_user;Password=change_me_in_production"
+  }
+}
+```
+
+### Conventions de nommage PostgreSQL
+- Tables : `snake_case` pluriel → `propositions`, `acteurs`, `matchings`
+- Colonnes : `snake_case` → `statut_proposition`, `created_at`
+- Configurer via `UseSnakeCaseNamingConvention()` (package EFCore.NamingConventions)
+
+### Configuration EF Core (DbContext)
+```csharp
+// AppDbContext.cs
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+    // Configurations dans Persistence/Configurations/*.cs
+}
+```
+
+### Commandes migrations (depuis racine solution)
+```bash
+# Créer une migration
+dotnet ef migrations add NomMigration \
+  --project src/CrisisConnect.Infrastructure \
+  --startup-project src/CrisisConnect.API
+
+# Appliquer les migrations
+dotnet ef database update \
+  --project src/CrisisConnect.Infrastructure \
+  --startup-project src/CrisisConnect.API
+
+# Revenir à une migration précédente
+dotnet ef database update NomMigrationCible \
+  --project src/CrisisConnect.Infrastructure \
+  --startup-project src/CrisisConnect.API
+
+# Supprimer dernière migration (non appliquée)
+dotnet ef migrations remove \
+  --project src/CrisisConnect.Infrastructure \
+  --startup-project src/CrisisConnect.API
+```
+
+---
+
+## 🔐 Authentification JWT
+
+- **Algorithme :** HS256
+- **Claims :** `sub` (userId), `role`, `email`, `exp`
+- **Durée token :** 1h (access) + 7j (refresh)
+- **Stockage côté client :** HttpOnly cookie (pas localStorage)
+- Les rôles correspondent aux acteurs : `Citoyen`, `Benevole`, `Coordinateur`, `Responsable`
+
+---
+
+## 📐 Conventions de Code
+
+### Nommage C#
+| Élément | Convention | Exemple |
+|---------|-----------|---------|
+| Classes, interfaces | PascalCase | `PropositionService`, `IMatchingRepository` |
+| Méthodes | PascalCase | `GetPropositionByIdAsync()` |
+| Variables locales, paramètres | camelCase | `propositionId`, `currentUser` |
+| Propriétés | PascalCase | `StatutProposition`, `DateCreation` |
+| Constantes | PascalCase | `MaxBenevoles` |
+| Champs privés | `_camelCase` | `_repository`, `_logger` |
+
+### Patterns obligatoires
+- **CQRS via MediatR** : toute opération = Command (écriture) ou Query (lecture)
+- **Repository pattern** : jamais d'accès direct à `AppDbContext` hors Infrastructure
+- **Result pattern** ou exceptions domaine : pas de `null` return pour les erreurs
+- **Async/await partout** : toutes les méthodes I/O sont asynchrones (`Async` suffix)
+
+### Endpoints REST
+```
+GET    /api/propositions              # liste paginée
+GET    /api/propositions/{id}         # détail
+POST   /api/propositions              # créer
+PUT    /api/propositions/{id}         # remplacer
+PATCH  /api/propositions/{id}         # modifier partiellement
+DELETE /api/propositions/{id}         # supprimer
+
+GET    /api/missions/{id}/matchings   # matchings d'une mission
+POST   /api/auth/login
+POST   /api/auth/refresh
+POST   /api/auth/logout
+```
+
+### Réponses HTTP standard
+| Situation | Code |
+|-----------|------|
+| Succès lecture | 200 OK |
+| Ressource créée | 201 Created + Location header |
+| Pas de contenu | 204 No Content |
+| Erreur validation | 400 Bad Request + ProblemDetails |
+| Non authentifié | 401 Unauthorized |
+| Accès refusé | 403 Forbidden |
+| Non trouvé | 404 Not Found + ProblemDetails |
+| Erreur serveur | 500 Internal Server Error |
+
+---
+
+## 🔧 Commandes Utiles
+
+### Développement
+```bash
+# Lancer l'environnement complet (API + DB)
+docker compose up -d
+
+# Lancer uniquement la DB (dev local sans container API)
+docker compose up -d db
+
+# Voir les logs
+docker compose logs -f api
+
+# Arrêter
+docker compose down
+
+# Arrêter + supprimer les volumes (reset BDD)
+docker compose down -v
+```
+
+### Build & Tests
+```bash
+# Build solution complète
+dotnet build
+
+# Lancer tous les tests
+dotnet test
+
+# Tests avec coverage
+dotnet test --collect:"XPlat Code Coverage"
+
+# Lancer l'API en dev (avec hot reload)
+dotnet watch run --project src/CrisisConnect.API
+```
+
+### EF Core
+```bash
+# Voir l'état des migrations
+dotnet ef migrations list \
+  --project src/CrisisConnect.Infrastructure \
+  --startup-project src/CrisisConnect.API
+```
+
+### Qualité
+```bash
+# Format code
+dotnet format
+
+# Analyse statique
+dotnet build /p:TreatWarningsAsErrors=true
+```
+
+---
+
+## 📁 Structure Fichiers Racine du Repo
+
+```
+CrisisConnect/                     ← racine du repo
+├── CrisisConnect.sln
+├── CLAUDE.md                      ← ce fichier
+├── README.md                      ← documentation projet
+├── .gitignore
+├── .env.example                   ← template variables d'environnement
+├── docker-compose.yml
+├── docker-compose.override.yml
+├── src/
+│   ├── CrisisConnect.API/
+│   ├── CrisisConnect.Application/
+│   ├── CrisisConnect.Domain/
+│   └── CrisisConnect.Infrastructure/
+└── tests/
+    ├── CrisisConnect.Domain.Tests/
+    ├── CrisisConnect.Application.Tests/
+    └── CrisisConnect.Infrastructure.Tests/
+```
+
+### .gitignore indispensable
+```gitignore
+# .env (secrets)
+.env
+
+# Build
+bin/
+obj/
+*.user
+
+# Rider / VS / VSCode
+.idea/
+.vs/
+.vscode/
+
+# NuGet
+*.nupkg
+packages/
+
+# Logs
+*.log
+```
+
+---
+
+## 🎯 Priorités de Développement
+
+### Ordre recommandé
+1. **Setup initial** : solution, projets, docker-compose, connexion DB vérifiée
+2. **Domain** : entités, value objects, enums, interfaces (aucune dépendance)
+3. **Infrastructure/Persistence** : AppDbContext, configurations EF, première migration
+4. **Application** : use cases CQRS prioritaires (CreateProposition, GetPropositions, etc.)
+5. **API** : controllers, auth JWT, Swagger
+6. **Tests** : unitaires Domain/Application, intégration Infrastructure
+
+### Use cases prioritaires (MVP)
+1. `RegisterActeur` / `Login` / `RefreshToken`
+2. `CreateProposition` / `GetPropositions` / `GetPropositionById`
+3. `CreateMission` / `AssignBenevole` (matching simple)
+4. `GetNotifications` / `MarkAsRead`
+
+---
+
+## ⚠️ Règles de Travail
+
+1. **Ne jamais commiter `.env`** (contient les secrets)
+2. **Toujours ajouter `Async` suffix** sur les méthodes asynchrones
+3. **Migrations = 1 par fonctionnalité** (pas de mega-migration)
+4. **Pas d'accès direct `AppDbContext`** dans Application ou API
+5. **Swagger actif en Development uniquement**
+6. **Logs structurés** (Serilog) — jamais de `Console.WriteLine`
+7. **Mettre à jour ce CLAUDE.md** si la stack ou l'architecture change
+
+---
+
+## ✅ Bonnes Pratiques
+
+### À faire
+- Lire les fichiers avant de les modifier
+- Utiliser les outils dédiés (`Read`/`Edit`/`Write`) plutôt que bash pour les opérations sur les fichiers
+- Référencer les chemins et numéros de ligne dans chaque affirmation
+- Tester les changements avant de commiter
+- Utiliser `IHttpClientFactory` pour tous les clients HTTP (CartoAdapter, MeteoAdapter)
+- Utiliser le Result pattern ou les exceptions domaine — jamais `null` comme signal d'erreur
+
+### À ne pas faire
+- Ne pas push sur GitHub sans permission explicite
+- Ne pas faire d'affirmations absolues sur des systèmes externes
+- Ne pas utiliser bash pour les opérations sur les fichiers (utiliser `Read`/`Edit`/`Write`)
+- Ne pas instancier `HttpClient` directement (risque de socket exhaustion)
+- Ne pas accéder à `AppDbContext` hors de la couche Infrastructure
+- Ne pas exposer les stack traces dans les réponses API en Production
+
+---
+
+## 🔁 Tâches Courantes
+
+### Ajouter une nouvelle entité
+1. Créer l'entité dans `CrisisConnect.Domain/Entities/` (hériter d'une classe de base si applicable)
+2. Créer l'interface repository dans `CrisisConnect.Domain/Interfaces/Repositories/`
+3. Ajouter le `DbSet<T>` dans `AppDbContext`
+4. Créer la configuration EF Core dans `CrisisConnect.Infrastructure/Persistence/Configurations/`
+5. Implémenter le repository dans `CrisisConnect.Infrastructure/Persistence/Repositories/`
+6. Enregistrer dans `DependencyInjection.cs`
+7. Créer la migration : `dotnet ef migrations add AddNomEntite --project src/CrisisConnect.Infrastructure --startup-project src/CrisisConnect.API`
+8. Appliquer : `dotnet ef database update ...`
+
+### Ajouter un use case (CQRS)
+1. Créer le dossier `CrisisConnect.Application/UseCases/{Feature}/{UseCaseName}/`
+2. Créer `{UseCaseName}Command.cs` ou `{UseCaseName}Query.cs` (record, IRequest<T>)
+3. Créer `{UseCaseName}Handler.cs` (IRequestHandler<TRequest, TResponse>)
+4. Créer `{UseCaseName}Validator.cs` si validation nécessaire (AbstractValidator<T>)
+5. Créer le DTO de retour dans `DTOs/` si nécessaire
+6. Ajouter le mapping dans `MappingProfile.cs`
+7. Appeler depuis le controller via `_mediator.Send(command)`
+
+### Ajouter un endpoint
+1. Créer ou ouvrir le controller dans `CrisisConnect.API/Controllers/`
+2. Injecter `IMediator` (via constructeur)
+3. Appliquer `[Authorize(Roles = "...")]` selon les acteurs autorisés
+4. Retourner les codes HTTP standards (voir section Conventions)
+5. Documenter avec `/// <summary>` pour Swagger
+
+---
+
+## 🔧 Dépannage
+
+### Warnings CS8604/CS8602 (null reference)
+- Vérifier les types nullable (`string?`, `T?`)
+- Ajouter des vérifications null avant l'appel : `if (value is not null)`
+- Utiliser l'opérateur null-forgiving `!` uniquement si la valeur est certaine non-null
+
+### Migration EF Core échoue
+- Vérifier que `AppDbContext` est bien enregistré dans `Program.cs`
+- Vérifier que `IDesignTimeDbContextFactory<AppDbContext>` existe dans Infrastructure si nécessaire
+- Toujours spécifier `--project` et `--startup-project` (ne pas omettre)
+
+### Erreur de connexion PostgreSQL
+- Vérifier que le container `db` est healthy : `docker compose ps`
+- En dev local sans Docker : vérifier que PostgreSQL tourne sur le port 5432
+- La connection string dans `appsettings.Development.json` utilise `localhost`, celle dans Docker utilise `db` (nom du service)
+
+### LINQ avec listes en mémoire
+- Ne pas faire `dbSet.Where(x => localList.Contains(x.Id))` directement si la liste est complexe
+- Extraire les IDs d'abord : `var ids = list.Select(x => x.Id).ToList()` puis `Where(x => ids.Contains(x.Id))`
+
+### HttpClient dans les Adapters
+- Toujours utiliser `IHttpClientFactory` (injecté via DI)
+- Enregistrer dans `DependencyInjection.cs` : `services.AddHttpClient<CartoAdapter>()`
+
+---
+
+## 📝 Méthodologie Sessions Claude
+
+### En début de session
+1. Lire CLAUDE.md en priorité
+2. Vérifier `git status` et `docker compose ps`
+3. Vérifier les migrations : `dotnet ef migrations list ...`
+
+### Créer une section "Session en cours" en bas du fichier
+- Documenter les étapes avec ✅ / ⏳ / ⬜
+- En cas d'erreur : noter le message exact + solution trouvée
+- En fin de session : simplifier en résumé dans l'historique
+
+### Historique des sessions
+_(à remplir au fur et à mesure)_
