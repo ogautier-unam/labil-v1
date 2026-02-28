@@ -8,6 +8,7 @@ using CrisisConnect.Application.UseCases.Offres.GetOffres;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositionById;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositions;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CrisisConnect.API.Controllers;
@@ -65,8 +66,10 @@ public class PropositionsController : ControllerBase
 
     /// <summary>Crée une nouvelle offre.</summary>
     [HttpPost("offres")]
+    [Authorize]
     [ProducesResponseType<OffreDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> CreateOffre([FromBody] CreateOffreCommand command, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(command, cancellationToken);
@@ -96,8 +99,10 @@ public class PropositionsController : ControllerBase
 
     /// <summary>Crée une nouvelle demande.</summary>
     [HttpPost("demandes")]
+    [Authorize]
     [ProducesResponseType<DemandeDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> CreateDemande([FromBody] CreateDemandeCommand command, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(command, cancellationToken);
