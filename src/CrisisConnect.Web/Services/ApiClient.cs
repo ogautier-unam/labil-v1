@@ -12,6 +12,25 @@ public class ApiClient
         _http = http;
     }
 
+    // ── Auth ──────────────────────────────────────────────────────────────────
+
+    public async Task<AuthResponseModel?> LoginAsync(string email, string motDePasse, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("api/auth/login", new { Email = email, MotDePasse = motDePasse }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<AuthResponseModel>(ct);
+    }
+
+    public async Task<AuthResponseModel?> RegisterAsync(
+        string email, string motDePasse, string role, string prenom, string nom,
+        string? telephone = null, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("api/auth/register",
+            new { Email = email, MotDePasse = motDePasse, Role = role, Prenom = prenom, Nom = nom, Telephone = telephone }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<AuthResponseModel>(ct);
+    }
+
     // ── Offres ────────────────────────────────────────────────────────────────
 
     public Task<IReadOnlyList<OffreModel>?> GetOffresAsync(CancellationToken ct = default)

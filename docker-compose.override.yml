@@ -4,5 +4,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__Default=Host=db;Port=5432;Database=crisisconnect;Username=crisisconnect_user;Password=change_me_in_production
-    volumes:
-      - ./src:/app/src
+
+  web:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ApiSettings__BaseUrl=http://api:8080

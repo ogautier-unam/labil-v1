@@ -726,3 +726,20 @@ packages/
 ✅ appsettings.json : BaseUrl=http://localhost:8080 (prod) / appsettings.Development.json : BaseUrl=http://localhost:5072
 ✅ _Layout.cshtml : navbar Bootstrap 5.3 (rouge CrisisConnect), dropdown Propositions, liens Transactions/Auth
 ✅ Pages : Index (tableau de bord 3 cards), Propositions/Index, Propositions/Offres, Propositions/Demandes, Transactions/Index, Auth/Login
+
+#### Session 6 — 2026-02-28 — Docker Web + Paniers + Auth Web fonctionnel
+✅ src/CrisisConnect.Web/Dockerfile (multi-stage, sdk:10.0)
+✅ docker-compose.yml : service web (port 8081→8080, ApiSettings__BaseUrl=http://api:8080) + Jwt__Issuer/Audience pour api
+✅ docker-compose.override.yml : service web dev
+✅ .env.example : JWT_ISSUER, JWT_AUDIENCE ajoutés
+✅ Panier use cases : CreatePanier, GetPanier, AjouterOffreAuPanier, ConfirmerPanier, AnnulerPanier
+✅ PanierDto + MappingProfile mis a jour (Panier → PanierDto avec Offres)
+✅ PanierController : GET /api/paniers?proprietaireId, POST, POST /{id}/offres, PATCH /{id}/confirmer, PATCH /{id}/annuler
+✅ JwtCookieHandler : DelegatingHandler injectant le Bearer token depuis le claim "access_token" du cookie
+✅ ApiClient : LoginAsync, RegisterAsync ajoutés
+✅ Program.cs Web : AddAuthentication(Cookie), AddHttpContextAccessor, JwtCookieHandler enregistré
+✅ Auth/Login : appel réel à POST /api/auth/login + SignInAsync avec cookie (claims : UserId, Email, Role, access_token)
+✅ Auth/Register : inscription + connexion automatique
+✅ Auth/Logout : SignOutAsync + redirect Index
+✅ _Layout.cshtml : affichage User.Identity.Name + Role si connecté, bouton Déconnexion (form POST), sinon S'inscrire/Connexion
+✅ Build : 0 erreur
