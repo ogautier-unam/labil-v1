@@ -143,4 +143,27 @@ public class ApiClient
         var response = await _http.PatchAsync($"api/notifications/{notificationId}/read", null, ct);
         return response.IsSuccessStatusCode;
     }
+
+    // ── Config Catastrophe ────────────────────────────────────────────────────
+
+    public Task<ConfigCatastropheModel?> GetConfigCatastropheAsync(CancellationToken ct = default)
+        => _http.GetFromJsonAsync<ConfigCatastropheModel>("api/config-catastrophe", ct);
+
+    public async Task<ConfigCatastropheModel?> CreateConfigCatastropheAsync(
+        string nom, string description, string zoneGeographique, string etatReferent,
+        int delaiArchivageJours = 30, int delaiRappelAvantArchivage = 7,
+        CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("api/config-catastrophe", new
+        {
+            Nom = nom,
+            Description = description,
+            ZoneGeographique = zoneGeographique,
+            EtatReferent = etatReferent,
+            DelaiArchivageJours = delaiArchivageJours,
+            DelaiRappelAvantArchivage = delaiRappelAvantArchivage
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<ConfigCatastropheModel>(ct);
+    }
 }
