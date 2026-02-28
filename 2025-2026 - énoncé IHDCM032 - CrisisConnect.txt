@@ -1,0 +1,428 @@
+                                                               1
+
+
+
+
+      IHDCM032 – Laboratoire d’ingénierie du logiciel
+                      Énoncé du travail
+CrisisConnect – Citizen Platform for Crisis Response and Aid
+                        Coordination
+                       V. Englebert, Prof.
+
+                        13 février 2026
+                                                                                                                          2
+
+
+Table des matières
+
+1   Motivations                                                                                                           2
+
+2 Objectifs                                                                                                               2
+
+3 Terminologie                                                                                                            3
+  3.1 Les acteurs . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   3
+  3.2 Autres termes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     3
+
+4 Hypothèses                                                                                                              4
+
+5 Exigences                                                                                                               4
+  5.1 Offres & Demandes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       5
+      5.1.1 Offres . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    6
+      5.1.2 Demande . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       6
+      5.1.3 Propositions spécifiques . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .          6
+  5.2 Matching . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    7
+  5.3 Taxonomie des propositions . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .        7
+  5.4 Exemples . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    8
+      5.4.1 Recherche de proches . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .          8
+      5.4.2 Élevage . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     8
+      5.4.3 L’école . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     8
+      5.4.4 LaBricole . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     8
+      5.4.5 Rochebranle . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       8
+      5.4.6 Toufeutouflam . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       9
+      5.4.7 Grosemilo . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .       9
+      5.4.8 Doodoocity . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .      9
+                                                                                                                                     3
+
+
+1    Motivations
+Les inondations que la Belgique a connues en 2021 ont été une épreuve inédite pour notre pays, mais sans
+doute aussi en Europe. Elles ont démontré que les aides structurelles ne pouvaient subvenir aux besoins en
+temps utile. Très rapidement, une aide spontanée et citoyenne s’est manifestée, mais on a alors constaté
+un déficit de coordination. Cette dernière s’est principalement opérée sur les réseaux sociaux, par les villes,
+associations ou des citoyens avec les meilleures volontés, mais aucune infrastructure n’a pu supporter ou
+coordonner cette tâche adéquatement.
+Le but de ce projet est de développer une plateforme permettant de gérer et de coordonner les aides dans le
+contexte d’une catastrophe naturelle 1 . Cette plateforme comprendra un ensemble de logiciels qui seront tous
+développés selon une licence open source qui devra être la plus permissive possible selon les contraintes
+(pollution par des dépendances de librairies indispensables par exemple). Le but étant que des entités (éta-
+tiques ou caritatives) puissent se l’approprier pour la déployer utilement ou poursuivre son développement
+avec l’aide de la communauté open source.
+
+
+2     Objectifs
+Le principe général est de fournir une plateforme de médiation entre des demandes et des propositions
+d’aide. Ces aides peuvent émaner d’individus ou d’organisations. Toutefois, il n’est, a priori, pas question ici
+de proposer une plateforme pour la gestion des indemnisations, des formalités/démarches administratives,
+gérer l’aide médicale ou les interventions urgentes (Numéros 112,1722), etc. Le but n’est pas de substituer à
+l’état, mais de faciliter les démarches complémentaires à celles proposées typiquement par l’état.
+Les objectifs de la plateforme que vous serez amenés à développer sont multiples :
+    1. La plateforme devra être « responsive » 2 pour les aspects concernant les utilisateurs.
+    2. Structurer l’aide de la manière la plus opportune. Selon l’aide demandée ou proposée, il est oppor-
+       tun de devoir/pouvoir aisément proposer certaines informations afin d’en apprécier la pertinence. Par
+       exemple, l’hébergement d’un animal nécessitera de connaître son degré de socialisation, son âge, ses
+       problèmes de santé, etc. Le but n’est pas de contraindre, mais bien de venir en aide afin de maxi-
+       miser les chances de voir des demandes et offres d’aide se rencontrer, sans toutefois compliquer les
+       démarches. C’est ici un compromis délicat.
+    3. Accroître la confiance dans les informations (offres, services, acteurs, conseils, etc) en offrant un maxi-
+       mum d’authentification des acteurs dans un contexte où il peut être difficile de fournir les preuves
+       usuelles d’une identité authentifiée. Par exemple, des sinistrés peuvent avoir perdu toutes leurs af-
+       faires, y compris leur portefeuille, téléphone mobile ou documents officiels. Comment leur venir en
+       aide, alors que cela peut être une opportunité pour des escroqueries diverses.
+    4. La plateforme devra être ouverte à de nouveaux services, aides, ou types d’acteurs aisément en adop-
+       tant une approche très générique.
+    5. La plateforme devra être accessible par un maximum de personnes avec une accessibilité maximale.
+       Les auteurs pourront par exemple se référer à ce référentiel : « Web Content Accessibility Guidelines
+       (WCAG) » 3 4 .
+    6. La plateforme devra être conçue pour être utilisée à l’international, elle sera donc multilingue 5 et
+       plurilingue 6 7 .
+   1. Les autres types de catastrophe n’ont pas été pris en compte (incident nucléaire, rupture barrage, guerre, terrorisme, . . .).
+   2. https://en.wikipedia.org/wiki/Responsive_web_design
+   3. https://www.w3.org/WAI/standards-guidelines/wcag/
+  4. Des outils peuvent valider les règles du WCAG, une liste est disponible à cette adresse : https://www.w3.org/WAI/ER/tools/
+   5. L’application doit pouvoir être configurée en fonction d’une langue et extensible à d’autres langues.
+   6. Chaque utilisateur peut choisir la langue usuelle parmi celles qui lui sont proposées.
+   7. Les termes « plurilingue » et « multilingue » sont synonymes, mais nous les utiliserons de manière spécifique avec les subtilités
+évoquées dans le texte.
+                                                                                                                 4
+
+
+      7. Un projet conjoint au développement de cette plateforme pourra consister dans le développement
+         d’une application mobile spécifique (Android/iOS).
+     8. Toutes les facilités afin d’étendre la plateforme seront documentées, si possible en anglais.
+     9. Le développement de la plateforme ayant vocation à être poursuivi par des personnes tierces et à
+        évoluer dans le temps, une très grande importance sera octroyée à sa documentation et aux respect
+        de toutes les bonnes pratiques en la matière (voir IHDCM031, IHDCM034, IHDCM035, IHDCB330,
+        IHDCB336, IHDCB334, IHDCB335, etc) .
+    10. Les logiciels produits ou requis seront disponibles gratuitement, en open source et sans plus de ga-
+        ranties. Ils pourront être rendus publics
+    11. Le développement s’accompagnera d’une suite de tests documentés.
+    12. La plateforme devra être utile dans tous les types de catastrophes naturelles (tornade, ouragan, tsu-
+        nami, inondation, éruption volcanique, tempête de neige, orages, grêles, foudres, incendies & feux
+        de forêts, chaleur extrême et vague de chaleur, sécheresse, glissements de terrain, tremblement de
+        terre, invasion d’insectes, pandémie. . .) moyennant l’existence d’une infrastructure de communication
+        satisfaisante (ADSL, fibre, 4/5G, Starlink 8 . . .). La plateforme veillera à minimiser l’usage de la bande
+        passante.
+
+
+3      Terminologie
+3.1     Les acteurs
+Les acteurs peuvent exercer plusieurs rôles simultanément :
+     Contributeur : Toute personne qui contribue au développement de la plateforme via un repository ouvert
+       de code source comme GitHub.
+     Utilisateur : Toute personne concernée au premier degré par la catastrophe concernée, soit parce qu’elle
+        veut apporter une aide sincère, soit parce que la catastrophe l’amène a exprimer des besoins légitimes.
+     Administrateur install (AI) : Toute personne en charge de l’installation et du déploiement de la plate-
+       forme dans sa version générique.
+     Administrateur catastrophe (AC) : Toute personne ayant les privilèges pour configurer la plateforme
+       selon les spécificités de la catastrophe. Cette personne a une bonne connaissance métier du contexte.
+     Administrateur système (AS) : Toute personne ayant les privilèges pour administrer la version déployée
+       de la plateforme au quotidien.
+
+3.2     Autres termes
+     Plateforme : Le système logiciel mis à disposition des utilisateurs concernés de près ou de loin par la
+        catastrophe.
+     Offre : Une aide proposée par un utilisateur sur la plateforme.
+     Demande : Une aide sollicitée par un utilisateur via la plateforme.
+     Proposition : Une offre ou une demande.
+     Entité : Organisme reconnu et de réputation. L’AC décide quelles sont les entités acceptées par la plate-
+       forme (par ex. MSF, Croix rouge, ASBL, unité de scouts, association philosophique ou religieuse, etc).
+    8. https://starlink.com
+                                                                                                                                   5
+
+
+4     Hypothèses
+    1. La zone couverte par le sinistre sera régie de manière cohérente du point de vue légal. Typiquement,
+       elle sera incluse dans un seul pays ou état 9 , quand bien même la zone sinistrée peut bien entendu
+       être à cheval sur plusieurs. On appellera « état référent » l’entité politique et juridique dont dépend la
+       zone sinistrée gérée par la plateforme.
+    2. La zone couverte pourra être plurilingue. Les langues ne sont pas limitées aux langues officielles
+       du pays mais peuvent s’étendre aux langues usuellement pratiquées. On omettra néanmoins les dia-
+       lectes, langues régionales, etc. On se référera à un registre standardisé et reconnu pour caractériser
+       les langues.
+    3. La zone sinistrée couverte pourra comprendre plusieurs villes.
+    4. Aucune contribution financière ne pourra être sollicitée pour l’usage de cette plateforme ou pour son
+       exploitation.
+    5. La plateforme se conformera aux prescriptions du RGPD.
+    6. Toute publicité ne répondant pas à un objectif philanthropique en phase avec les autres objectifs sera
+       interdite.
+
+
+5     Exigences
+    1. L’AI configure la plateforme afin qu’elle soit opérationnelle et installe tous les composants logiciels
+       nécessaires pour la suite.
+    2. L’AC configure la plateforme en fonction des spécificités de la catastrophe naturelle (catalogues de
+       produits/offres, langues, modes d’identification, etc).
+    3. La plateforme proposera une taxonomie (extensible par l’AC) pour la classification des offres et de-
+       mandes. Une taxonomie figure en annexe 5.3
+    4. Le système sera capable de gérer différents types d’acteurs : 1) des personnes, 2) des entités et 3) des
+       personnes disposant de rôles dans le système et accrédités par des entités. Tout organisme est associé
+       à une personne identifiée formellement et ayant autorité pour accréditer des rôles à des personnes
+       tierces en engageant sa responsabilité. Les types de rôles seront définis en fonction des besoins de
+       gestion et de sécurité.
+    5. Une entité peut être ajoutée ou supprimée au cours du temps par l’AS et/ou l’AC.
+    6. Les rôles peuvent être accordés pour une durée limitée et/ou reconductible. Un mécanisme de rappel
+       s’assurera qu’un rôle limité dans le temps a bien été reconduit si besoin.
+    7. Tout acteur devra pouvoir être identifié de différentes manières. Par exemple :
+       — Par une vérification électronique via la carte d’identité.
+       — Par une association authentifiée avec une ressource associée à une identité validée par un orga-
+          nisme de confiance tiers : une opération bancaire, un SMS, une facture d’électricité récente, un
+          numéro de téléphone fixe, etc
+       — Par délégation : une personne déjà authentifiée, par un procédé fiable, atteste de l’identité d’une
+          tierce personne. La délégation pourrait, dans ce cas, ne pas être considérée comme un procédé
+          fiable.
+       Ces moyens d’identification ne seront utilisés que pour la création du compte ou pour rétablir la
+       confiance dans l’identité (après des tentatives d’identification erronées, après un délai anormalement
+       long, etc).
+    8. L’identification sur le système se fera a minima par Login/Password. D’autres modalités peuvent être
+       ajoutées.
+   9. Cette restriction est certes discutable mais affranchit la conception de la plateforme de nombreuses contraintes ou difficultés
+liées aux grandes diversités de législations, langues, cultures, pratiques commerciales ou financières entre pays.
+5.1   Offres & Demandes                                                                                         6
+
+
+    9. Un utilisateur pourra donner un mandat à un tiers pour opérer sur la plateforme en son nom. L’informa-
+       tion sera publique et publiée en temps opportun. La situation de catastrophe nécessite ici une grande
+       souplesse, mais également la nécessité lorsque cela est possible de renforcer la confiance et les res-
+       ponsabilités des uns et des autres pour le bon fonctionnement de la coopération. Les développeurs
+       feront preuve de créativité lors de l’idéation des solutions.
+  10. La plateforme gardera un journal de toutes les opérations réalisées. Ce journal sera suffisamment
+       structuré afin d’en permettre une analyse automatique.
+   11. La plateforme permettra de consulter les propositions en proposant un accès par filtres, critères, re-
+       cherches simples ou complexes, géolocalisation, localisation sur une carte, etc.
+       Attendu que la plateforme pourra héberger un nombre considérables de propositions, on veillera à
+       proposer un affichage souple et intelligent qui s’adapte dynamiquement aux critères de l’utilisateur
+       afin de ne pas le noyer dans une masse d’informations.
+  12. Les utilisateurs pourront disposer d’un profil avec des informations utiles (adresse, moyens de contact,
+       photo. . .). Toutes les informations doivent être utiles directement ou indirectement aux objectifs pre-
+       miers de la plateforme. Cette dernière n’a pas vocation à supplanter un réseau social.
+  13. Les entités validées disposeront d’une page de présentation synthétique avec toutes les informations
+       nécessaires en fonction du contexte (comment faire un don, moyens de contact, nature de leurs contri-
+       butions, etc).
+  14. L’identité des utilisateurs pourra être authentifiée par toutes les façons fournies par la plateforme et
+       acceptée par l’AC. Par exemple, il sera possible de s’authentifier comme suit :
+       — Par une carte d’identité électronique.
+       — Par une association validée avec un numéro de téléphone (envoi d’un challenge sur un numéro de
+           téléphone par SMS ou via messagerie).
+       — Par une photo d’une carte d’identité, avec éventuellement un contexte (la personne figure sur la
+           photo).
+       — Par une discussion (téléphonique, chat, etc) entre la personne et un employé.
+       — Par un parrainage de n utilisateurs déjà identifiés.
+       Ces techniques peuvent donc être plus ou moins formelles ou automatiques. Il est important ici d’être
+       flexible et d’autoriser un grand nombre de stratégies d’identification dans la mesure où la plateforme
+       pourrait être déployée dans des pays émergents par exemple. La modalité d’authentification sera
+       connue pour chaque utilisateur, car la confiance reste une qualité primordiale pour cette plateforme.
+       Un mécanisme de badges (par ex. vert/orange/rouge) pourra être utilisé pour cerner rapidement la
+       fiabilité d’une identité.
+  15. La mise à disposition de textes exprimés dans une langue spécifique se fera soit par la disponibi-
+       lité d’un corpus disponible dans l’application soit par l’invocation d’un traducteur automatique 10 . Une
+       mention indiquera si le texte provient d’un corpus (par défaut) ou d’une traduction automatique. Tant
+       les textes propres à la plateforme que les données propres aux utilisateurs pourront être traduits. La
+       version originale restera toujours consultable par les utilisateurs.
+  16. Dans la mesure du possible, l’architecture de la plateforme sera indépendante du choix de l’opérateur
+       pour la traduction automatique. Cette fonctionnalité étant importante, la plateforme ne peut dépendre
+       d’un fournisseur et de ses API.
+
+5.1    Offres & Demandes
+De manière générale, les fiches permettant de décrire une proposition consisteront en un juste compromis
+entre les informations nécessaires à l’efficacité de l’aide et la simplicité requise par la situation de stress
+ou d’incertitude des utilisateurs. L’objectif doit rester l’aide de première ligne. Par exemple, si l’on recherche
+un téléviseur, il est exclu de demander des informations sur la technologie OLED/LCD/. . .. Une indication de
+taille pourrait être bienvenue, par contre (petite, moyenne, grande), selon les contraintes de l’hébergement.
+  10. Voir     par      exemple       https://www.deepl.com/pro-api/       ou       https://blog.api.rakuten.net/
+api-tutorial-google-translate-api/.
+5.1     Offres & Demandes                                                                                                           7
+
+
+      1. Le système procédera à un nettoyage régulier des offres et des demandes afin d’éviter toute pollution
+         par des informations devenues obsolètes. Après n jours (paramètre fixé par l’AC), le propriétaire d’une
+         offre/demande sera prié de la mettre à jour (un simple clic après relecture suffira). Après un certain
+         délai, l’information sera archivée, mais pourra être recyclée ultérieurement sans limite de temps.
+      2. Une offre/demande pourra être marquée comme clôturée. Elle disparaît alors pour les utilisateurs mais
+         reste archivée pour une réutilisation ultérieure (recyclage).
+      3. La clôture d’un offre/demande complexe produit une clôture récursive et la préservation de sa struc-
+         ture.
+      4. Il sera toujours possible d’éditer une proposition, si cette dernière n’est pas engagée dans une tran-
+         saction entre différentes parties.
+      5. Toute proposition devra pouvoir être exprimée de la manière la moins contraignante possible.
+      6. La plateforme pourra offrir des outils d’aide en suggérant des outils spécialisés sur base des proposi-
+         tions exprimées en texte libre.
+      7. La plateforme proposera des formulaires pré-conçus pour certains types de proposition. Ces formu-
+         laires pourront comporter des données de géolocalisation, des références à des utilisateurs, des pho-
+         tos, vidéos, enregistrements issus par exemple de smartphone.
+
+5.1.1    Offres
+      1. Toute personne identifiée pourra déposer une offre, décrite de la manière la plus appropriée possible.
+         Par exemple, si l’on offre un frigo, il faudra préciser si la livraison est comprise, ainsi que ses carac-
+         téristiques principales (dimensions, par exemple), dans une perspective d’aide d’appoint de premier
+         secours.
+      2. Une offre pourra être déposée conjointement avec des demandes. Par exemple, quelqu’un pourrait of-
+         frir une étable pour héberger un cheptel de n bêtes, mais, ne pouvant en assurer le transport, complé-
+         terait son offre par une demande de transport des bêtes et/ou, éventuellement, un apport de fourrage.
+         La plateforme apportera toute l’aide utile pour la supervision et la gestion de ce type d’offre 11 .
+
+5.1.2    Demande
+      1. La plateforme offrira une stratégie 12 de mise en avant des demandes. Cette stratégie devra pouvoir
+         être définie de manière externe (par des plugins, par exemple, qui viendraient compléter les stratégies
+         par défaut).
+      2. Toute personne identifiée pourra déposer une demande, décrite de la manière la plus appropriée
+         possible. Par exemple, si l’on a besoin d’un frigo, on pourra préciser s’il doit être en pose libre ou
+         encastrable, ainsi que sa taille (petit, grand, très grand).
+      3. Une demande pourrait consister en une groupe logique de demandes diverses.
+         — J’ai besoin d’une étable pour mes bêtes ET d’un transporteur.
+         — J’ai besoin d’un appartement OU d’une maison.
+         La décomposition des demandes peut être arbitrairement complexe, mais il reste primordial que le
+         système reste simple à utiliser. Le système gérera ces offres complexes de manière ad-hoc (dans le
+         cas d’un OU, la clôture d’une demande entraînera par exemple la clôture de la seconde).
+
+5.1.3    Propositions spécifiques
+Afin de marquer la différence avec des produits concurrents et de renforcer la pertinence de cette solution, il
+devra être possible d’étendre la plateforme avec de nouveaux types de propositions, disposant de traitements
+spécifiques pour l’encodage et le matching par exemple. Voici quelques exemples :
+ 11. Une offre satisfaite à 75% pourrait voir ses demandes non satisfaites propulsées en avant sur la plateforme.
+ 12. Par ancienneté, par degré d’urgence, par type, par région selon la sévérité de la catastrophe connue pour cette région, etc.
+5.2    Matching                                                                                                  8
+
+
+      Demande sous quota Un acteur souhaite organiser une aide en fédérant d’autres acteurs. Par exemple,
+        l’entreprise X se propose d’acheminer des biens de première nécessité (hygiène, médicaments, et
+        nourriture bébé) sur le lieu sinistré en mettant ses outils logistiques à profit. Les personnes peuvent
+        amener des biens à l’adresse A avant la date D. Sa crainte est d’être débordé par des dépôts qui
+        dépassent la capacité de transport ou des dépôts inappropriés.
+        Un outil qui permettrait d’enregistrer des intentions et de valider ensuite les intentions réellement
+        acceptées en fonction des capacités serait le bienvenu. Il faut alors pouvoir informer les acteurs que
+        leur proposition est acceptée ou non, et avoir confirmation de leur promesse.
+      Répartition géographique de ressources humaines Suite à une inondation, de nombreuses per-
+        sonnes, écoles, entreprises se proposent de venir en aide pour nettoyer les maisons, évacuer les boues,
+        etc. Un outil de type GIS serait ici utile afin de localiser géographiquement les demandes, leur nature,
+        et répartir les propositions d’aide dans le temps.
+      Validation des propositions Certaines demandes ne peuvent être honorées que par des personnes
+         compétentes, habilitées, etc. En même temps, ces situations sont souvent des opportunités pour des
+         personnes mal-intentionnées d’abuser de personnes en situation difficile. Par exemple, des sinistrés
+         peuvent être en demande d’appui psychologique, d’aides à l’enfance, d’aides pour des démarches fi-
+         nancières, etc. Un outil offrant une validation des propositions d’aides d’un certain type par une entité
+         reconnue pourrait éviter ces déboires. Dans cet outil, un tiers de confiance devrait donc être impliqué
+         en plus des Aidants et des Sinistrés.
+      Besoins sur catalogues Certaines entités peuvent avoir des besoins très ciblés, pour lesquels, il serait
+        utile de se faire aider par un catalogue en ligne afin de constituer un listing chiffré des demandes. Par
+        exemple, un outil pourrait utiliser un catalogue tiers fourni par un site d’e-Commerce afin de fournir
+        des références précises du bien demandé. L’outil gérerait les demandes sous la forme d’une feuille de
+        calcul actualisée en temps réel. On pourrait imaginer que l’aide consiste à apporter le bien, le livrer
+        ou l’acheter sur un ou des sites d’e-Commerce par exemple. Imaginons, une bibliothèque souhaitant
+        reconstituer son stock ou une cuisine communautaire souhaitant réassortir des ustensiles, robots, etc.
+
+5.2      Matching
+      1. Un utilisateur intéressé par une offre ou une demande pourra entrer dans une discussion avec l’autre
+         partie. Il pourra initier la discussion comme étant privée ou publique, et les deux parties pourront l’une
+         et l’autre basculer du mode public vers privé à tout moment. Exemple :
+         — (Public→) Votre frigo contient-il un freezer ?
+         — Oui
+         — (Private→) Voici mon numéro de GSM 0477/666.666, vous pouvez m’appeler ?
+         — Bien sûr.
+      2. Un utilisateur peut sélectionner un ensemble d’offres dans un panier et le confirmer. L’idée du panier est
+         de constituer un ensemble cohérent d’offres qui se complètent. Toutefois, la plateforme ne supervisera
+         pas cet aspect.
+      3. Un utilisateur qui annulerait un panier, après confirmation, rendrait aussitôt ses éléments accessibles
+         et leurs propriétaires en seraient avisés automatiquement.
+      4. Lorsque les connaissances sur les propositions le permettent (éléments de géolocalisation, nature de
+         la proposition, . . .), le système sera capable de suggérer des appariements entre des offres et des
+         demandes disponibles sur la plateforme.
+
+5.3      Taxonomie des propositions
+Cette taxonomie est librement inspirée de [1] et a été adaptée au contexte d’une aide centrée sur des besoins
+individuels. Les aides de grande ampleur, comme celles apportées par les services de secours ne sont pas
+prises en compte ici (intervention médicale, travaux d’ingénierie, etc). Faute d’informations complémentaires
+5.4     Exemples                                                                                               9
+
+
+fournies par les auteurs, malgré notre demande, les informations fournies par [1] ont également dû être
+librement interprétées.
+      1. Logement : pour une famille.
+      2. Évacuation : la logistique pour déplacer des occupants d’un immeuble vers un autre, éventuellement
+         plusieurs si l’habitat est collectif.
+      3. Soins personnels : continuité médicamenteuse, hygiène personnelle, . . .
+      4. Informations actualisées sur la situation de manière contextualisée (décrue de la rivière X, progression
+         de l’incendie vers le village de Y, plus d’eau courante à Z, . . .).
+      5. Offre/demande d’emploi
+      6. Aide financière
+      7. Assistance médicale
+      8. Fournitures (mobilier, électroménager, vêtement, électronique (TV, GSM, Ordinateur, . . .), moyen de lo-
+         comotion 13 ).
+      9. Aide logistique (nettoyer, maçonnerie, bâcher, . . .).
+Cette taxonomie n’est ni exhaustive ni normative. Le jeu de rôle prévu dans le cours permettra de cerner
+d’autres types de demandes.
+
+5.4      Exemples
+5.4.1     Recherche de proches
+Suite à une catastrophe, des personnes ont disparu. On ignore si elles sont décédées, hospitalisées, per-
+dues. . . Marcel souhaite poster des photos de ses enfants et quelques détails afin qu’on retrouve ses enfants,
+emportés par les eaux.
+
+5.4.2     Élevage
+Suite à une inondation à Liège, il faut déménager urgemment un élevage d’une centaine de bovins pour une
+durée indéterminée. Bernard, fermier à Tournai, peut en héberger une cinquantaine mais a besoin de fourrage
+et d’une aide pour le transport. Quant à Charline, à Redu, elle peut en accueillir un quarantaine, dispose d’un
+camion, mais aura aussi besoin d’un appoint de fourrage.
+
+5.4.3     L’école
+L’école primaire de Clairval a été sinistrée après les inondations. Tout le matériel pédagogique a été délabré
+et nécessite des travaux de réfection (nettoyage, électricité, menuiserie). Elle souhaite faire un appel aux
+bonnes volontés et dons de matériels spécifiques (craies, tables, papeterie, ordinateurs, etc).
+
+5.4.4     LaBricole
+La chaîne de magasins LaBricole souhaite offrir quelques palettes d’outils de bricolage, mais ne peut en
+assurer la répartition et la distribution. Elle souhaite que ce soient les villes qui s’en chargent. Les palettes
+devront être distribuées de manière équitables selon les besoins exprimés.
+
+5.4.5     Rochebranle
+Les résidents de Rochebranle sont complètements démunis après un tremblement de terre. Les commu-
+nications sont rompues, les immeubles sont devenus instables et les habitants n’osent plus y rentrer ; les
+secousses se poursuivent de manière intermittentes. Le bourgmestre qui dispose d’un centre de communi-
+cation de crise, souhaite faire un appel pour collecter des tentes, de l’eau potable, des conserves, des lampes
+électriques, des réchauds de camping et des bouteilles de gaz.
+ 13. Songeons aux demandes de Kayak, barges, ou zodiac pour Liège. . .
+5.4     Exemples                                                                                             10
+
+
+5.4.6    Toufeutouflam
+La ville de Toufeutouflam, jumelée avec Tincelle, a été dévastée par un incendie. La ville de Tincelle souhaite
+organiser un convoi avec la collaboration de l’entreprise Turbo afin d’acheminer des biens de première né-
+cessité (vêtements, conserves, tentes, etc), mais appréhende d’être débordé par les dons. Elle attend de la
+plateforme une aide pour gérer ces dons en fonction des ressources disponibles (6 × 90m3 ).
+
+5.4.7    Grosemilo
+Les « sguatteri » sont une association de jeunesse qui aident les services sociaux à distribuer des repas
+chauds en cuisinant des soupes et des sandwiches. Ils se proposent d’assurer une distribution de repas
+chauds les week-ends à Grosemilo, un village italien qui a été dévasté par une coulée de boue. Les mai-
+sons sont inhabitables, coupées des réseaux (gaz, électricités, communication, ...). Les sguatteri possèdent
+la main d’œuvre et les compétences, mais ont besoin pour chaque week-end de 15 points de chauffe (soit
+des réchauds au gaz, soit des barbecues avec resp. le gaz ou le charbon nécessaire), d’un camion réfrigéré,
+de tables et chaises pliantes ainsi que de quelques tentes type militaire pour en faire des cantines, par temps
+d’intempérie.
+
+5.4.8    Doodoocity
+Suite à un incident technique, la ville de Doodoocity est privée de gaz en plein hiver. Cela concerne environ
+40.000 personnes, entreprises, écoles, etc. Face à l’ampleur du phénomène et sa durée, divers besoins se
+manifestent assez rapidement :
+   — Demandes de couvertures et couettes.
+   — Demande plaques chauffantes électriques, domestiques ou professionnelles.
+   — Demande d’ateliers spécialisés pour les artisans pour poursuivre des activités (boulangerie. . .).
+   — Demande de réchauds au gaz.
+   — Entraides entre personnes pour des services divers (amener de l’eau chaude dans la salle de bain pour
+       la toilette de personnes âgées, passer vérifier que tout est en ordre chez des personnes âgées, etc).
+
+
+Références
+[1] Chou, C.-H., Zahedi, F. M., and Zhao, H. Ontology for developing web sites for natural disaster management :
+    Methodology and implementation. IEEE Transactions on Systems, Man, and Cybernetics - Part A : Systems
+    and Humans 41, 1 (2011), 50–62.
+

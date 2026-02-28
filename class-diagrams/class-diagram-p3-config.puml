@@ -1,0 +1,107 @@
+@startuml P3 - Configuration et Taxonomie
+
+' ============================================================
+' P3 — Configuration & Taxonomie (détail complet)
+' Sources : §5 ex.1, §5 ex.2, §5 ex.3, §5 ex.5, §5.3, §4 hyp.1-2
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 5
+skinparam defaultFontName Arial
+
+skinparam class {
+  BackgroundColor White
+  BorderColor #555555
+  ArrowColor #444444
+  FontColor #111111
+  HeaderBackgroundColor #F2F2F2
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 9
+}
+skinparam package {
+  BorderColor #888888
+  FontColor #333333
+  FontStyle bold
+}
+
+' --- Références externes ---
+skinparam class {
+  BackgroundColor<<ext>> #F0F0F0
+  BorderColor<<ext>> #AAAAAA
+  FontColor<<ext>> #777777
+}
+hide <<ext>> members
+
+class Acteur    <<ext>>
+class Proposition <<ext>>
+
+' ============================================================
+' PACKAGE P3 : Configuration & Taxonomie
+' ============================================================
+package "P3 · Configuration & Taxonomie" #FFF0F0 {
+
+  class ConfigCatastrophe {
+    + nom                       : String
+    + description               : String
+    + zoneGeographique          : String
+    + etatReferent              : String
+    + languesActives            : List<String>
+    + delaiArchivageJours       : Integer
+    + delaiRappelAvantArchivage : Integer
+    + modesIdentificationActifs : List<String>
+    + dateDebut                 : Date
+    + estActive                 : Boolean
+    ' §5 ex.2  : configurée par l'AC selon la catastrophe en cours
+    ' §4 hyp.1 : état référent = entité politique et juridique unique
+    '            (une seule par déploiement)
+    ' §4 hyp.2 : langues extensibles (pas limitées aux langues officielles ;
+    '            dialectes exclus ; référentiel standardisé ex. ISO 639)
+  }
+
+  class CategorieTaxonomie {
+    + code        : String
+    + nom         : Map<Langue, String>
+    + description : Map<Langue, String>
+    + estActive   : Boolean
+    ' §5 ex.3 : extensible par l'AC SANS redéploiement
+    ' §5.3    : 9 catégories de base (librement inspirées de [1])
+  }
+
+  note right of CategorieTaxonomie
+    **Catégories de base (§5.3) :**
+    1. Logement
+    2. Évacuation
+    3. Soins personnels
+    4. Informations contextualisées
+    5. Offre / demande d'emploi
+    6. Aide financière
+    7. Assistance médicale
+    8. Fournitures
+    9. Aide logistique
+    ─────────────────────────────
+    **Pattern Composite (GoF)**
+    Arbre catégories / sous-catégories.
+    Extensible par l'AC en cours
+    de catastrophe sans redéploiement
+    (ex. "Kayak/Zodiac" inondations
+    de Liège 2021 — §5 ex.3)
+  end note
+
+  ' Pattern Composite : arbre de catégories / sous-catégories
+  CategorieTaxonomie "0..1 parent" o-- "*" CategorieTaxonomie : sous-catégories
+
+  ConfigCatastrophe "1" --> "*" CategorieTaxonomie : taxonomie active
+}
+
+' ── Relations vers autres packages ──────────────────────────
+Acteur      --> ConfigCatastrophe : contexte actif (P1)
+Proposition --> ConfigCatastrophe : contexte (P4)
+Proposition --> CategorieTaxonomie : catégorie (P4)
+
+@enduml

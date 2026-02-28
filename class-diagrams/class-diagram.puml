@@ -1,0 +1,907 @@
+@startuml CrisisConnect - Diagramme de classes (v2)
+' ============================================================
+' CrisisConnect – Diagramme de classes
+' Source    : énoncé IHDCM032 §3, §4, §5 (13 février 2026)
+' Version   : 2 – enrichie, corrigée, patterns documentés
+' Corrections v2 :
+'   - Typo "PropositiionAvecValidation" corrigé
+'   - badge retiré des attributs d'Acteur (calculé, cf. méthode)
+'   - visibilite retiré des attributs de Discussion (cf. enum)
+'   - Delegation.garant : attribut → relation explicite
+'   - Transaction liée à Proposition (abstrait) et non Offre/Demande directement
+' Ajouts v2 :
+'   - Coordonnees (type valeur), Media + TypeMedia
+'   - VerificationPhoto, NiveauFiabilite, StatutRole, PorteeMandat
+'   - EN_ATTENTE_RELANCE dans StatutProposition
+'   - NiveauUrgence dans Demande
+'   - IntentionDon + StatutIntention pour DemandeQuota
+'   - LigneCatalogue + StatutLigne pour DemandeSurCatalogue
+'   - SuggestionAppariement (§5.2 ex.4)
+'   - Notification + TypeNotification
+'   - TypeOperation (enum détaillé) pour EntreeJournal
+'   - Package "Services & Stratégies" :
+'       StrategiePriorisation (interface, Pattern Strategy)
+'       ServiceTraduction (interface, Pattern Adapter/Strategy)
+'   - Notes design patterns (Composite, Strategy, Adapter)
+' ============================================================
+
+left to right direction
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 5
+skinparam defaultFontName Arial
+
+skinparam class {
+  BackgroundColor White
+  BorderColor #555555
+  ArrowColor #444444
+  FontColor #111111
+  HeaderBackgroundColor #F2F2F2
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 9
+}
+skinparam interface {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+skinparam package {
+  BorderColor #888888
+  FontColor #333333
+  FontStyle bold
+}
+
+' ============================================================
+' PACKAGE : Acteurs & Rôles
+' Sources : §3.1, §5 ex.4, §5 ex.5, §5 ex.6, §5 ex.9
+' ============================================================
+package "Acteurs & Rôles" #FEFFF0 {
+
+  abstract class Acteur {
+    + id           : UUID
+    + dateCreation : Date
+    + estActif     : Boolean
+    + {abstract} getNiveauBadge() : NiveauBadge
+    ' §5 ex.14 : badge calculé selon les MethodeIdentification
+    '            de la Personne (VERT / ORANGE / ROUGE)
+  }
+
+  class Personne {
+    + nom              : String
+    + prenom           : String
+    + adresse          : String
+    + moyensContact    : String
+    + urlPhoto         : String
+    + languePreferee   : String
+    ' §5 ex.12 : profil avec infos directement utiles aux objectifs
+    '            la plateforme n'est pas un réseau social
+  }
+
+  class Entite {
+    + nom               : String
+    + description       : String
+    + moyensContact     : String
+    + urlPagePresentation : String
+    + commentFaireDon   : String
+    + typesContributions : String
+    + estActive         : Boolean
+    ' §5 ex.13 : page de présentation synthétique et contextuelle
+    ' §5 ex.4  : associée à une Personne responsable formellement identifiée
+    ' §5 ex.5  : peut être ajoutée / supprimée par AS ou AC en cours de catastrophe
+  }
+
+  class AttributionRole {
+    + dateDebut      : Date
+    + dateFin        : Date
+    + reconductible  : Boolean
+    + dateRappel     : Date
+    + rappelEnvoye   : Boolean
+    + statut         : StatutRole
+    ' §5 ex.6 : rôles à durée limitée, reconductibles
+    '           mécanisme de rappel si rôle non reconduit
+  }
+
+  class Mandat {
+    + dateDebut   : Date
+    + dateFin     : Date
+    + portee      : PorteeMandat
+    + description : String
+    + estPublic   : Boolean
+    ' §5 ex.9 : information publique, publiée en temps opportun
+    '           grande souplesse requise (situation de catastrophe)
+    '           traçabilité des responsabilités
+  }
+
+  enum TypeRole {
+    CONTRIBUTEUR
+    UTILISATEUR
+    ADMIN_INSTALLEUR
+    ADMIN_CATASTROPHE
+    ADMIN_SYSTEME
+    ' §3.1 : tous les rôles ; CUMULABLES sur un même acteur
+  }
+
+  enum NiveauBadge {
+    VERT
+    ORANGE
+    ROUGE
+    ' §5 ex.14 :
+    '   VERT   = méthode fiable (eID, bancaire)
+    '   ORANGE = méthode moins formelle (SMS, facture, photo)
+    '   ROUGE  = non vérifié ou délégation seulement
+  }
+
+  enum StatutRole {
+    ACTIF
+    EXPIRE
+    SUSPENDU
+    ' §5 ex.6 : un rôle expiré peut être reconduit
+  }
+
+  enum PorteeMandat {
+    TOUTES_OPERATIONS
+    LECTURE_SEULE
+    CATEGORIE_SPECIFIQUE
+    ' §5 ex.9 : portée à définir lors de la conception détaillée
+  }
+
+  Acteur <|-- Personne
+  Acteur <|-- Entite
+
+  Acteur       "1"        -->  "*"     AttributionRole : possède >
+  AttributionRole          -->          TypeRole        : type
+  AttributionRole          -->          StatutRole      : statut
+  ' §5 ex.4 : rôle accrédité par une Entité (qui engage sa responsabilité)
+  AttributionRole "*"      --> "0..1"  Entite           : accréditée par >
+
+  ' §5 ex.9 : mandat (mandant → mandataire)
+  Acteur "1 mandant"       --> "*"     Mandat           : donne >
+  Acteur "1 mandataire"    --> "*"     Mandat           : reçoit >
+  Mandat                   -->          PorteeMandat    : portée
+
+  ' §5 ex.4 : Entité → Personne responsable formellement identifiée
+  Entite "1" --> "1" Personne : responsable >
+}
+
+' ============================================================
+' PACKAGE : Authentification & Identification
+' Sources : §5 ex.7, §5 ex.8, §5 ex.14
+' ============================================================
+package "Authentification & Identification" #F0F8FF {
+
+  abstract class MethodeIdentification {
+    + dateVerification : Date
+    + estVerifiee      : Boolean
+    + niveauFiabilite  : NiveauFiabilite
+    ' §5 ex.7 : utilisée UNIQUEMENT pour :
+    '   (1) création de compte, ou
+    '   (2) rétablissement de confiance (tentatives erronées, délai anormal…)
+    '   PAS à chaque connexion quotidienne
+  }
+
+  ' ── Groupe 1 : méthodes formelles ───────────────────────
+  together {
+    class LoginPassword {
+      + login             : String
+      + motDePasseHash    : String
+      + derniereConnexion : DateTime
+      ' §5 ex.8 : MINIMUM OBLIGATOIRE — toujours présent
+      ' Autres modalités de connexion quotidienne : optionnelles
+    }
+
+    class CarteIdentiteElectronique {
+      + numeroCarte  : String
+      + paysEmetteur : String
+      ' §5 ex.7, §5 ex.14 — NiveauFiabilite : TRES_HAUTE
+    }
+
+    class VerificationSMS {
+      + numeroTelephone : String
+      ' §5 ex.7 : challenge envoyé par SMS ou messagerie
+      ' §5 ex.14 — NiveauFiabilite : HAUTE
+    }
+
+    class VerificationBancaire {
+      + referenceVirement     : String
+      + montantVireCentimes   : Integer
+      ' §5 ex.7 : ex. virement de 1 centime (opération bancaire traçable)
+      ' NiveauFiabilite : HAUTE (dépend infrastructure bancaire opérationnelle)
+    }
+  }
+
+  ' ── Groupe 2 : méthodes alternatives ────────────────────
+  together {
+    class VerificationFacture {
+      + typeFacture : TypeFacture
+      + dateFacture : Date
+      ' §5 ex.7 : facture d'électricité récente, n° de téléphone fixe…
+      ' NiveauFiabilite : MOYENNE (document souvent perdu en crise)
+    }
+
+    class VerificationPhoto {
+      + urlPhoto        : String
+      + incluPersonne   : Boolean
+      + modeVerification : ModeVerification
+      ' §5 ex.14 : photo de carte d'identité ± mise en contexte (personne visible)
+      '            ou discussion téléphonique/chat avec un employé
+      ' NiveauFiabilite : MOYENNE (vérification manuelle possible)
+    }
+
+    class Parrainage {
+      + nombreParrainsRequis  : Integer
+      + nombreParrainsActuels : Integer
+      ' §5 ex.14 : parrainage par n utilisateurs déjà identifiés
+      ' NiveauFiabilite : variable selon n et fiabilité des parrains
+    }
+
+    class Delegation {
+      ' §5 ex.7 : personne déjà authentifiée atteste de l'identité d'une tierce
+      ' NiveauFiabilite : EXPLICITEMENT_FAIBLE
+      '   → "ne pas être considérée comme fiable" (énoncé §5 ex.7)
+      '   → dernier recours : sinistré ayant tout perdu
+    }
+  }
+
+  enum NiveauFiabilite {
+    TRES_HAUTE
+    HAUTE
+    MOYENNE
+    FAIBLE
+    EXPLICITEMENT_FAIBLE
+    ' §5 ex.14 : modalité d'authentification visible sur profil
+    '            détermine le badge VERT / ORANGE / ROUGE
+  }
+
+  enum TypeFacture {
+    ELECTRICITE
+    GAZ
+    EAU
+    TELEPHONE_FIXE
+  }
+
+  enum ModeVerification {
+    AUTOMATIQUE
+    MANUELLE_OPERATEUR
+  }
+
+  MethodeIdentification <|-- LoginPassword
+  MethodeIdentification <|-- CarteIdentiteElectronique
+  MethodeIdentification <|-- VerificationSMS
+  MethodeIdentification <|-- VerificationBancaire
+  MethodeIdentification <|-- VerificationFacture
+  MethodeIdentification <|-- VerificationPhoto
+  MethodeIdentification <|-- Parrainage
+  MethodeIdentification <|-- Delegation
+
+  MethodeIdentification --> NiveauFiabilite : niveauFiabilite
+
+  ' §5 ex.7 : ces moyens sont pour création compte ou rétablissement confiance
+  Personne "1" --> "1..*" MethodeIdentification : s'identifie par
+
+  ' Parrains = Personnes déjà identifiées (lien vers Personne)
+  Parrainage "*" --> "*" Personne : parrains
+
+  ' Garant de délégation = Personne déjà authentifiée par méthode fiable
+  Delegation "*" --> "1" Personne : garant
+
+  VerificationFacture   --> TypeFacture       : typeFacture
+  VerificationPhoto     --> ModeVerification  : modeVerification
+}
+
+' ============================================================
+' PACKAGE : Configuration & Taxonomie
+' Sources : §5 ex.1, §5 ex.2, §5 ex.3, §5 ex.5, §5.3, §4 hyp.1-2
+' ============================================================
+package "Configuration & Taxonomie" #FFF0F0 {
+
+  class ConfigCatastrophe {
+    + nom                        : String
+    + description                : String
+    + zoneGeographique           : String
+    + etatReferent               : String
+    + languesActives             : List<String>
+    + delaiArchivageJours        : Integer
+    + delaiRappelAvantArchivage  : Integer
+    + modesIdentificationActifs  : List<String>
+    + dateDebut                  : Date
+    + estActive                  : Boolean
+    ' §5 ex.2 : configurée par l'AC selon la catastrophe en cours
+    ' §4 hyp.1 : état référent = entité politique et juridique unique
+    '            (une seule par déploiement)
+    ' §4 hyp.2 : langues extensibles (pas limitées aux langues officielles ;
+    '            dialectes exclus ; référentiel standardisé, ex. ISO 639)
+  }
+
+  class CategorieTaxonomie {
+    + code        : String
+    + nom         : Map<Langue, String>
+    + description : Map<Langue, String>
+    + estActive   : Boolean
+    ' §5 ex.3 : extensible par l'AC SANS redéploiement
+    ' §5.3    : 9 catégories de base (librement inspirées de [1])
+  }
+
+  note right of CategorieTaxonomie
+    Catégories de base (§5.3) :
+    1. Logement
+    2. Évacuation
+    3. Soins personnels
+    4. Informations contextualisées
+    5. Offre / demande d'emploi
+    6. Aide financière
+    7. Assistance médicale
+    8. Fournitures
+    9. Aide logistique
+    ─────────────────────────────
+    Extensible par l'AC en cours
+    de catastrophe sans redéploiement
+    (ex. "Kayak/Zodiac" lors des
+    inondations de Liège 2021)
+  end note
+
+  ' Pattern Composite : arbre de catégories / sous-catégories
+  CategorieTaxonomie "0..1 parent" o-- "*" CategorieTaxonomie : sous-catégories
+
+  ConfigCatastrophe "1" --> "*" CategorieTaxonomie : taxonomie active
+}
+
+' ============================================================
+' PACKAGE : Propositions (Offres & Demandes)
+' Sources : §3.2, §5.1, §5.1.1, §5.1.2, §5.1.3
+' ============================================================
+package "Propositions (Offres & Demandes)" #F5FFF5 {
+
+  class Coordonnees <<value>> {
+    + latitude        : Double
+    + longitude       : Double
+    + adresseLibelle  : String
+    ' Type valeur (pas d'identité propre)
+    ' Utilisé par Proposition et DemandeRepartitionGeo
+  }
+
+  class Media {
+    + url       : String
+    + type      : TypeMedia
+    + dateAjout : DateTime
+    ' §5.1 ex.7 : photos, vidéos, enregistrements (ex. smartphone)
+  }
+
+  enum TypeMedia {
+    PHOTO
+    VIDEO
+    AUDIO
+    DOCUMENT
+  }
+
+  abstract class Proposition {
+    + titre             : String
+    + description       : String
+    + geolocalisation   : Coordonnees
+    + statut            : StatutProposition
+    + dateCreation      : DateTime
+    + dateRelance       : DateTime
+    + dateArchivage     : DateTime
+    + dateCloture       : DateTime
+    + {abstract} clore()
+    + {abstract} archiver()
+    ' §5.1 ex.1 : archivage après n jours (param ConfigCatastrophe)
+    '             relance du propriétaire avant archivage (simple clic)
+    '             recyclage possible sans limite de temps
+    ' §5.1 ex.4 : édition possible si statut ≠ EN_TRANSACTION
+    ' §5.1 ex.5 : exprimable de la manière la moins contraignante possible
+    ' §5.1 ex.7 : formulaires pré-conçus avec géoloc, photos, vidéos
+  }
+
+  class Offre {
+    + livraisonIncluse : Boolean
+    ' §5.1.1 ex.1 : toute personne identifiée peut déposer une offre
+    ' §5.1.1 ex.1 : description "la plus appropriée possible"
+    '               ex. frigo → dimensions, livraison comprise ?
+    '               ex. animal → socialisation, âge, santé
+    ' §5.1.1 ex.2 : peut être déposée conjointement avec des Demandes
+    '   → une offre satisfaite à 75 % propulse ses demandes non
+    '     satisfaites en avant sur la plateforme (cf. note §5.1.1)
+  }
+
+  class Demande {
+    + operateurLogique : OperateurLogique
+    + urgence          : NiveauUrgence
+    + regionSeverite   : String
+    ' §5.1.2 ex.1 : stratégie de mise en avant extensible (Pattern Strategy)
+    '               par ancienneté, urgence, type, région/sévérité
+    ' §5.1.2 ex.2 : description "la plus appropriée possible"
+    '               ex. frigo → pose libre/encastrable, taille
+    ' §5.1.2 ex.3 : groupe logique ET/OU, arbitrairement complexe
+    '               Pattern Composite (voir note ci-dessous)
+  }
+
+  note bottom of Demande
+    **Pattern Composite (GoF)**
+    ─────────────────────────────────
+    SIMPLE : feuille (pas de sous-demandes)
+    ET     : toutes sous-demandes doivent
+             être satisfaites
+    OU     : la clôture d'UNE sous-demande
+             entraîne la clôture des autres
+    ─────────────────────────────────
+    §5.1 ex.3 : clôture récursive,
+    structure préservée après clôture
+    Exemples (§5.4) :
+      ET → étable + transport (§5.4.2)
+      OU → appartement OU maison
+  end note
+
+  enum StatutProposition {
+    ACTIVE
+    EN_ATTENTE_RELANCE
+    EN_TRANSACTION
+    ARCHIVEE
+    CLOTUREE
+    ' ACTIVE            → EN_ATTENTE_RELANCE (après n-delaiRappel jours)
+    ' EN_ATTENTE_RELANCE → ACTIVE      (propriétaire confirme en 1 clic)
+    ' EN_ATTENTE_RELANCE → ARCHIVEE    (délai dépassé, recyclable)
+    ' ACTIVE            → EN_TRANSACTION (engagée dans une Transaction)
+    ' EN_TRANSACTION    → ACTIVE      (Transaction annulée)
+    ' Toute             → CLOTUREE    (disparaît pour les utilisateurs,
+    '                                  reste archivée + recyclable)
+  }
+
+  enum OperateurLogique {
+    SIMPLE
+    ET
+    OU
+    ' §5.1.2 ex.3
+  }
+
+  enum NiveauUrgence {
+    FAIBLE
+    MOYEN
+    ELEVE
+    CRITIQUE
+    ' §5.1.2 ex.1 : critère de prioritisation
+  }
+
+  Proposition <|-- Offre
+  Proposition <|-- Demande
+
+  Proposition  --> StatutProposition   : statut
+  Proposition  --> CategorieTaxonomie  : catégorie
+  Proposition "*" --> "1" Acteur       : déposée par
+  Proposition "1" *-- "*" Media        : médias
+  Media --> TypeMedia                  : type
+
+  ' Pattern Composite (§5.1.2 ex.3) — Demande composite ET/OU
+  Demande "1 parent" o-- "*" Demande   : sous-demandes
+
+  ' §5.1.1 ex.2 : Offre déposée conjointement avec des Demandes associées
+  Offre "1" --> "*" Demande : couplée à
+
+  ' ── Propositions spécifiques (§5.1.3) ──────────────────────
+
+  class DemandeQuota {
+    + capaciteMax       : Integer
+    + uniteCapacite     : String
+    + adresseDepot      : String
+    + dateLimit         : Date
+    + capaciteUtilisee  : Integer
+    ' §5.1.3 : fédérer des acteurs autour d'une aide logistique
+    '          ex. Toufeutouflam (6 × 90m³)
+    '          Outil : enregistrement d'intentions de don
+    '                  validation selon capacité disponible
+    '                  notification acceptation / refus
+    '                  confirmation de la promesse (dépôt effectif)
+  }
+
+  class IntentionDon {
+    + quantite      : Integer
+    + unite         : String
+    + description   : String
+    + dateIntention : DateTime
+    + statut        : StatutIntention
+    ' §5.1.3 : une IntentionDon répond à une DemandeQuota
+    '          portée à CONFIRMEE une fois le don effectivement déposé
+  }
+
+  enum StatutIntention {
+    EN_ATTENTE
+    ACCEPTEE
+    REFUSEE
+    CONFIRMEE
+    ' EN_ATTENTE → ACCEPTEE ou REFUSEE (selon capacité disponible)
+    ' ACCEPTEE   → CONFIRMEE (don effectivement réalisé)
+  }
+
+  class DemandeRepartitionGeo {
+    + nombreRessourcesRequises : Integer
+    + descriptionMission       : String
+    ' §5.1.3 : outil GIS pour localiser les demandes géographiquement
+    '          et répartir les ressources humaines dans le temps et l'espace
+    '          ex. bénévoles pour nettoyage / évacuation boues (§5.4.5)
+    '          la Coordonnees de Proposition fournit la localisation
+  }
+
+  class PropositionAvecValidation {
+    + descriptionValidation : String
+    + statut                : StatutValidation
+    ' §5.1.3 : tiers de confiance (entité reconnue) valide les offres
+    '          avant qu'elles soient visibles aux sinistrés
+    '          ex. aide psychologique, aide à l'enfance
+    '          → éviter les abus sur personnes vulnérables
+    '          → tiers de confiance = Entite reconnue par l'AC
+  }
+
+  class DemandeSurCatalogue {
+    + urlCatalogue : String
+    ' §5.1.3 : intégration catalogue e-commerce (tiers)
+    '          listing chiffré actualisé en temps réel
+    '          ex. École de Clairval (craies, tables, ordi) (§5.4.3)
+    '          ex. cuisine communautaire (ustensiles, robots) (§5.4.7)
+    '          aide = apporter, livrer, ou acheter en ligne
+  }
+
+  class LigneCatalogue {
+    + reference    : String
+    + designation  : String
+    + quantite     : Integer
+    + prixUnitaire : Double
+    + urlProduit   : String
+    + statut       : StatutLigne
+    ' Représente une ligne de la "feuille de calcul actualisée en temps réel"
+  }
+
+  enum StatutValidation {
+    EN_ATTENTE
+    VALIDEE
+    REFUSEE
+    ' §5.1.3 : le tiers de confiance valide ou refuse la proposition
+  }
+
+  enum StatutLigne {
+    DEMANDEE
+    PARTIELLEMENT_FOURNIE
+    FOURNIE
+  }
+
+  Demande                <|-- DemandeQuota
+  Demande                <|-- DemandeRepartitionGeo
+  Proposition            <|-- PropositionAvecValidation
+  Demande                <|-- DemandeSurCatalogue
+
+  DemandeQuota    "1"  *--  "*" IntentionDon       : intentions
+  IntentionDon    "*"  -->  "1" Acteur              : soumise par
+  IntentionDon         -->       StatutIntention    : statut
+
+  PropositionAvecValidation  -->  StatutValidation  : statut
+  PropositionAvecValidation  "*" --> "1" Entite     : validée par
+
+  DemandeSurCatalogue "1" *-- "*" LigneCatalogue    : lignes
+  LigneCatalogue           -->    StatutLigne        : statut
+}
+
+' ============================================================
+' PACKAGE : Services & Stratégies
+' Sources : §5 ex.15, §5 ex.16, §5.1.2 ex.1
+' Pattern Strategy (GoF) pour la priorisation
+' Pattern Adapter  (GoF) pour la traduction
+' ============================================================
+package "Services & Stratégies" #FFF8F0 {
+
+  interface StrategiePriorisation {
+    + trier(demandes : List<Demande>) : List<Demande>
+    ' §5.1.2 ex.1 : stratégie extensible par plugins
+    '               Pattern Strategy (GoF)
+    '               Plugins ajoutables sans modifier le code existant
+  }
+
+  together {
+    class PriorisationParAnciennete {
+      + trier(demandes : List<Demande>) : List<Demande>
+    }
+
+    class PriorisationParUrgence {
+      + trier(demandes : List<Demande>) : List<Demande>
+    }
+  }
+
+  together {
+    class PriorisationParRegionSeverite {
+      + trier(demandes : List<Demande>) : List<Demande>
+    }
+
+    class PriorisationParType {
+      + trier(demandes : List<Demande>) : List<Demande>
+    }
+  }
+
+  note top of StrategiePriorisation
+    **Pattern Strategy (GoF)**
+    ───────────────────────────────
+    §5.1.2 ex.1 : stratégie de mise en
+    avant des demandes définie "de
+    manière externe (par des plugins)"
+    Nouvelles stratégies ajoutables
+    sans modification du code existant
+  end note
+
+  interface ServiceTraduction {
+    + traduire(texte : String, source : String, cible : String) : String
+    + languesSupportees() : List<String>
+    + isTraductionAuto() : Boolean
+    ' §5 ex.16 : OBLIGATOIRE — architecture indépendante du fournisseur
+    '            Pattern Adapter (GoF)
+    '            Permet de changer de fournisseur (DeepL, Google,
+    '            LibreTranslate…) sans impact sur le reste du système
+  }
+
+  together {
+    class AdaptateurCorpusInterne {
+      + traduire(texte : String, source : String, cible : String) : String
+      + languesSupportees() : List<String>
+      + isTraductionAuto() : Boolean
+      ' §5 ex.15 : corpus interne = DÉFAUT (priorité sur traducteur auto)
+      ' isTraductionAuto() → false
+    }
+
+    class AdaptateurDeepL {
+      + apiKey : String
+      + traduire(texte : String, source : String, cible : String) : String
+      + languesSupportees() : List<String>
+      + isTraductionAuto() : Boolean
+      ' isTraductionAuto() → true
+    }
+
+    class AdaptateurLibreTranslate {
+      + urlServeur : String
+      + traduire(texte : String, source : String, cible : String) : String
+      + languesSupportees() : List<String>
+      + isTraductionAuto() : Boolean
+      ' Open source — hébergeable localement (cohérent avec licence open source)
+      ' isTraductionAuto() → true
+    }
+  }
+
+  note top of ServiceTraduction
+    **Pattern Adapter (GoF)**
+    ───────────────────────────────
+    §5 ex.15 : corpus interne (défaut)
+    ou traducteur automatique (fallback)
+    §5 ex.15 : mention OBLIGATOIRE si
+    texte issu d'une traduction auto
+    §5 ex.15 : version originale
+    TOUJOURS consultable
+    §5 ex.16 : indépendance fournisseur
+    OBLIGATOIRE (décision architecturale)
+  end note
+
+  StrategiePriorisation <|.. PriorisationParAnciennete
+  StrategiePriorisation <|.. PriorisationParUrgence
+  StrategiePriorisation <|.. PriorisationParRegionSeverite
+  StrategiePriorisation <|.. PriorisationParType
+
+  ServiceTraduction     <|.. AdaptateurCorpusInterne
+  ServiceTraduction     <|.. AdaptateurDeepL
+  ServiceTraduction     <|.. AdaptateurLibreTranslate
+}
+
+' ============================================================
+' PACKAGE : Matching & Transactions
+' Sources : §5.2, §5.1 ex.4
+' ============================================================
+package "Matching & Transactions" #FFF5E0 {
+
+  class Transaction {
+    + dateCreation  : DateTime
+    + dateMaj       : DateTime
+    + statut        : StatutTransaction
+    ' §5.1 ex.4 : Proposition "engagée dans une Transaction"
+    '             → statut EN_TRANSACTION, édition bloquée
+    '             → Transaction ANNULEE → Proposition redevient ACTIVE
+    ' §5.2 ex.1 : initiée quand un utilisateur est intéressé par une proposition
+  }
+
+  class Discussion {
+    + dateCreation : DateTime
+    + visibilite   : Visibilite
+    ' §5.2 ex.1 : initiée privée ou publique
+    '             les DEUX parties peuvent basculer à tout moment
+    '             exemple (§5.2 ex.1) :
+    '               Public→ "Votre frigo a-t-il un freezer ?"
+    '               Privé→ "Voici mon 0477/666.666"
+  }
+
+  class Message {
+    + contenu            : String
+    + dateEnvoi          : DateTime
+    + langue             : String
+    + issueTraductionAuto : Boolean
+    + texteOriginal      : String
+    ' §5 ex.15 : mention OBLIGATOIRE si traduction automatique
+    '            texteOriginal toujours consultable
+  }
+
+  class Panier {
+    + dateCreation    : DateTime
+    + dateConfirmation : DateTime
+    + statut          : StatutPanier
+    ' §5.2 ex.2 : ensemble cohérent d'offres complémentaires
+    '             la plateforme NE supervise PAS la cohérence
+    ' §5.2 ex.3 : annulation → offres remises ACTIVES
+    '             + notification automatique aux propriétaires des offres
+  }
+
+  class SuggestionAppariement {
+    + dateGeneration      : DateTime
+    + scoreCorrespondance : Double
+    + raisonnement        : String
+    + estAcknowledged     : Boolean
+    ' §5.2 ex.4 : suggestion automatique offre <-> demande
+    '             basée sur géolocalisation + nature de la proposition
+    '             générée "lorsque les connaissances le permettent"
+    '             → décision de conception : algorithme à définir
+  }
+
+  enum StatutTransaction {
+    EN_COURS
+    CONFIRMEE
+    ANNULEE
+    ' EN_COURS  : Proposition en statut EN_TRANSACTION (édition bloquée)
+    ' ANNULEE   : Proposition redevient ACTIVE
+  }
+
+  enum Visibilite {
+    PRIVEE
+    PUBLIQUE
+    ' §5.2 ex.1 : basculable à tout moment par l'une OU l'autre partie
+  }
+
+  enum StatutPanier {
+    OUVERT
+    CONFIRME
+    ANNULE
+    ' ANNULE : offres remises ACTIVES + notification propriétaires (§5.2 ex.3)
+  }
+
+  ' §5.2 ex.1 : Transaction porte sur une Proposition (Offre ou Demande)
+  Transaction "*" --> "1"    Proposition      : porte sur
+  Transaction      -->        StatutTransaction : statut
+
+  ' Chaque Transaction a exactement une Discussion (composition)
+  Transaction "1" *-- "1"   Discussion        : discussion
+
+  Discussion       -->        Visibilite       : visibilité
+  Discussion "1"  *-- "*"    Message          : messages
+  Message    "*"   --> "1"   Acteur           : envoyé par
+
+  ' §5.2 ex.2 : Panier propre à un utilisateur, contient des Offres
+  Panier "*"  --> "1"   Acteur           : propriétaire
+  Panier "1"  --> "*"   Offre            : contient
+  Panier       -->       StatutPanier    : statut
+
+  ' §5.2 ex.4 : suggestion automatique système
+  SuggestionAppariement "*" --> "1" Offre    : offre candidate
+  SuggestionAppariement "*" --> "1" Demande  : demande candidate
+}
+
+' ============================================================
+' PACKAGE : Notifications
+' Sources : §5 ex.6 (rappel rôle), §5.1 ex.1 (relance archivage),
+'           §5.1.3 (IntentionDon), §5.2 ex.3 (annulation panier)
+' ============================================================
+package "Notifications" #F8F0FF {
+
+  class Notification {
+    + dateCreation : DateTime
+    + dateEnvoi    : DateTime
+    + estLue       : Boolean
+    + type         : TypeNotification
+    + contenu      : String
+    + refEntiteId  : String
+    ' Notification générée par le système dans plusieurs situations
+    ' refEntiteId = UUID de l'entité concernée (Proposition, Rôle, Panier…)
+  }
+
+  enum TypeNotification {
+    RAPPEL_ROLE_EXPIRATION_IMMINENTE
+    RELANCE_PROPOSITION_AVANT_ARCHIVAGE
+    PANIER_ANNULE_OFFRE_REMISE_ACTIVE
+    INTENTION_DON_ACCEPTEE
+    INTENTION_DON_REFUSEE
+    INTENTION_DON_CONFIRMATION_REQUISE
+    OFFRE_SATISFAITE_75_POURCENT
+    SUGGESTION_APPARIEMENT_DISPONIBLE
+    ' §5 ex.6   : rappel rôle → expiration imminente
+    ' §5.1 ex.1 : relance propriétaire avant archivage
+    ' §5.2 ex.3 : panier annulé → offres libérées
+    ' §5.1.3    : IntentionDon acceptée / refusée / confirmation requise
+    ' §5.1.1 note : offre satisfaite à 75 %
+    ' §5.2 ex.4 : suggestion d'appariement disponible
+  }
+
+  Notification "*"  --> "1" Acteur           : destinataire
+  Notification       -->     TypeNotification : type
+}
+
+' ============================================================
+' PACKAGE : Journal & Audit
+' Source : §5 ex.10
+' ============================================================
+package "Journal & Audit" #F0F0FF {
+
+  class EntreeJournal {
+    + dateHeure      : DateTime
+    + typeOperation  : TypeOperation
+    + acteurId       : UUID
+    + entityCibleId  : UUID
+    + entityCibleType : String
+    + details        : String
+    + adresseIP      : String
+    + sessionId      : String
+    ' §5 ex.10 : journal de TOUTES les opérations
+    '            STRUCTURÉ pour permettre une analyse automatique
+    '            (pas un simple log texte — événements typés)
+  }
+
+  enum TypeOperation {
+    ' ── Comptes & Sessions ──
+    CONNEXION
+    DECONNEXION
+    CREATION_COMPTE
+    RETABLISSEMENT_CONFIANCE
+    ' ── Propositions ──
+    DEPOT_PROPOSITION
+    MODIFICATION_PROPOSITION
+    CLOTURE_PROPOSITION
+    ARCHIVAGE_PROPOSITION
+    RECYCLAGE_PROPOSITION
+    ' ── Transactions & Matching ──
+    DEBUT_TRANSACTION
+    CONFIRMATION_TRANSACTION
+    ANNULATION_TRANSACTION
+    ENVOI_MESSAGE
+    BASCULE_VISIBILITE_DISCUSSION
+    ' ── Paniers ──
+    CREATION_PANIER
+    CONFIRMATION_PANIER
+    ANNULATION_PANIER
+    ' ── Administration ──
+    ATTRIBUTION_ROLE
+    REVOCATION_ROLE
+    MANDAT_CREE
+    MANDAT_REVOQUE
+    ENTITE_AJOUTEE
+    ENTITE_SUPPRIMEE
+    MODIFICATION_TAXONOMIE
+    MODIFICATION_CONFIG_CATASTROPHE
+    ' §5 ex.10 : structuré pour analyse automatique
+  }
+
+  EntreeJournal "*" --> "1" Acteur      : réalisée par
+  EntreeJournal      -->    TypeOperation : typeOperation
+}
+
+' ============================================================
+' Relations inter-packages
+' ============================================================
+
+' Chaque Proposition est liée à une ConfigCatastrophe
+Proposition  --> ConfigCatastrophe  : contexte de catastrophe
+
+' Chaque Acteur évolue dans un contexte de catastrophe
+Acteur       --> ConfigCatastrophe  : contexte actif
+
+' Les Messages utilisent le ServiceTraduction (dépendance)
+Message      ..>  ServiceTraduction  : utilise
+
+' Les Demandes sont triées par une StrategiePriorisation (dépendance)
+Demande      ..>  StrategiePriorisation : triée par
+
+' Les Notifications peuvent référencer des Propositions
+Notification ..>  Proposition         : réf. optionnelle
+
+@enduml

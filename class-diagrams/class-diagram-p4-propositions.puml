@@ -1,0 +1,259 @@
+@startuml P4 - Propositions Offres et Demandes
+
+' ============================================================
+' P4 — Propositions (Offres & Demandes) (détail complet)
+' Sources : §3.2, §5.1, §5.1.1, §5.1.2, §5.1.3
+' ============================================================
+
+left to right direction
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 5
+skinparam defaultFontName Arial
+
+skinparam class {
+  BackgroundColor White
+  BorderColor #555555
+  ArrowColor #444444
+  FontColor #111111
+  HeaderBackgroundColor #F2F2F2
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 9
+}
+skinparam package {
+  BorderColor #888888
+  FontColor #333333
+  FontStyle bold
+}
+
+' --- Références externes ---
+skinparam class {
+  BackgroundColor<<ext>> #F0F0F0
+  BorderColor<<ext>> #AAAAAA
+  FontColor<<ext>> #777777
+}
+hide <<ext>> members
+
+class Acteur              <<ext>>
+class CategorieTaxonomie  <<ext>>
+class Entite              <<ext>>
+
+' ============================================================
+' PACKAGE P4 : Propositions (Offres & Demandes)
+' ============================================================
+package "P4 · Propositions (Offres & Demandes)" #F5FFF5 {
+
+  class Coordonnees <<value>> {
+    + latitude       : Double
+    + longitude      : Double
+    + adresseLibelle : String
+    ' Type valeur — pas d'identité propre
+    ' Utilisé par Proposition et DemandeRepartitionGeo
+  }
+
+  class Media {
+    + url       : String
+    + type      : TypeMedia
+    + dateAjout : DateTime
+    ' §5.1 ex.7 : photos, vidéos, enregistrements (ex. smartphone)
+  }
+
+  enum TypeMedia {
+    PHOTO
+    VIDEO
+    AUDIO
+    DOCUMENT
+  }
+
+  abstract class Proposition {
+    + titre           : String
+    + description     : String
+    + geolocalisation : Coordonnees
+    + statut          : StatutProposition
+    + dateCreation    : DateTime
+    + dateRelance     : DateTime
+    + dateArchivage   : DateTime
+    + dateCloture     : DateTime
+    + {abstract} clore()
+    + {abstract} archiver()
+    ' §5.1 ex.1 : archivage après n jours (param ConfigCatastrophe)
+    '             relance du propriétaire avant archivage (simple clic)
+    '             recyclage possible sans limite de temps
+    ' §5.1 ex.4 : édition possible si statut != EN_TRANSACTION
+    ' §5.1 ex.5 : exprimable de manière peu contraignante
+    ' §5.1 ex.7 : formulaires avec géoloc, photos, vidéos
+  }
+
+  class Offre {
+    + livraisonIncluse : Boolean
+    ' §5.1.1 ex.1 : toute personne identifiée peut déposer une offre
+    '               description "la plus appropriée possible"
+    '               ex. frigo : dimensions, livraison comprise ?
+    '               ex. animal : socialisation, âge, santé
+    ' §5.1.1 ex.2 : peut être déposée conjointement avec des Demandes
+    '   offre satisfaite à 75 % -> propulse ses demandes non satisfaites
+  }
+
+  class Demande {
+    + operateurLogique : OperateurLogique
+    + urgence          : NiveauUrgence
+    + regionSeverite   : String
+    ' §5.1.2 ex.1 : stratégie de mise en avant extensible (Strategy)
+    '               par ancienneté, urgence, type, région/sévérité
+    ' §5.1.2 ex.2 : description "la plus appropriée possible"
+    ' §5.1.2 ex.3 : groupe logique ET/OU, arbitrairement complexe
+    '               Pattern Composite (voir note)
+  }
+
+  note bottom of Demande
+    **Pattern Composite (GoF)**
+    SIMPLE : feuille (pas de sous-demandes)
+    ET     : toutes sous-demandes satisfaites
+    OU     : clôture d'UNE entraine les autres
+    Exemples (§5.4) :
+      ET -> étable + transport (§5.4.2)
+      OU -> appartement OU maison
+  end note
+
+  ' ── Propositions spécifiques (§5.1.3) ──────────────────
+  class DemandeQuota {
+    + capaciteMax      : Integer
+    + uniteCapacite    : String
+    + adresseDepot     : String
+    + dateLimit        : Date
+    + capaciteUtilisee : Integer
+    ' §5.1.3 : fédérer des acteurs autour d'une aide logistique
+    '          ex. Toufeutouflam (6 x 90 m3)
+    '          Enregistrement d'intentions de don + validation
+  }
+
+  class IntentionDon {
+    + quantite      : Integer
+    + unite         : String
+    + description   : String
+    + dateIntention : DateTime
+    + statut        : StatutIntention
+    ' §5.1.3 : répond à une DemandeQuota
+    '          portée à CONFIRMEE une fois le don effectivement déposé
+  }
+
+  class DemandeRepartitionGeo {
+    + nombreRessourcesRequises : Integer
+    + descriptionMission       : String
+    ' §5.1.3 : outil GIS pour localiser les demandes géographiquement
+    '          et répartir les ressources dans le temps et l'espace
+    '          ex. bénévoles nettoyage / évacuation boues (§5.4.5)
+    '          la Coordonnees de Proposition fournit la localisation
+  }
+
+  class PropositionAvecValidation {
+    + descriptionValidation : String
+    + statut                : StatutValidation
+    ' §5.1.3 : tiers de confiance valide les offres avant visibilité
+    '          ex. aide psychologique, aide à l'enfance
+    '          eviter les abus sur personnes vulnérables
+    '          tiers = Entite reconnue par l'AC
+  }
+
+  class DemandeSurCatalogue {
+    + urlCatalogue : String
+    ' §5.1.3 : intégration catalogue e-commerce (tiers)
+    '          listing chiffré actualisé en temps réel
+    '          ex. École de Clairval (craies, tables, ordi) §5.4.3
+    '          aide = apporter, livrer, ou acheter en ligne
+  }
+
+  class LigneCatalogue {
+    + reference    : String
+    + designation  : String
+    + quantite     : Integer
+    + prixUnitaire : Double
+    + urlProduit   : String
+    + statut       : StatutLigne
+    ' Représente une ligne de la "feuille de calcul en temps réel"
+  }
+
+  enum StatutProposition {
+    ACTIVE
+    EN_ATTENTE_RELANCE
+    EN_TRANSACTION
+    ARCHIVEE
+    CLOTUREE
+  }
+
+  enum OperateurLogique {
+    SIMPLE
+    ET
+    OU
+  }
+
+  enum NiveauUrgence {
+    FAIBLE
+    MOYEN
+    ELEVE
+    CRITIQUE
+  }
+
+  enum StatutIntention {
+    EN_ATTENTE
+    ACCEPTEE
+    REFUSEE
+    CONFIRMEE
+  }
+
+  enum StatutValidation {
+    EN_ATTENTE
+    VALIDEE
+    REFUSEE
+  }
+
+  enum StatutLigne {
+    DEMANDEE
+    PARTIELLEMENT_FOURNIE
+    FOURNIE
+  }
+
+  ' ── Hiérarchie ──────────────────────────────────────────
+  Proposition <|-- Offre
+  Proposition <|-- Demande
+  Demande     <|-- DemandeQuota
+  Demande     <|-- DemandeRepartitionGeo
+  Demande     <|-- DemandeSurCatalogue
+  Proposition <|-- PropositionAvecValidation
+
+  ' ── Relations intra-package ─────────────────────────────
+  Proposition  --> StatutProposition  : statut
+  Proposition  "1" *-- "*" Media      : médias
+  Media        --> TypeMedia           : type
+
+  Demande --> OperateurLogique : opérateur
+  Demande --> NiveauUrgence    : urgence
+
+  ' Pattern Composite
+  Demande "1 parent" o-- "*" Demande  : sous-demandes (ET/OU)
+
+  ' §5.1.1 ex.2
+  Offre "1" --> "*" Demande : couplée à
+
+  DemandeQuota "1" *-- "*" IntentionDon    : intentions
+  IntentionDon      -->     StatutIntention : statut
+
+  PropositionAvecValidation --> StatutValidation : statut
+
+  DemandeSurCatalogue "1" *-- "*" LigneCatalogue : lignes
+  LigneCatalogue           -->     StatutLigne    : statut
+}
+
+' ── Relations vers autres packages ──────────────────────────
+Proposition "*" --> "1" Acteur           : déposée par (P1)
+Proposition     --> CategorieTaxonomie   : catégorie (P3)
+IntentionDon "*" --> "1" Acteur          : soumise par (P1)
+PropositionAvecValidation "*" --> "1" Entite : validée par (P1)
+
+@enduml

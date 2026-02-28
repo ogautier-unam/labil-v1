@@ -1,0 +1,160 @@
+@startuml P5 - Services et Strategies
+
+' ============================================================
+' P5 — Services & Stratégies (détail complet)
+' Sources : §5 ex.15, §5 ex.16, §5.1.2 ex.1
+' Pattern Strategy (GoF) — Priorisation des demandes
+' Pattern Adapter  (GoF) — Abstraction de la traduction
+' ============================================================
+
+left to right direction
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 5
+skinparam defaultFontName Arial
+
+skinparam class {
+  BackgroundColor White
+  BorderColor #555555
+  ArrowColor #444444
+  FontColor #111111
+  HeaderBackgroundColor #F2F2F2
+}
+skinparam interface {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #0D47A1
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 9
+}
+skinparam package {
+  BorderColor #888888
+  FontColor #333333
+  FontStyle bold
+}
+
+' --- Références externes ---
+skinparam class {
+  BackgroundColor<<ext>> #F0F0F0
+  BorderColor<<ext>> #AAAAAA
+  FontColor<<ext>> #777777
+}
+hide <<ext>> members
+
+class Demande <<ext>>
+class Message <<ext>>
+
+' ============================================================
+' PACKAGE P5 : Services & Stratégies
+' ============================================================
+package "P5 · Services & Stratégies" #FFF8F0 {
+
+  ' ── Pattern Strategy : priorisation des demandes ────────
+  interface StrategiePriorisation {
+    + trier(demandes : List<Demande>) : List<Demande>
+    ' §5.1.2 ex.1 : stratégie extensible par plugins
+    '               Plugins ajoutables sans modifier le code existant
+  }
+
+  together {
+    class PriorisationParAnciennete {
+      + trier(demandes : List<Demande>) : List<Demande>
+      ' Critère : dateCreation de la Demande (FIFO)
+    }
+
+    class PriorisationParUrgence {
+      + trier(demandes : List<Demande>) : List<Demande>
+      ' Critère : NiveauUrgence (CRITIQUE > ELEVE > MOYEN > FAIBLE)
+    }
+  }
+
+  together {
+    class PriorisationParRegionSeverite {
+      + trier(demandes : List<Demande>) : List<Demande>
+      ' Critère : regionSeverite (zone géographique la plus touchée)
+    }
+
+    class PriorisationParType {
+      + trier(demandes : List<Demande>) : List<Demande>
+      ' Critère : catégorie taxonomique de la demande
+    }
+  }
+
+  note bottom of StrategiePriorisation
+    **Pattern Strategy (GoF)**
+    §5.1.2 ex.1 : stratégie de mise en avant
+    des demandes définie "de manière externe
+    (par des plugins)"
+    Nouvelles stratégies ajoutables
+    sans modification du code existant.
+  end note
+
+  ' ── Pattern Adapter : abstraction de la traduction ──────
+  interface ServiceTraduction {
+    + traduire(texte : String, source : String, cible : String) : String
+    + languesSupportees() : List<String>
+    + isTraductionAuto()  : Boolean
+    ' §5 ex.16 : OBLIGATOIRE — indépendance fournisseur
+    '            Permet de changer (DeepL, Google, LibreTranslate…)
+    '            sans impact sur le reste du système
+  }
+
+  together {
+    class AdaptateurCorpusInterne {
+      + traduire(texte : String, source : String, cible : String) : String
+      + languesSupportees() : List<String>
+      + isTraductionAuto()  : Boolean
+      ' §5 ex.15 : corpus interne = DEFAUT (priorité sur traducteur auto)
+      ' isTraductionAuto() -> false
+    }
+
+    class AdaptateurDeepL {
+      + apiKey    : String
+      + traduire(texte : String, source : String, cible : String) : String
+      + languesSupportees() : List<String>
+      + isTraductionAuto()  : Boolean
+      ' isTraductionAuto() -> true
+    }
+
+    class AdaptateurLibreTranslate {
+      + urlServeur : String
+      + traduire(texte : String, source : String, cible : String) : String
+      + languesSupportees() : List<String>
+      + isTraductionAuto()  : Boolean
+      ' Open source — hébergeable localement (cohérent avec licence OS)
+      ' isTraductionAuto() -> true
+    }
+  }
+
+  note bottom of ServiceTraduction
+    **Pattern Adapter (GoF)**
+    §5 ex.15 : corpus interne (défaut)
+    ou traducteur automatique (fallback).
+    Mention OBLIGATOIRE si traduction auto.
+    Version originale TOUJOURS consultable.
+    §5 ex.16 : indépendance fournisseur
+    OBLIGATOIRE (décision architecturale).
+  end note
+
+  ' ── Relations ────────────────────────────────────────────
+  StrategiePriorisation <|.. PriorisationParAnciennete
+  StrategiePriorisation <|.. PriorisationParUrgence
+  StrategiePriorisation <|.. PriorisationParRegionSeverite
+  StrategiePriorisation <|.. PriorisationParType
+
+  ServiceTraduction     <|.. AdaptateurCorpusInterne
+  ServiceTraduction     <|.. AdaptateurDeepL
+  ServiceTraduction     <|.. AdaptateurLibreTranslate
+}
+
+' ── Relations vers autres packages ──────────────────────────
+Demande ..> StrategiePriorisation : triée par (P4)
+Message ..> ServiceTraduction     : utilise (P6)
+
+@enduml

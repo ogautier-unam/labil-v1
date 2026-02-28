@@ -1,0 +1,156 @@
+@startuml P6 - Matching et Transactions
+
+' ============================================================
+' P6 — Matching & Transactions (détail complet)
+' Sources : §5.2, §5.1 ex.4
+' ============================================================
+
+left to right direction
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 5
+skinparam defaultFontName Arial
+
+skinparam class {
+  BackgroundColor White
+  BorderColor #555555
+  ArrowColor #444444
+  FontColor #111111
+  HeaderBackgroundColor #F2F2F2
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 9
+}
+skinparam package {
+  BorderColor #888888
+  FontColor #333333
+  FontStyle bold
+}
+
+' --- Références externes ---
+skinparam class {
+  BackgroundColor<<ext>> #F0F0F0
+  BorderColor<<ext>> #AAAAAA
+  FontColor<<ext>> #777777
+}
+hide <<ext>> members
+
+class Acteur          <<ext>>
+class Proposition     <<ext>>
+class Offre           <<ext>>
+class Demande         <<ext>>
+class ServiceTraduction <<ext>>
+
+' ============================================================
+' PACKAGE P6 : Matching & Transactions
+' ============================================================
+package "P6 · Matching & Transactions" #FFF5E0 {
+
+  ' ── Chaîne principale : Transaction -> Discussion -> Message ─
+  together {
+    class Transaction {
+      + dateCreation : DateTime
+      + dateMaj      : DateTime
+      + statut       : StatutTransaction
+      ' §5.1 ex.4 : Proposition "engagée dans une Transaction"
+      '             -> statut EN_TRANSACTION, édition bloquée
+      '             -> Transaction ANNULEE -> Proposition redevient ACTIVE
+      ' §5.2 ex.1 : initiée quand un utilisateur est intéressé
+    }
+
+    enum StatutTransaction {
+      EN_COURS
+      CONFIRMEE
+      ANNULEE
+      ' ANNULEE : Proposition redevient ACTIVE
+    }
+  }
+
+  together {
+    class Discussion {
+      + dateCreation : DateTime
+      + visibilite   : Visibilite
+      ' §5.2 ex.1 : initiée privée ou publique
+      '             les DEUX parties peuvent basculer à tout moment
+      '             ex. Public -> "Votre frigo a-t-il un freezer ?"
+      '             ex. Prive  -> "Voici mon 0477/666.666"
+    }
+
+    enum Visibilite {
+      PRIVEE
+      PUBLIQUE
+      ' basculable à tout moment par l'une OU l'autre partie
+    }
+  }
+
+  class Message {
+    + contenu             : String
+    + dateEnvoi           : DateTime
+    + langue              : String
+    + issueTraductionAuto : Boolean
+    + texteOriginal       : String
+    ' §5 ex.15 : mention OBLIGATOIRE si traduction automatique
+    '            texteOriginal toujours consultable
+  }
+
+  ' ── Panier & Suggestion (flux parallèle) ────────────────
+  together {
+    class Panier {
+      + dateCreation     : DateTime
+      + dateConfirmation : DateTime
+      + statut           : StatutPanier
+      ' §5.2 ex.2 : ensemble cohérent d'offres complémentaires
+      '             la plateforme NE supervise PAS la cohérence
+      ' §5.2 ex.3 : annulation -> offres remises ACTIVES
+      '             + notification automatique aux propriétaires
+    }
+
+    enum StatutPanier {
+      OUVERT
+      CONFIRME
+      ANNULE
+      ' ANNULE : offres remises ACTIVES + notification (§5.2 ex.3)
+    }
+  }
+
+  class SuggestionAppariement {
+    + dateGeneration      : DateTime
+    + scoreCorrespondance : Double
+    + raisonnement        : String
+    + estAcknowledged     : Boolean
+    ' §5.2 ex.4 : suggestion automatique offre <-> demande
+    '             basée sur géolocalisation + nature de la proposition
+    '             générée "lorsque les connaissances le permettent"
+    '             décision de conception : algorithme à définir
+  }
+
+  ' ── Relations intra-package ─────────────────────────────
+  Transaction  -->         StatutTransaction : statut
+  Transaction  "1" *-- "1" Discussion       : discussion
+  Discussion   -->         Visibilite        : visibilité
+  Discussion   "1" *-- "*" Message          : messages
+  Panier       -->         StatutPanier      : statut
+}
+
+' ── Relations vers autres packages ──────────────────────────
+Transaction "* " --> "1" Proposition : porte sur (P4)
+Message     "*"  --> "1" Acteur      : envoyé par (P1)
+Panier      "*"  --> "1" Acteur      : propriétaire (P1)
+Panier      "1"  --> "*" Offre       : contient (P4)
+SuggestionAppariement "*" --> "1" Offre   : offre candidate (P4)
+SuggestionAppariement "*" --> "1" Demande : demande candidate (P4)
+Message ..> ServiceTraduction              : utilise (P5)
+
+note right of SuggestionAppariement
+  §5.2 ex.4 : générée
+  "lorsque les connaissances
+  le permettent" — algorithme
+  à définir (géoloc + nature)
+end note
+
+@enduml

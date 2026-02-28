@@ -1,0 +1,110 @@
+@startuml CrisisConnect - Vue d'ensemble
+
+' ============================================================
+' VUE D'ENSEMBLE — 1 boite par package, sans detail interne
+' Lisible en A4. Detail complet : class-diagram-p1..p8.puml
+' ============================================================
+
+skinparam classAttributeIconSize 0
+hide circle
+skinparam classFontSize 10
+skinparam shadowing false
+skinparam roundcorner 5
+skinparam defaultFontName Arial
+
+skinparam class {
+  BackgroundColor White
+  BorderColor #555555
+  ArrowColor #444444
+  FontColor #111111
+  HeaderBackgroundColor #DDDDDD
+  AttributeFontSize 9
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 9
+}
+
+' ============================================================
+' 8 boites — une par package (classes listees en corps)
+' ============================================================
+
+class "P1 · Acteurs & Roles" as P1 #FEFFF0 {
+  Acteur [abstract]
+  Personne | Entite
+  AttributionRole | Mandat
+  TypeRole | NiveauBadge
+}
+
+class "P2 · Auth & Identification" as P2 #F0F8FF {
+  MethodeIdentification [abstract]
+  LoginPassword | CarteIdentite
+  VerifSMS | VerifBancaire | VerifPhoto
+  Parrainage | Delegation
+  NiveauFiabilite
+}
+
+class "P3 · Config & Taxonomie" as P3 #FFF0F0 {
+  ConfigCatastrophe
+  CategorieTaxonomie
+  [Pattern Composite - arbre categories]
+}
+
+class "P4 · Propositions" as P4 #F5FFF5 {
+  Proposition [abstract]
+  Offre
+  Demande [Pattern Composite ET/OU]
+  DemandeQuota | IntentionDon
+  DemandeRepartitionGeo
+  PropositionAvecValidation
+  DemandeSurCatalogue | LigneCatalogue
+  Coordonnees [value] | Media
+}
+
+class "P5 · Services & Strategies" as P5 #FFF8F0 {
+  StrategiePriorisation [interface]
+  [Pattern Strategy - 4 implementations]
+  ParAnciennete | ParUrgence
+  ParRegionSeverite | ParType
+  ---
+  ServiceTraduction [interface]
+  [Pattern Adapter - 3 implementations]
+  AdaptateurCorpusInterne
+  AdaptateurDeepL | AdaptateurLibreTranslate
+}
+
+class "P6 · Matching & Transactions" as P6 #FFF5E0 {
+  Transaction
+  Discussion | Message
+  Panier
+  SuggestionAppariement
+}
+
+class "P7 · Notifications" as P7 #F8F0FF {
+  Notification
+  TypeNotification [8 types]
+}
+
+class "P8 · Journal & Audit" as P8 #F0F0FF {
+  EntreeJournal
+  TypeOperation [25 types]
+}
+
+' ============================================================
+' Relations inter-packages uniquement (pas de classes isolees)
+' ============================================================
+
+P1 --> P2 : s'authentifie par
+P1 --> P3 : contexte actif
+P4 --> P1 : deposee par / acteurs
+P4 --> P3 : categorie / contexte
+P4 ..> P5 : Strategy (priorisation)
+P6 --> P4 : Transaction porte sur Proposition
+P6 --> P1 : Message/Panier -> acteurs
+P6 ..> P5 : Adapter (traduction Message)
+P7 --> P1 : destinataire Notification
+P7 ..> P4 : ref. Proposition
+P8 --> P1 : EntreeJournal realisee par
+
+@enduml

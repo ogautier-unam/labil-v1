@@ -1,0 +1,171 @@
+@startuml P2 - Authentification et Identification
+
+' ============================================================
+' P2 — Authentification & Identification (détail complet)
+' Sources : §5 ex.7, §5 ex.8, §5 ex.14
+' ============================================================
+
+left to right direction
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 5
+skinparam defaultFontName Arial
+
+skinparam class {
+  BackgroundColor White
+  BorderColor #555555
+  ArrowColor #444444
+  FontColor #111111
+  HeaderBackgroundColor #F2F2F2
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 9
+}
+skinparam package {
+  BorderColor #888888
+  FontColor #333333
+  FontStyle bold
+}
+
+' --- Références externes ---
+skinparam class {
+  BackgroundColor<<ext>> #F0F0F0
+  BorderColor<<ext>> #AAAAAA
+  FontColor<<ext>> #777777
+}
+hide <<ext>> members
+
+class Personne <<ext>>
+
+' ============================================================
+' PACKAGE P2 : Authentification & Identification
+' ============================================================
+package "P2 · Authentification & Identification" #F0F8FF {
+
+  abstract class MethodeIdentification {
+    + dateVerification : Date
+    + estVerifiee      : Boolean
+    + niveauFiabilite  : NiveauFiabilite
+    ' §5 ex.7 : utilisée UNIQUEMENT pour :
+    '   (1) création de compte, ou
+    '   (2) rétablissement de confiance
+    '   PAS à chaque connexion quotidienne
+  }
+
+  ' ── Groupe 1 : méthodes d'identification formelles ──────
+  together {
+    class LoginPassword {
+      + login             : String
+      + motDePasseHash    : String
+      + derniereConnexion : DateTime
+      ' §5 ex.8 : MINIMUM OBLIGATOIRE — toujours présent
+      ' Autres modalités de connexion quotidienne : optionnelles
+    }
+
+    class CarteIdentiteElectronique {
+      + numeroCarte  : String
+      + paysEmetteur : String
+      ' §5 ex.7 & ex.14 — NiveauFiabilite : TRES_HAUTE
+    }
+
+    class VerificationSMS {
+      + numeroTelephone : String
+      ' §5 ex.7 : challenge envoyé par SMS ou messagerie
+      ' NiveauFiabilite : HAUTE
+    }
+
+    class VerificationBancaire {
+      + referenceVirement   : String
+      + montantVireCentimes : Integer
+      ' §5 ex.7 : virement de 1 centime (opération bancaire traçable)
+      ' NiveauFiabilite : HAUTE (si infrastructure bancaire opérationnelle)
+    }
+  }
+
+  ' ── Groupe 2 : méthodes alternatives / contextuelles ───
+  together {
+    class VerificationFacture {
+      + typeFacture : TypeFacture
+      + dateFacture : Date
+      ' §5 ex.7 : facture d'électricité récente, n° téléphone fixe…
+      ' NiveauFiabilite : MOYENNE (document souvent perdu en crise)
+    }
+
+    class VerificationPhoto {
+      + urlPhoto         : String
+      + incluPersonne    : Boolean
+      + modeVerification : ModeVerification
+      ' §5 ex.14 : photo carte identité ± mise en contexte
+      '            ou discussion téléphonique avec un employé
+      ' NiveauFiabilite : MOYENNE (vérification manuelle possible)
+    }
+
+    class Parrainage {
+      + nombreParrainsRequis  : Integer
+      + nombreParrainsActuels : Integer
+      ' §5 ex.14 : parrainage par n utilisateurs déjà identifiés
+      ' NiveauFiabilite : variable selon n et fiabilité des parrains
+    }
+
+    class Delegation {
+      ' §5 ex.7 : personne authentifiée atteste de l'identité d'une tierce
+      ' NiveauFiabilite : EXPLICITEMENT_FAIBLE
+      '   "ne pas être considérée comme fiable" (énoncé §5 ex.7)
+      '   dernier recours : sinistré ayant tout perdu
+    }
+  }
+
+  ' ── Enums ────────────────────────────────────────────────
+  together {
+    enum NiveauFiabilite {
+      TRES_HAUTE
+      HAUTE
+      MOYENNE
+      FAIBLE
+      EXPLICITEMENT_FAIBLE
+      ' §5 ex.14 : visible sur le profil public de l'acteur
+      '            détermine le badge VERT / ORANGE / ROUGE
+    }
+
+    enum TypeFacture {
+      ELECTRICITE
+      GAZ
+      EAU
+      TELEPHONE_FIXE
+    }
+
+    enum ModeVerification {
+      AUTOMATIQUE
+      MANUELLE_OPERATEUR
+    }
+  }
+
+  ' ── Hiérarchie ──────────────────────────────────────────
+  MethodeIdentification <|-- LoginPassword
+  MethodeIdentification <|-- CarteIdentiteElectronique
+  MethodeIdentification <|-- VerificationSMS
+  MethodeIdentification <|-- VerificationBancaire
+  MethodeIdentification <|-- VerificationFacture
+  MethodeIdentification <|-- VerificationPhoto
+  MethodeIdentification <|-- Parrainage
+  MethodeIdentification <|-- Delegation
+
+  MethodeIdentification --> NiveauFiabilite  : niveauFiabilite
+  VerificationFacture   --> TypeFacture      : typeFacture
+  VerificationPhoto     --> ModeVerification : modeVerification
+
+  ' §5 ex.14 : parrains = Personnes déjà identifiées
+  Parrainage  "*" --> "*" Personne : parrains (P1)
+  ' §5 ex.7  : garant = Personne déjà authentifiée par méthode fiable
+  Delegation  "*" --> "1" Personne : garant (P1)
+}
+
+' ── Relation vers P1 ────────────────────────────────────────
+Personne "1" --> "1..*" MethodeIdentification : s'identifie par
+
+@enduml

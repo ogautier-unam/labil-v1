@@ -1,0 +1,160 @@
+@startuml P1 - Acteurs et Roles
+
+' ============================================================
+' P1 — Acteurs & Rôles (détail complet)
+' Sources : §3.1, §5 ex.4, §5 ex.5, §5 ex.6, §5 ex.9
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 5
+skinparam defaultFontName Arial
+
+skinparam class {
+  BackgroundColor White
+  BorderColor #555555
+  ArrowColor #444444
+  FontColor #111111
+  HeaderBackgroundColor #F2F2F2
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 9
+}
+skinparam interface {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+}
+skinparam package {
+  BorderColor #888888
+  FontColor #333333
+  FontStyle bold
+}
+
+' --- Références externes (autres packages, sans détail) ---
+skinparam class {
+  BackgroundColor<<ext>> #F0F0F0
+  BorderColor<<ext>> #AAAAAA
+  FontColor<<ext>> #777777
+}
+hide <<ext>> members
+
+class MethodeIdentification <<ext>>
+class ConfigCatastrophe <<ext>>
+
+' ============================================================
+' PACKAGE P1 : Acteurs & Rôles
+' ============================================================
+package "P1 · Acteurs & Rôles" #FEFFF0 {
+
+  abstract class Acteur {
+    + id           : UUID
+    + dateCreation : Date
+    + estActif     : Boolean
+    + {abstract} getNiveauBadge() : NiveauBadge
+    ' Badge calculé selon les MethodeIdentification de la Personne
+  }
+
+  class Personne {
+    + nom            : String
+    + prenom         : String
+    + adresse        : String
+    + moyensContact  : String
+    + urlPhoto       : String
+    + languePreferee : String
+    ' §5 ex.12 : profil utile aux objectifs — pas un réseau social
+  }
+
+  class Entite {
+    + nom                : String
+    + description        : String
+    + moyensContact      : String
+    + urlPagePresentation : String
+    + commentFaireDon    : String
+    + typesContributions : String
+    + estActive          : Boolean
+    ' §5 ex.13 : page de présentation synthétique et contextuelle
+    ' §5 ex.4  : associée à une Personne responsable identifiée
+    ' §5 ex.5  : ajoutée/supprimée par AS ou AC en cours de catastrophe
+  }
+
+  class AttributionRole {
+    + dateDebut     : Date
+    + dateFin       : Date
+    + reconductible : Boolean
+    + dateRappel    : Date
+    + rappelEnvoye  : Boolean
+    + statut        : StatutRole
+    ' §5 ex.6 : rôles à durée limitée, reconductibles
+    '           mécanisme de rappel si rôle non reconduit
+  }
+
+  class Mandat {
+    + dateDebut   : Date
+    + dateFin     : Date
+    + portee      : PorteeMandat
+    + description : String
+    + estPublic   : Boolean
+    ' §5 ex.9 : information publique, publiée en temps opportun
+    '           grande souplesse requise (situation de catastrophe)
+    '           traçabilité des responsabilités
+  }
+
+  enum TypeRole {
+    CONTRIBUTEUR
+    UTILISATEUR
+    ADMIN_INSTALLEUR
+    ADMIN_CATASTROPHE
+    ADMIN_SYSTEME
+    ' §3.1 : tous les rôles ; CUMULABLES sur un même acteur
+  }
+
+  enum NiveauBadge {
+    VERT
+    ORANGE
+    ROUGE
+    ' §5 ex.14 :
+    '   VERT   = méthode fiable (eID, bancaire)
+    '   ORANGE = méthode moins formelle (SMS, facture, photo)
+    '   ROUGE  = non vérifié ou délégation seulement
+  }
+
+  enum StatutRole {
+    ACTIF
+    EXPIRE
+    SUSPENDU
+    ' §5 ex.6 : un rôle expiré peut être reconduit
+  }
+
+  enum PorteeMandat {
+    TOUTES_OPERATIONS
+    LECTURE_SEULE
+    CATEGORIE_SPECIFIQUE
+    ' §5 ex.9 : portée à définir lors de la conception détaillée
+  }
+
+  ' ── Relations intra-package ─────────────────────────────
+  Acteur <|-- Personne
+  Acteur <|-- Entite
+
+  Acteur       "1"       -->  "*"    AttributionRole : possède >
+  AttributionRole                -->  TypeRole        : type
+  AttributionRole                -->  StatutRole      : statut
+  AttributionRole "*"    --> "0..1" Entite           : accréditée par >
+  ' §5 ex.4 : rôle accrédité par une Entité (qui engage sa responsabilité)
+
+  Acteur "1 mandant"    --> "*" Mandat : donne >
+  Acteur "1 mandataire" --> "*" Mandat : reçoit >
+  Mandat                -->          PorteeMandat : portée
+
+  Entite "1" --> "1" Personne : responsable >
+}
+
+' ── Relations vers autres packages ──────────────────────────
+Personne "1" --> "1..*" MethodeIdentification : s'identifie par\n(P2)
+Acteur        -->        ConfigCatastrophe     : contexte actif\n(P3)
+
+@enduml

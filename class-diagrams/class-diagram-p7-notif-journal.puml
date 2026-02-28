@@ -1,0 +1,152 @@
+@startuml P7-P8 - Notifications et Journal Audit
+
+' ============================================================
+' P7 — Notifications + P8 — Journal & Audit (détail complet)
+' P7 Sources : §5 ex.6, §5.1 ex.1, §5.1.3, §5.2 ex.3, §5.2 ex.4
+' P8 Sources : §5 ex.10
+' ============================================================
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam roundcorner 5
+skinparam defaultFontName Arial
+
+skinparam class {
+  BackgroundColor White
+  BorderColor #555555
+  ArrowColor #444444
+  FontColor #111111
+  HeaderBackgroundColor #F2F2F2
+}
+skinparam note {
+  BackgroundColor #FFFDE7
+  BorderColor #F9A825
+  FontSize 9
+}
+skinparam package {
+  BorderColor #888888
+  FontColor #333333
+  FontStyle bold
+}
+
+' --- Références externes ---
+skinparam class {
+  BackgroundColor<<ext>> #F0F0F0
+  BorderColor<<ext>> #AAAAAA
+  FontColor<<ext>> #777777
+}
+hide <<ext>> members
+
+class Acteur      <<ext>>
+class Proposition <<ext>>
+
+' ============================================================
+' PACKAGE P7 : Notifications
+' ============================================================
+package "P7 · Notifications" #F8F0FF {
+
+  class Notification {
+    + dateCreation : DateTime
+    + dateEnvoi    : DateTime
+    + estLue       : Boolean
+    + type         : TypeNotification
+    + contenu      : String
+    + refEntiteId  : String
+    ' refEntiteId = UUID de l'entité concernée
+    '   (Proposition, Rôle, Panier, IntentionDon…)
+    ' Notification générée automatiquement par le système
+  }
+
+  enum TypeNotification {
+    RAPPEL_ROLE_EXPIRATION_IMMINENTE
+    RELANCE_PROPOSITION_AVANT_ARCHIVAGE
+    PANIER_ANNULE_OFFRE_REMISE_ACTIVE
+    INTENTION_DON_ACCEPTEE
+    INTENTION_DON_REFUSEE
+    INTENTION_DON_CONFIRMATION_REQUISE
+    OFFRE_SATISFAITE_75_POURCENT
+    SUGGESTION_APPARIEMENT_DISPONIBLE
+    ' §5 ex.6   : rappel rôle expiration imminente
+    ' §5.1 ex.1 : relance propriétaire avant archivage
+    ' §5.2 ex.3 : panier annulé -> offres libérées
+    ' §5.1.3    : IntentionDon acceptée / refusée / confirmation requise
+    ' §5.1.1    : offre satisfaite à 75 %
+    ' §5.2 ex.4 : suggestion d'appariement disponible
+  }
+
+  Notification "*" --> "1" Acteur           : destinataire (P1)
+  Notification      -->     TypeNotification : type
+}
+
+' ── Relation inter-packages ──────────────────────────────────
+Notification ..> Proposition : ref. optionnelle (P4)
+
+' ============================================================
+' PACKAGE P8 : Journal & Audit
+' ============================================================
+package "P8 · Journal & Audit" #F0F0FF {
+
+  class EntreeJournal {
+    + dateHeure       : DateTime
+    + typeOperation   : TypeOperation
+    + acteurId        : UUID
+    + entityCibleId   : UUID
+    + entityCibleType : String
+    + details         : String
+    + adresseIP       : String
+    + sessionId       : String
+    ' §5 ex.10 : journal de TOUTES les opérations
+    '            STRUCTURE pour permettre une analyse automatique
+    '            (pas un simple log texte — événements typés)
+  }
+
+  enum TypeOperation {
+    ' ── Comptes & Sessions ──
+    CONNEXION
+    DECONNEXION
+    CREATION_COMPTE
+    RETABLISSEMENT_CONFIANCE
+    ' ── Propositions ──
+    DEPOT_PROPOSITION
+    MODIFICATION_PROPOSITION
+    CLOTURE_PROPOSITION
+    ARCHIVAGE_PROPOSITION
+    RECYCLAGE_PROPOSITION
+    ' ── Transactions & Matching ──
+    DEBUT_TRANSACTION
+    CONFIRMATION_TRANSACTION
+    ANNULATION_TRANSACTION
+    ENVOI_MESSAGE
+    BASCULE_VISIBILITE_DISCUSSION
+    ' ── Paniers ──
+    CREATION_PANIER
+    CONFIRMATION_PANIER
+    ANNULATION_PANIER
+    ' ── Administration ──
+    ATTRIBUTION_ROLE
+    REVOCATION_ROLE
+    MANDAT_CREE
+    MANDAT_REVOQUE
+    ENTITE_AJOUTEE
+    ENTITE_SUPPRIMEE
+    MODIFICATION_TAXONOMIE
+    MODIFICATION_CONFIG_CATASTROPHE
+    ' §5 ex.10 : structuré pour analyse automatique
+  }
+
+  EntreeJournal "*" --> "1" Acteur        : réalisée par (P1)
+  EntreeJournal      -->    TypeOperation : typeOperation
+
+  note right of EntreeJournal
+    §5 ex.10 : le journal est
+    **structuré** (pas un simple log
+    texte) pour permettre une
+    **analyse automatique**.
+    TypeOperation couvre 25 types
+    d'événements système.
+  end note
+}
+
+@enduml
