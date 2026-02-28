@@ -781,3 +781,11 @@ packages/
 ✅ TransactionRepositoryTests (4 tests : Add+GetById+Discussion, GetAll, Update statut, GetByPropositionId)
 ✅ Packages : Microsoft.EntityFrameworkCore.InMemory 10.0.3 + Microsoft.EntityFrameworkCore 10.0.3
 ✅ Total : 63 tests, 0 échec (Domain 33, Application 22, Infrastructure 8)
+
+#### Session 11 — 2026-02-28 — Tests repository + query handlers
+✅ DemandeRepositoryTests (4 tests : Add+GetById, GetAll, GetById inexistant, Update statut)
+✅ PanierRepositoryTests (4 tests : Add+GetById, GetByProprietaire, AjouterOffre+Update, ConfirmerPanier)
+✅ GetOffresQueryHandlerTests (2 tests : liste peuplée, liste vide)
+✅ GetDemandesQueryHandlerTests (2 tests : deux demandes avec urgences, liste vide) — fix NiveauUrgence.Eleve (pas Haute)
+✅ GetPanierQueryHandlerTests (3 tests : panier ouvert, panier confirmé → null, aucun panier → null)
+✅ Total : 78 tests, 0 échec (Domain 33, Application 29, Infrastructure 16)
