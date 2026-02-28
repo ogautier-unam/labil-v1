@@ -760,3 +760,12 @@ packages/
 ✅ ConfirmerTransactionCommandHandlerTests (2 tests : succès + proposition clôturée, introuvable)
 ✅ AnnulerTransactionCommandHandlerTests (2 tests : succès + proposition libérée, introuvable)
 ✅ Total : 56 tests, 0 échec (Domain.Tests 33, Application.Tests 22, Infrastructure.Tests 1)
+
+#### Session 9 — 2026-02-28 — Web : Paniers + Offres interactives
+✅ PanierModel ajouté (Models/PanierModel.cs)
+✅ ApiClient : CreateOffre, InitierTransaction, GetPanier, CreatePanier, AjouterOffreAuPanier, ConfirmerPanier, AnnulerPanier
+✅ Pages/Paniers/Index.cshtml + .cshtml.cs : voir/créer panier, confirmer, annuler (Authorize)
+✅ Pages/Propositions/Offres.cshtml.cs : OnPostPublierAsync + OnPostAjouterAuPanierAsync
+✅ Pages/Propositions/Offres.cshtml : formulaire "Publier une offre" (collapse) + bouton "+ Panier" par offre active
+✅ _Layout.cshtml : lien "Mon panier" dans navbar (visible si connecté)
+✅ Build : 0 erreur

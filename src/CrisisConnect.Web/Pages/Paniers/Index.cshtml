@@ -1,0 +1,112 @@
+@page
+@model CrisisConnect.Web.Pages.Paniers.PaniersIndexModel
+@{
+    ViewData["Title"] = "Mon panier";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Mon panier</h1>
+</div>
+
+@if (Model.SuccessMessage is not null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @Model.SuccessMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@if (Model.Panier is null)
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fs-1 text-muted">🛒</i>
+            <p class="text-muted mt-3">Vous n'avez pas encore de panier ouvert.</p>
+            <form method="post" asp-page-handler="Créer">
+                <button type="submit" class="btn btn-primary">
+                    Créer mon panier
+                </button>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    var statutCss = Model.Panier.Statut switch
+    {
+        "Confirme" => "bg-success",
+        "Annule"   => "bg-danger",
+        _          => "bg-primary"
+    };
+    var estOuvert = Model.Panier.Statut == "Ouvert";
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>
+                Panier <span class="font-monospace small text-muted">@Model.Panier.Id.ToString()[..8]…</span>
+            </span>
+            <span class="badge @statutCss">@Model.Panier.Statut</span>
+        </div>
+        <div class="card-body">
+            <p class="text-muted small mb-1">Créé le @Model.Panier.DateCreation.ToString("dd/MM/yyyy HH:mm")</p>
+            @if (Model.Panier.DateConfirmation.HasValue)
+            {
+                <p class="text-muted small">Confirmé le @Model.Panier.DateConfirmation.Value.ToString("dd/MM/yyyy HH:mm")</p>
+            }
+
+            @if (!Model.Panier.Offres.Any())
+            {
+                <div class="alert alert-info mt-3 mb-0">
+                    Votre panier est vide. Rendez-vous sur la page
+                    <a asp-page="/Propositions/Offres">Offres</a> pour en ajouter.
+                </div>
+            }
+            else
+            {
+                <h6 class="mt-3 mb-2">Offres (@Model.Panier.Offres.Count)</h6>
+                <ul class="list-group list-group-flush">
+                    @foreach (var offre in Model.Panier.Offres)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@offre.Titre</strong>
+                                <span class="text-muted small ms-2">@offre.Description</span>
+                            </div>
+                            @if (offre.LivraisonIncluse)
+                            {
+                                <span class="badge bg-info text-dark">Livraison</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+        @if (estOuvert)
+        {
+            <div class="card-footer d-flex gap-2">
+                <form method="post" asp-page-handler="Confirmer">
+                    <input type="hidden" name="panierId" value="@Model.Panier.Id" />
+                    <button type="submit" class="btn btn-success btn-sm"
+                            onclick="return confirm('Confirmer le panier ?')">
+                        Confirmer
+                    </button>
+                </form>
+                <form method="post" asp-page-handler="Annuler">
+                    <input type="hidden" name="panierId" value="@Model.Panier.Id" />
+                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                            onclick="return confirm('Annuler le panier ?')">
+                        Annuler
+                    </button>
+                </form>
+                <a asp-page="/Propositions/Offres" class="btn btn-outline-secondary btn-sm ms-auto">
+                    + Ajouter des offres
+                </a>
+            </div>
+        }
+    </div>
+}
