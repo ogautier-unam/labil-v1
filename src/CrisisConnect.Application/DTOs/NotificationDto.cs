@@ -1,9 +1,11 @@
+using CrisisConnect.Domain.Enums;
+
 namespace CrisisConnect.Application.DTOs;
 
 public record NotificationDto(
     Guid Id,
     Guid DestinataireId,
-    string Sujet,
+    TypeNotification Type,
     string Contenu,
     bool EstLue,
-    DateTime CreeLe);
+    DateTime DateCreation);

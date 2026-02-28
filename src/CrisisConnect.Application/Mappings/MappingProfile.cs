@@ -14,5 +14,6 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Urgence, opt => opt.MapFrom(src => src.Urgence));
         CreateMap<Transaction, TransactionDto>();
         CreateMap<Notification, NotificationDto>();
+        CreateMap<ConfigCatastrophe, ConfigCatastropheDto>();
     }
 }

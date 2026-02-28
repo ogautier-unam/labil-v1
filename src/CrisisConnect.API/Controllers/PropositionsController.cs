@@ -1,6 +1,10 @@
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Demandes.CreateDemande;
+using CrisisConnect.Application.UseCases.Demandes.GetDemandeById;
+using CrisisConnect.Application.UseCases.Demandes.GetDemandes;
 using CrisisConnect.Application.UseCases.Offres.CreateOffre;
+using CrisisConnect.Application.UseCases.Offres.GetOffreById;
+using CrisisConnect.Application.UseCases.Offres.GetOffres;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositionById;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositions;
 using MediatR;
@@ -38,6 +42,27 @@ public class PropositionsController : ControllerBase
         return Ok(result);
     }
 
+    // ── Offres ──────────────────────────────────────────────────────────────
+
+    /// <summary>Liste toutes les offres.</summary>
+    [HttpGet("offres")]
+    [ProducesResponseType<IReadOnlyList<OffreDto>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllOffres(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetOffresQuery(), cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>Retourne une offre par son identifiant.</summary>
+    [HttpGet("offres/{id:guid}")]
+    [ProducesResponseType<OffreDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetOffreById(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetOffreByIdQuery(id), cancellationToken);
+        return Ok(result);
+    }
+
     /// <summary>Crée une nouvelle offre.</summary>
     [HttpPost("offres")]
     [ProducesResponseType<OffreDto>(StatusCodes.Status201Created)]
@@ -45,7 +70,28 @@ public class PropositionsController : ControllerBase
     public async Task<IActionResult> CreateOffre([FromBody] CreateOffreCommand command, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(command, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        return CreatedAtAction(nameof(GetOffreById), new { id = result.Id }, result);
+    }
+
+    // ── Demandes ─────────────────────────────────────────────────────────────
+
+    /// <summary>Liste toutes les demandes.</summary>
+    [HttpGet("demandes")]
+    [ProducesResponseType<IReadOnlyList<DemandeDto>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllDemandes(CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDemandesQuery(), cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>Retourne une demande par son identifiant.</summary>
+    [HttpGet("demandes/{id:guid}")]
+    [ProducesResponseType<DemandeDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDemandeById(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDemandeByIdQuery(id), cancellationToken);
+        return Ok(result);
     }
 
     /// <summary>Crée une nouvelle demande.</summary>
@@ -55,6 +101,6 @@ public class PropositionsController : ControllerBase
     public async Task<IActionResult> CreateDemande([FromBody] CreateDemandeCommand command, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(command, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+        return CreatedAtAction(nameof(GetDemandeById), new { id = result.Id }, result);
     }
 }

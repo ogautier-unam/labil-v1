@@ -18,6 +18,12 @@ public class TransactionRepository : ITransactionRepository
             .Include(t => t.Discussion)
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
+    public async Task<IReadOnlyList<Transaction>> GetAllAsync(CancellationToken cancellationToken = default)
+        => await _context.Transactions
+            .Include(t => t.Discussion)
+            .OrderByDescending(t => t.DateCreation)
+            .ToListAsync(cancellationToken);
+
     public async Task<IReadOnlyList<Transaction>> GetByPropositionIdAsync(Guid propositionId, CancellationToken cancellationToken = default)
         => await _context.Transactions
             .Include(t => t.Discussion)
