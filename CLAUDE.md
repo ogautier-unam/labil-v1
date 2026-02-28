@@ -789,3 +789,19 @@ packages/
 ✅ GetDemandesQueryHandlerTests (2 tests : deux demandes avec urgences, liste vide) — fix NiveauUrgence.Eleve (pas Haute)
 ✅ GetPanierQueryHandlerTests (3 tests : panier ouvert, panier confirmé → null, aucun panier → null)
 ✅ Total : 78 tests, 0 échec (Domain 33, Application 29, Infrastructure 16)
+
+#### Session 12 — 2026-03-01 — Coverage domaine complète + dashboard temps réel + lacunes production
+✅ Domain.Tests : SuggestionAppariement, Personne, EntreeJournal, Mandat, IntentionDon, LigneCatalogue, Proposition, DemandeQuota, DemandeSurCatalogue, PropositionAvecValidation — +40 tests
+✅ Domain.Tests : MessageTests, MediaTests, DemandeRepartitionGeoTests — +8 tests
+✅ Web Index dashboard : OnGetAsync injecte ApiClient, affiche comptes réels offres/demandes/transactions
+✅ Cas limites Application : SuggestionAppariementRepository.GetByDemandeAsync, ConfirmerTransaction null proposition, AnnulerTransaction non-en-transaction, CreateDemande description vide
+✅ Production fix : AdaptateurDeepL parse JSON réponse (System.Text.Json)
+✅ Production fix : NotificationService implémenté (INotificationService → logger placeholder)
+✅ Production fix : LogoutCommand + LogoutCommandHandler (révocation refresh tokens) + AuthController POST /api/auth/logout [Authorize]
+✅ Production fix : ExceptionMiddleware (NotFoundException→404, ValidationException→400 avec champs, DomainException→400, Exception→500)
+✅ Production fix : ValidationBehaviour async (ValidateAsync + Task.WhenAll)
+✅ Production fix : PropositionsController [Authorize] sur POST /offres et POST /demandes
+✅ Production fix : AuditBehaviour (IPipelineBehavior, skip Query, try/catch, _commandMap 16 entrées)
+✅ Production fix : 4 validators manquants — CreatePanierValidator, AjouterOffreAuPanierValidator, RefreshTokenValidator, MarkNotificationAsReadValidator
+✅ Tests : LogoutCommandHandlerTests (2), AuditBehaviourTests (4), CreatePanierValidatorTests (2), RefreshTokenValidatorTests (3)
+✅ Total : 261 tests, 0 échec (Domain 117, Application 92, Infrastructure 52)
