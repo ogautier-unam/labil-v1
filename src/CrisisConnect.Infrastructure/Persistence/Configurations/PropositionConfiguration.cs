@@ -10,6 +10,10 @@ public class PropositionConfiguration : IEntityTypeConfiguration<Proposition>
     {
         builder.HasKey(p => p.Id);
 
+        builder.HasDiscriminator<string>("type_proposition")
+            .HasValue<Offre>("Offre")
+            .HasValue<Demande>("Demande");
+
         builder.Property(p => p.Titre)
             .IsRequired()
             .HasMaxLength(200);

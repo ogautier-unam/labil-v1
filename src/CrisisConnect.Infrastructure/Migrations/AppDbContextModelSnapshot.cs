@@ -22,131 +22,7 @@ namespace CrisisConnect.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CrisisConnect.Domain.Entities.Matching", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("BenevoleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("benevole_id");
-
-                    b.Property<DateTime>("CreeLe")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("cree_le");
-
-                    b.Property<Guid>("MissionId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("mission_id");
-
-                    b.Property<DateTime?>("ModifieLe")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modifie_le");
-
-                    b.Property<string>("Statut")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("statut");
-
-                    b.HasKey("Id")
-                        .HasName("pk_matchings");
-
-                    b.HasIndex("MissionId")
-                        .HasDatabaseName("ix_matchings_mission_id");
-
-                    b.ToTable("matchings", (string)null);
-                });
-
-            modelBuilder.Entity("CrisisConnect.Domain.Entities.Mission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreeLe")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("cree_le");
-
-                    b.Property<Guid>("CreePar")
-                        .HasColumnType("uuid")
-                        .HasColumnName("cree_par");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("description");
-
-                    b.Property<DateTime?>("ModifieLe")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modifie_le");
-
-                    b.Property<int>("NombreBenevoles")
-                        .HasColumnType("integer")
-                        .HasColumnName("nombre_benevoles");
-
-                    b.Property<Guid>("PropositionId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("proposition_id");
-
-                    b.Property<string>("Statut")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("statut");
-
-                    b.Property<string>("Titre")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("titre");
-
-                    b.HasKey("Id")
-                        .HasName("pk_missions");
-
-                    b.ToTable("missions", (string)null);
-                });
-
-            modelBuilder.Entity("CrisisConnect.Domain.Entities.Notification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Contenu")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("contenu");
-
-                    b.Property<DateTime>("CreeLe")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("cree_le");
-
-                    b.Property<Guid>("DestinataireId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("destinataire_id");
-
-                    b.Property<bool>("EstLue")
-                        .HasColumnType("boolean")
-                        .HasColumnName("est_lue");
-
-                    b.Property<string>("Sujet")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("sujet");
-
-                    b.HasKey("Id")
-                        .HasName("pk_notifications");
-
-                    b.ToTable("notifications", (string)null);
-                });
-
-            modelBuilder.Entity("CrisisConnect.Domain.Entities.Personne", b =>
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Acteur", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -163,6 +39,10 @@ namespace CrisisConnect.Infrastructure.Migrations
                         .HasColumnType("character varying(256)")
                         .HasColumnName("email");
 
+                    b.Property<bool>("EstActif")
+                        .HasColumnType("boolean")
+                        .HasColumnName("est_actif");
+
                     b.Property<DateTime?>("ModifieLe")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("modifie_le");
@@ -172,32 +52,329 @@ namespace CrisisConnect.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("mot_de_passe_hash");
 
-                    b.Property<string>("Nom")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("nom");
-
-                    b.Property<string>("Prenom")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("prenom");
-
                     b.Property<string>("Role")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("role");
 
-                    b.Property<string>("Telephone")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("telephone");
+                    b.Property<string>("type_acteur")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("type_acteur");
 
                     b.HasKey("Id")
-                        .HasName("pk_personnes");
+                        .HasName("pk_acteurs");
 
-                    b.ToTable("personnes", (string)null);
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_acteurs_email");
+
+                    b.ToTable("acteurs", (string)null);
+
+                    b.HasDiscriminator<string>("type_acteur").HasValue("Acteur");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.AttributionRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("AccrediteeParId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("accreditee_par_id");
+
+                    b.Property<Guid>("ActeurId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("acteur_id");
+
+                    b.Property<DateTime>("DateDebut")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_debut");
+
+                    b.Property<DateTime?>("DateFin")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_fin");
+
+                    b.Property<DateTime?>("DateRappel")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_rappel");
+
+                    b.Property<bool>("RappelEnvoye")
+                        .HasColumnType("boolean")
+                        .HasColumnName("rappel_envoye");
+
+                    b.Property<bool>("Reconductible")
+                        .HasColumnType("boolean")
+                        .HasColumnName("reconductible");
+
+                    b.Property<string>("Statut")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("statut");
+
+                    b.Property<string>("TypeRole")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type_role");
+
+                    b.HasKey("Id")
+                        .HasName("pk_attributions_roles");
+
+                    b.ToTable("attributions_roles", (string)null);
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Discussion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_creation");
+
+                    b.Property<Guid>("TransactionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("transaction_id");
+
+                    b.Property<string>("Visibilite")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("visibilite");
+
+                    b.HasKey("Id")
+                        .HasName("pk_discussions");
+
+                    b.HasIndex("TransactionId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_discussions_transaction_id");
+
+                    b.ToTable("discussions", (string)null);
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.EntreeJournal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ActeurId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("acteur_id");
+
+                    b.Property<string>("AdresseIP")
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)")
+                        .HasColumnName("adresse_ip");
+
+                    b.Property<DateTime>("DateHeure")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_heure");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("details");
+
+                    b.Property<Guid?>("EntiteCibleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("entite_cible_id");
+
+                    b.Property<string>("EntiteCibleType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("entite_cible_type");
+
+                    b.Property<string>("SessionId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("session_id");
+
+                    b.Property<string>("TypeOperation")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type_operation");
+
+                    b.HasKey("Id")
+                        .HasName("pk_entrees_journal");
+
+                    b.ToTable("entrees_journal", (string)null);
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Mandat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("DateDebut")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_debut");
+
+                    b.Property<DateTime?>("DateFin")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_fin");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("EstPublic")
+                        .HasColumnType("boolean")
+                        .HasColumnName("est_public");
+
+                    b.Property<Guid>("MandantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("mandant_id");
+
+                    b.Property<Guid>("MandataireId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("mandataire_id");
+
+                    b.Property<string>("Portee")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("portee");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mandats");
+
+                    b.ToTable("mandats", (string)null);
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Contenu")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("contenu");
+
+                    b.Property<DateTime>("DateEnvoi")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_envoi");
+
+                    b.Property<Guid>("DiscussionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("discussion_id");
+
+                    b.Property<Guid>("ExpediteurId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("expediteur_id");
+
+                    b.Property<bool>("IssueTraductionAuto")
+                        .HasColumnType("boolean")
+                        .HasColumnName("issue_traduction_auto");
+
+                    b.Property<string>("Langue")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("langue");
+
+                    b.Property<string>("TexteOriginal")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("texte_original");
+
+                    b.HasKey("Id")
+                        .HasName("pk_messages");
+
+                    b.HasIndex("DiscussionId")
+                        .HasDatabaseName("ix_messages_discussion_id");
+
+                    b.ToTable("messages", (string)null);
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Contenu")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("contenu");
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_creation");
+
+                    b.Property<DateTime?>("DateEnvoi")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_envoi");
+
+                    b.Property<Guid>("DestinataireId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("destinataire_id");
+
+                    b.Property<bool>("EstLue")
+                        .HasColumnType("boolean")
+                        .HasColumnName("est_lue");
+
+                    b.Property<string>("RefEntiteId")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("ref_entite_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notifications");
+
+                    b.ToTable("notifications", (string)null);
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Panier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("DateConfirmation")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_confirmation");
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_creation");
+
+                    b.Property<Guid>("ProprietaireId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("proprietaire_id");
+
+                    b.Property<string>("Statut")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("statut");
+
+                    b.HasKey("Id")
+                        .HasName("pk_paniers");
+
+                    b.ToTable("paniers", (string)null);
                 });
 
             modelBuilder.Entity("CrisisConnect.Domain.Entities.Proposition", b =>
@@ -215,6 +392,18 @@ namespace CrisisConnect.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("cree_par");
 
+                    b.Property<DateTime?>("DateArchivage")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_archivage");
+
+                    b.Property<DateTime?>("DateCloture")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_cloture");
+
+                    b.Property<DateTime?>("DateRelance")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_relance");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(2000)
@@ -236,10 +425,20 @@ namespace CrisisConnect.Infrastructure.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("titre");
 
+                    b.Property<string>("type_proposition")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("character varying(13)")
+                        .HasColumnName("type_proposition");
+
                     b.HasKey("Id")
                         .HasName("pk_propositions");
 
                     b.ToTable("propositions", (string)null);
+
+                    b.HasDiscriminator<string>("type_proposition").HasValue("Proposition");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("CrisisConnect.Domain.Entities.RefreshToken", b =>
@@ -281,42 +480,255 @@ namespace CrisisConnect.Infrastructure.Migrations
                     b.ToTable("refresh_tokens", (string)null);
                 });
 
-            modelBuilder.Entity("CrisisConnect.Domain.Entities.Matching", b =>
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Transaction", b =>
                 {
-                    b.HasOne("CrisisConnect.Domain.Entities.Mission", null)
-                        .WithMany("Matchings")
-                        .HasForeignKey("MissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("DateCreation")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_creation");
+
+                    b.Property<DateTime?>("DateMaj")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_maj");
+
+                    b.Property<Guid>("InitiateurId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("initiateur_id");
+
+                    b.Property<Guid>("PropositionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("proposition_id");
+
+                    b.Property<string>("Statut")
                         .IsRequired()
-                        .HasConstraintName("fk_matchings_missions_mission_id");
+                        .HasColumnType("text")
+                        .HasColumnName("statut");
+
+                    b.HasKey("Id")
+                        .HasName("pk_transactions");
+
+                    b.ToTable("transactions", (string)null);
                 });
 
-            modelBuilder.Entity("CrisisConnect.Domain.Entities.Mission", b =>
+            modelBuilder.Entity("paniers_offres", b =>
                 {
-                    b.OwnsOne("CrisisConnect.Domain.ValueObjects.PlageTemporelle", "Plage", b1 =>
+                    b.Property<Guid>("OffresId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("offres_id");
+
+                    b.Property<Guid>("PanierId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("panier_id");
+
+                    b.HasKey("OffresId", "PanierId")
+                        .HasName("pk_paniers_offres");
+
+                    b.HasIndex("PanierId")
+                        .HasDatabaseName("ix_paniers_offres_panier_id");
+
+                    b.ToTable("paniers_offres", (string)null);
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Entite", b =>
+                {
+                    b.HasBaseType("CrisisConnect.Domain.Entities.Acteur");
+
+                    b.Property<string>("CommentFaireDon")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("comment_faire_don");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("EstActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("est_active");
+
+                    b.Property<string>("MoyensContact")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("moyens_contact");
+
+                    b.Property<string>("Nom")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("nom");
+
+                    b.Property<Guid>("ResponsableId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("responsable_id");
+
+                    b.Property<string>("TypesContributions")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("types_contributions");
+
+                    b.Property<string>("UrlPagePresentation")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("url_page_presentation");
+
+                    b.HasDiscriminator().HasValue("Entite");
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Personne", b =>
+                {
+                    b.HasBaseType("CrisisConnect.Domain.Entities.Acteur");
+
+                    b.Property<string>("LanguePreferee")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("langue_preferee");
+
+                    b.Property<string>("MoyensContact")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("moyens_contact");
+
+                    b.Property<string>("Nom")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("nom");
+
+                    b.Property<string>("Prenom")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("prenom");
+
+                    b.Property<string>("Telephone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("telephone");
+
+                    b.Property<string>("UrlPhoto")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("url_photo");
+
+                    b.HasDiscriminator().HasValue("Personne");
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Demande", b =>
+                {
+                    b.HasBaseType("CrisisConnect.Domain.Entities.Proposition");
+
+                    b.Property<string>("OperateurLogique")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("operateur_logique");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("parent_id");
+
+                    b.Property<string>("RegionSeverite")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("region_severite");
+
+                    b.Property<string>("Urgence")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("urgence");
+
+                    b.HasIndex("ParentId")
+                        .HasDatabaseName("ix_propositions_parent_id");
+
+                    b.ToTable("propositions", (string)null);
+
+                    b.HasDiscriminator().HasValue("Demande");
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Offre", b =>
+                {
+                    b.HasBaseType("CrisisConnect.Domain.Entities.Proposition");
+
+                    b.Property<bool>("LivraisonIncluse")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("livraison_incluse");
+
+                    b.ToTable("propositions", (string)null);
+
+                    b.HasDiscriminator().HasValue("Offre");
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Discussion", b =>
+                {
+                    b.HasOne("CrisisConnect.Domain.Entities.Transaction", null)
+                        .WithOne("Discussion")
+                        .HasForeignKey("CrisisConnect.Domain.Entities.Discussion", "TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_discussions_transactions_transaction_id");
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Message", b =>
+                {
+                    b.HasOne("CrisisConnect.Domain.Entities.Discussion", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("DiscussionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_messages_discussions_discussion_id");
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Proposition", b =>
+                {
+                    b.OwnsOne("CrisisConnect.Domain.ValueObjects.Localisation", "Localisation", b1 =>
                         {
-                            b1.Property<Guid>("MissionId")
+                            b1.Property<Guid>("PropositionId")
                                 .HasColumnType("uuid")
                                 .HasColumnName("id");
 
-                            b1.Property<DateTime>("Debut")
-                                .HasColumnType("timestamp with time zone")
-                                .HasColumnName("plage_debut");
+                            b1.Property<double>("Latitude")
+                                .HasColumnType("double precision")
+                                .HasColumnName("latitude");
 
-                            b1.Property<DateTime>("Fin")
-                                .HasColumnType("timestamp with time zone")
-                                .HasColumnName("plage_fin");
+                            b1.Property<double>("Longitude")
+                                .HasColumnType("double precision")
+                                .HasColumnName("longitude");
 
-                            b1.HasKey("MissionId");
+                            b1.HasKey("PropositionId");
 
-                            b1.ToTable("missions");
+                            b1.ToTable("propositions");
 
                             b1.WithOwner()
-                                .HasForeignKey("MissionId")
-                                .HasConstraintName("fk_missions_missions_id");
+                                .HasForeignKey("PropositionId")
+                                .HasConstraintName("fk_propositions_propositions_id");
                         });
 
-                    b.Navigation("Plage");
+                    b.Navigation("Localisation");
+                });
+
+            modelBuilder.Entity("paniers_offres", b =>
+                {
+                    b.HasOne("CrisisConnect.Domain.Entities.Offre", null)
+                        .WithMany()
+                        .HasForeignKey("OffresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_paniers_offres_propositions_offres_id");
+
+                    b.HasOne("CrisisConnect.Domain.Entities.Panier", null)
+                        .WithMany()
+                        .HasForeignKey("PanierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_paniers_offres_paniers_panier_id");
                 });
 
             modelBuilder.Entity("CrisisConnect.Domain.Entities.Personne", b =>
@@ -353,7 +765,7 @@ namespace CrisisConnect.Infrastructure.Migrations
 
                             b1.HasKey("PersonneId");
 
-                            b1.ToTable("personnes");
+                            b1.ToTable("acteurs");
 
                             b1.WithOwner()
                                 .HasForeignKey("PersonneId")
@@ -363,37 +775,29 @@ namespace CrisisConnect.Infrastructure.Migrations
                     b.Navigation("Adresse");
                 });
 
-            modelBuilder.Entity("CrisisConnect.Domain.Entities.Proposition", b =>
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Demande", b =>
                 {
-                    b.OwnsOne("CrisisConnect.Domain.ValueObjects.Localisation", "Localisation", b1 =>
-                        {
-                            b1.Property<Guid>("PropositionId")
-                                .HasColumnType("uuid")
-                                .HasColumnName("id");
-
-                            b1.Property<double>("Latitude")
-                                .HasColumnType("double precision")
-                                .HasColumnName("latitude");
-
-                            b1.Property<double>("Longitude")
-                                .HasColumnType("double precision")
-                                .HasColumnName("longitude");
-
-                            b1.HasKey("PropositionId");
-
-                            b1.ToTable("propositions");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PropositionId")
-                                .HasConstraintName("fk_propositions_propositions_id");
-                        });
-
-                    b.Navigation("Localisation");
+                    b.HasOne("CrisisConnect.Domain.Entities.Demande", null)
+                        .WithMany("SousDemandes")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_propositions_propositions_parent_id");
                 });
 
-            modelBuilder.Entity("CrisisConnect.Domain.Entities.Mission", b =>
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Discussion", b =>
                 {
-                    b.Navigation("Matchings");
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Transaction", b =>
+                {
+                    b.Navigation("Discussion")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Demande", b =>
+                {
+                    b.Navigation("SousDemandes");
                 });
 #pragma warning restore 612, 618
         }

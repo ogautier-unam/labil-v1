@@ -9,8 +9,10 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         CreateMap<Proposition, PropositionDto>();
-        CreateMap<Mission, MissionDto>();
-        CreateMap<Matching, MatchingDto>();
+        CreateMap<Offre, OffreDto>();
+        CreateMap<Demande, DemandeDto>()
+            .ForMember(dest => dest.Urgence, opt => opt.MapFrom(src => src.Urgence));
+        CreateMap<Transaction, TransactionDto>();
         CreateMap<Notification, NotificationDto>();
     }
 }

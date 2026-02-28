@@ -31,12 +31,13 @@
 | `Responsable` | Supervision globale, tableau de bord, accès statistiques |
 
 ### Fonctionnalités clés
-1. **Gestion des propositions de missions** (création, affectation, suivi)
-2. **Matching bénévoles/missions** (compétences, disponibilité, localisation)
-3. **Authentification & rôles** (JWT, attributionRole, mandat temporel)
-4. **Notifications** (email, push, in-app)
-5. **Journal d'audit** (toutes les actions sensibles tracées)
-6. **Intégration services externes** (cartographie, météo) via Adapter pattern
+1. **Offres & Demandes** (Proposition abstraite → Offre / Demande avec Composite pattern)
+2. **Transactions** (initiation, discussion, confirmation entre acteurs)
+3. **Panier** (sélection multi-offres pour une demande)
+4. **Authentification & rôles** (JWT, AttributionRole, Mandat temporel)
+5. **Notifications typées** (TypeNotification enum, 8 types métier)
+6. **Journal d'audit** (EntreeJournal, TypeOperation, toutes actions sensibles tracées)
+7. **Intégration services externes** (cartographie, météo) via Adapter pattern
 
 ---
 
@@ -112,33 +113,41 @@ Infrastructure → Application → Domain
 ```
 CrisisConnect.Domain/
 ├── Entities/
-│   ├── Acteur.cs              # abstract
+│   ├── Acteur.cs              # abstract (TPH: type_acteur)
 │   ├── Personne.cs            # : Acteur
-│   ├── Entite.cs              # : Acteur
-│   ├── Proposition.cs
-│   ├── Mission.cs
-│   ├── Matching.cs
-│   ├── Transaction.cs
+│   ├── Entite.cs              # : Acteur (organisation)
+│   ├── Proposition.cs         # abstract (TPH: type_proposition)
+│   ├── Offre.cs               # : Proposition
+│   ├── Demande.cs             # : Proposition (Composite pattern, SousDemandes)
+│   ├── Transaction.cs         # initiation + suivi entre acteurs
+│   ├── Discussion.cs          # 1-1 avec Transaction (constructor internal)
+│   ├── Message.cs             # appartient a Discussion
+│   ├── Panier.cs              # multi-offres pour une demande
+│   ├── AttributionRole.cs     # role d'un acteur (temporel)
+│   ├── Mandat.cs              # delegation de pouvoir
+│   ├── EntreeJournal.cs       # audit log
 │   ├── Notification.cs
-│   ├── JournalEntree.cs
-│   └── Configuration/
-│       ├── TypeRole.cs
-│       ├── NiveauBadge.cs
-│       └── ...
+│   └── RefreshToken.cs
 ├── ValueObjects/
 │   ├── Adresse.cs
 │   ├── Localisation.cs        # lat/lon
-│   └── PlageTempsorelle.cs
+│   └── PlageTemporelle.cs
 ├── Enums/
-│   ├── StatutProposition.cs   # Ouverte/Affectee/Cloturee
-│   ├── StatutMission.cs       # Planifiee/EnCours/Terminee/Annulee
-│   ├── StatutMatching.cs      # EnAttente/Accepte/Refuse
-│   ├── StatutTransaction.cs
-│   ├── StatutPanier.cs
-│   └── Visibilite.cs
+│   ├── StatutProposition.cs   # Active/EnAttenteRelance/EnTransaction/Archivee/Cloturee
+│   ├── StatutTransaction.cs   # EnCours/Confirmee/Annulee
+│   ├── StatutPanier.cs        # Ouvert/Confirme/Annule
+│   ├── Visibilite.cs          # Publique/Privee
+│   ├── OperateurLogique.cs    # Simple/Et/Ou (Composite Demande)
+│   ├── NiveauUrgence.cs       # Faible/Moyen/Eleve/Critique
+│   ├── TypeNotification.cs    # 8 types metier
+│   ├── TypeOperation.cs       # 26 types (audit journal)
+│   ├── TypeRole.cs            # Contributeur/.../AdminSysteme
+│   ├── NiveauBadge.cs
+│   ├── StatutRole.cs
+│   └── PorteeMandat.cs
 ├── Interfaces/
-│   ├── Repositories/          # IPropositionRepository, etc.
-│   └── Services/              # INotificationService, ICartoService, etc.
+│   ├── Repositories/          # IOffreRepository, IDemandeRepository, ITransactionRepository...
+│   └── Services/              # INotificationService, IJwtService, IPasswordHasher...
 └── Exceptions/
     ├── DomainException.cs
     └── NotFoundException.cs
@@ -149,19 +158,28 @@ CrisisConnect.Domain/
 CrisisConnect.Application/
 ├── UseCases/
 │   ├── Propositions/
-│   │   ├── CreateProposition/
-│   │   │   ├── CreatePropositionCommand.cs
-│   │   │   ├── CreatePropositionCommandHandler.cs
-│   │   │   └── CreatePropositionValidator.cs
-│   │   └── GetPropositions/
-│   │       ├── GetPropositionsQuery.cs
-│   │       └── GetPropositionsQueryHandler.cs
-│   ├── Matching/
-│   ├── Auth/
-│   └── ...
+│   │   ├── GetPropositions/
+│   │   └── GetPropositionById/
+│   ├── Offres/
+│   │   └── CreateOffre/       # CreateOffreCommand, Handler, Validator
+│   ├── Demandes/
+│   │   └── CreateDemande/     # CreateDemandeCommand, Handler, Validator
+│   ├── Transactions/
+│   │   └── InitierTransaction/
+│   ├── Notifications/
+│   │   ├── GetNotifications/
+│   │   └── MarkAsRead/
+│   └── Auth/
+│       ├── Register/
+│       ├── Login/
+│       └── RefreshToken/
 ├── DTOs/
 │   ├── PropositionDto.cs
-│   └── ...
+│   ├── OffreDto.cs
+│   ├── DemandeDto.cs
+│   ├── TransactionDto.cs
+│   ├── NotificationDto.cs
+│   └── AuthDto.cs
 ├── Mappings/
 │   └── MappingProfile.cs      # AutoMapper
 └── Common/
@@ -365,14 +383,17 @@ dotnet ef migrations remove \
 
 ### Endpoints REST
 ```
-GET    /api/propositions              # liste paginée
-GET    /api/propositions/{id}         # détail
-POST   /api/propositions              # créer
-PUT    /api/propositions/{id}         # remplacer
-PATCH  /api/propositions/{id}         # modifier partiellement
-DELETE /api/propositions/{id}         # supprimer
+GET    /api/propositions              # liste (Offres + Demandes)
+GET    /api/propositions/{id}         # detail
+POST   /api/propositions/offres       # creer une Offre
+POST   /api/propositions/demandes     # creer une Demande
 
-GET    /api/missions/{id}/matchings   # matchings d'une mission
+POST   /api/transactions              # initier une Transaction
+
+GET    /api/notifications             # liste des notifications du user
+PATCH  /api/notifications/{id}/read   # marquer comme lue
+
+POST   /api/auth/register
 POST   /api/auth/login
 POST   /api/auth/refresh
 POST   /api/auth/logout
@@ -611,6 +632,11 @@ packages/
 - Toujours utiliser `IHttpClientFactory` (injecté via DI)
 - Enregistrer dans `DependencyInjection.cs` : `services.AddHttpClient<CartoAdapter>()`
 
+### TPH : conflit de MaxLength sur colonne partagee
+- Erreur : `'Entite.Nom' and 'Personne.Nom' are both mapped to column 'nom' in 'acteurs', but are configured with different maximum lengths`
+- Cause : dans une hiérarchie TPH, deux sous-types configurent la même colonne avec des longueurs différentes
+- Fix : aligner le `HasMaxLength` sur la valeur la plus grande dans les deux `IEntityTypeConfiguration`
+
 ---
 
 ## 📝 Méthodologie Sessions Claude
@@ -637,3 +663,27 @@ packages/
 ✅ Docker (Dockerfile sdk:10.0, docker-compose.yml postgres:17-alpine, override.yml)
 ✅ Migration InitialCreate appliquée (`src/CrisisConnect.Infrastructure/Migrations/`)
 ✅ API fonctionnelle sur http://localhost:5072 — Swagger sur /swagger
+
+#### Session 2 — 2026-02-28 — Refactoring domaine (alignement diagrammes de classes)
+✅ Ajout `class-diagrams/` (9 fichiers .puml PlantUML) + enonce .txt commites
+✅ Analyse des ecarts entre implementation session 1 et diagrammes de classes
+✅ Refactoring Enums : StatutProposition (5 valeurs), StatutTransaction, Visibilite (2 valeurs)
+✅ Nouveaux enums : OperateurLogique, NiveauUrgence, TypeNotification (8), StatutPanier, TypeRole, NiveauBadge, StatutRole, PorteeMandat, TypeOperation (26)
+✅ Suppression : StatutMission.cs, StatutMatching.cs
+✅ Refactoring entites : Proposition (abstraite), Offre, Demande (Composite), Transaction, Discussion (internal ctor), Message, Panier, Entite, AttributionRole, Mandat, EntreeJournal
+✅ Notification mise a jour (TypeNotification, DateEnvoi, RefEntiteId ; suppression Sujet)
+✅ Suppression : Mission.cs, Matching.cs
+✅ Nouvelles interfaces repo : IOffreRepository, IDemandeRepository, ITransactionRepository, IPanierRepository, IEntiteRepository, IEntreeJournalRepository
+✅ Suppression : IMissionRepository, IMatchingRepository
+✅ Configurations EF Core : ActeurConfiguration (TPH type_acteur), EntiteConfiguration, PropositionConfiguration (TPH type_proposition + discriminateur Offre/Demande), OffreConfiguration, DemandeConfiguration (Composite self-ref), TransactionConfiguration, DiscussionConfiguration, MessageConfiguration, PanierConfiguration, AttributionRoleConfiguration, MandatConfiguration, EntreeJournalConfiguration
+✅ Suppression configs/repos : MissionConfiguration, MatchingConfiguration, MissionRepository, MatchingRepository
+✅ Nouveaux repos : OffreRepository, DemandeRepository, TransactionRepository, PanierRepository, EntiteRepository, EntreeJournalRepository
+✅ AppDbContext mis a jour (DbSets nouveaux, suppression Mission/Matching)
+✅ DependencyInjection.cs mis a jour
+✅ Application : CreateOffreCommand/Handler/Validator, CreateDemandeCommand/Handler/Validator, InitierTransactionCommand/Handler/Validator
+✅ DTOs : OffreDto, DemandeDto, TransactionDto (suppression MissionDto/MatchingDto)
+✅ MappingProfile mis a jour
+✅ PropositionsController mis a jour (POST /offres, POST /demandes), TransactionsController cree
+✅ Suppression use cases Missions (CreateMission, AssignBenevole)
+✅ Anciennes migrations supprimees + nouvelle migration InitialCreate (20260228151932)
+✅ Build : 0 erreur — migration generee (Pending, base pas encore resetee)

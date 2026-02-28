@@ -19,7 +19,7 @@ public class NotificationRepository : INotificationRepository
     public async Task<IReadOnlyList<Notification>> GetByDestinataireAsync(Guid destinataireId, CancellationToken cancellationToken = default)
         => await _context.Notifications
             .Where(n => n.DestinataireId == destinataireId)
-            .OrderByDescending(n => n.CreeLe)
+            .OrderByDescending(n => n.DateCreation)
             .ToListAsync(cancellationToken);
 
     public async Task AddAsync(Notification notification, CancellationToken cancellationToken = default)

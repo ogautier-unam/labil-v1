@@ -8,6 +8,9 @@ public class Personne : Acteur
     public string Nom { get; private set; } = string.Empty;
     public string? Telephone { get; private set; }
     public Adresse? Adresse { get; private set; }
+    public string? UrlPhoto { get; private set; }
+    public string? LanguePreferee { get; private set; }
+    public string? MoyensContact { get; private set; }
 
     protected Personne() { }
 

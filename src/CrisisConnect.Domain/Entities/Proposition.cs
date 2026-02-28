@@ -4,42 +4,61 @@ using CrisisConnect.Domain.ValueObjects;
 
 namespace CrisisConnect.Domain.Entities;
 
-public class Proposition
+public abstract class Proposition
 {
-    public Guid Id { get; private set; } = Guid.NewGuid();
-    public string Titre { get; private set; } = string.Empty;
-    public string Description { get; private set; } = string.Empty;
-    public StatutProposition Statut { get; private set; } = StatutProposition.Ouverte;
-    public Localisation? Localisation { get; private set; }
-    public Guid CreePar { get; private set; }
-    public DateTime CreeLe { get; private set; } = DateTime.UtcNow;
-    public DateTime? ModifieLe { get; private set; }
+    public Guid Id { get; protected set; } = Guid.NewGuid();
+    public string Titre { get; protected set; } = string.Empty;
+    public string Description { get; protected set; } = string.Empty;
+    public StatutProposition Statut { get; protected set; } = StatutProposition.Active;
+    public Localisation? Localisation { get; protected set; }
+    public Guid CreePar { get; protected set; }
+    public DateTime CreeLe { get; protected set; } = DateTime.UtcNow;
+    public DateTime? ModifieLe { get; protected set; }
+    public DateTime? DateRelance { get; protected set; }
+    public DateTime? DateArchivage { get; protected set; }
+    public DateTime? DateCloture { get; protected set; }
 
-    protected Proposition() { }
+    public abstract void Clore();
 
-    public Proposition(string titre, string description, Guid creePar, Localisation? localisation = null)
+    public void Archiver()
     {
-        Titre = titre;
-        Description = description;
-        CreePar = creePar;
-        Localisation = localisation;
-    }
-
-    public void Affecter()
-    {
-        if (Statut != StatutProposition.Ouverte)
-            throw new DomainException("Seule une proposition ouverte peut être affectée.");
-
-        Statut = StatutProposition.Affectee;
+        if (Statut == StatutProposition.Cloturee)
+            throw new DomainException("Une proposition clôturée ne peut pas être archivée.");
+        Statut = StatutProposition.Archivee;
+        DateArchivage = DateTime.UtcNow;
         ModifieLe = DateTime.UtcNow;
     }
 
-    public void Cloturer()
+    public void MarquerEnAttenteRelance()
     {
-        if (Statut == StatutProposition.Cloturee)
-            throw new DomainException("La proposition est déjà clôturée.");
+        if (Statut != StatutProposition.Active)
+            throw new DomainException("Seule une proposition active peut être mise en attente de relance.");
+        Statut = StatutProposition.EnAttenteRelance;
+        DateRelance = DateTime.UtcNow;
+        ModifieLe = DateTime.UtcNow;
+    }
 
-        Statut = StatutProposition.Cloturee;
+    public void Reconfirmer()
+    {
+        if (Statut != StatutProposition.EnAttenteRelance)
+            throw new DomainException("La proposition n'est pas en attente de relance.");
+        Statut = StatutProposition.Active;
+        ModifieLe = DateTime.UtcNow;
+    }
+
+    public void MarquerEnTransaction()
+    {
+        if (Statut != StatutProposition.Active)
+            throw new DomainException("Seule une proposition active peut être engagée dans une transaction.");
+        Statut = StatutProposition.EnTransaction;
+        ModifieLe = DateTime.UtcNow;
+    }
+
+    public void LibererDeTransaction()
+    {
+        if (Statut != StatutProposition.EnTransaction)
+            throw new DomainException("La proposition n'est pas en transaction.");
+        Statut = StatutProposition.Active;
         ModifieLe = DateTime.UtcNow;
     }
 }

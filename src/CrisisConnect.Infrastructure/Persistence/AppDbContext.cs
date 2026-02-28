@@ -10,8 +10,14 @@ public class AppDbContext : DbContext
 
     public DbSet<Proposition> Propositions => Set<Proposition>();
     public DbSet<Personne> Personnes => Set<Personne>();
-    public DbSet<Mission> Missions => Set<Mission>();
-    public DbSet<Matching> Matchings => Set<Matching>();
+    public DbSet<Entite> Entites => Set<Entite>();
+    public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<Discussion> Discussions => Set<Discussion>();
+    public DbSet<Message> Messages => Set<Message>();
+    public DbSet<Panier> Paniers => Set<Panier>();
+    public DbSet<AttributionRole> AttributionsRoles => Set<AttributionRole>();
+    public DbSet<Mandat> Mandats => Set<Mandat>();
+    public DbSet<EntreeJournal> EntreesJournal => Set<EntreeJournal>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 

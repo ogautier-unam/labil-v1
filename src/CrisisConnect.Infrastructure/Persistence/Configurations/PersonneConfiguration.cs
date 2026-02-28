@@ -8,22 +8,12 @@ public class PersonneConfiguration : IEntityTypeConfiguration<Personne>
 {
     public void Configure(EntityTypeBuilder<Personne> builder)
     {
-        builder.HasKey(p => p.Id);
-
-        builder.Property(p => p.Email)
-            .IsRequired()
-            .HasMaxLength(256);
-
-        builder.Property(p => p.Prenom)
-            .IsRequired()
-            .HasMaxLength(100);
-
-        builder.Property(p => p.Nom)
-            .IsRequired()
-            .HasMaxLength(100);
-
-        builder.Property(p => p.Telephone)
-            .HasMaxLength(20);
+        builder.Property(p => p.Prenom).IsRequired().HasMaxLength(100);
+        builder.Property(p => p.Nom).IsRequired().HasMaxLength(200);
+        builder.Property(p => p.Telephone).HasMaxLength(20);
+        builder.Property(p => p.UrlPhoto).HasMaxLength(500);
+        builder.Property(p => p.LanguePreferee).HasMaxLength(10);
+        builder.Property(p => p.MoyensContact).HasMaxLength(500);
 
         builder.OwnsOne(p => p.Adresse, a =>
         {
@@ -32,7 +22,5 @@ public class PersonneConfiguration : IEntityTypeConfiguration<Personne>
             a.Property(x => x.CodePostal).HasColumnName("adresse_code_postal").HasMaxLength(10);
             a.Property(x => x.Pays).HasColumnName("adresse_pays").HasMaxLength(100);
         });
-
-        builder.ToTable("personnes");
     }
 }

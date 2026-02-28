@@ -18,9 +18,13 @@ public static class DependencyInjection
                    .UseSnakeCaseNamingConvention());
 
         services.AddScoped<IPropositionRepository, PropositionRepository>();
+        services.AddScoped<IOffreRepository, OffreRepository>();
+        services.AddScoped<IDemandeRepository, DemandeRepository>();
         services.AddScoped<IPersonneRepository, PersonneRepository>();
-        services.AddScoped<IMissionRepository, MissionRepository>();
-        services.AddScoped<IMatchingRepository, MatchingRepository>();
+        services.AddScoped<IEntiteRepository, EntiteRepository>();
+        services.AddScoped<ITransactionRepository, TransactionRepository>();
+        services.AddScoped<IPanierRepository, PanierRepository>();
+        services.AddScoped<IEntreeJournalRepository, EntreeJournalRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 

@@ -2,7 +2,9 @@ namespace CrisisConnect.Domain.Enums;
 
 public enum StatutProposition
 {
-    Ouverte,
-    Affectee,
+    Active,
+    EnAttenteRelance,
+    EnTransaction,
+    Archivee,
     Cloturee
 }

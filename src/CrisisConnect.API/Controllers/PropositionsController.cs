@@ -1,5 +1,6 @@
 using CrisisConnect.Application.DTOs;
-using CrisisConnect.Application.UseCases.Propositions.CreateProposition;
+using CrisisConnect.Application.UseCases.Demandes.CreateDemande;
+using CrisisConnect.Application.UseCases.Offres.CreateOffre;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositionById;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositions;
 using MediatR;
@@ -18,7 +19,7 @@ public class PropositionsController : ControllerBase
         _mediator = mediator;
     }
 
-    /// <summary>Liste toutes les propositions.</summary>
+    /// <summary>Liste toutes les propositions (offres et demandes).</summary>
     [HttpGet]
     [ProducesResponseType<IReadOnlyList<PropositionDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
@@ -37,11 +38,21 @@ public class PropositionsController : ControllerBase
         return Ok(result);
     }
 
-    /// <summary>Crée une nouvelle proposition.</summary>
-    [HttpPost]
-    [ProducesResponseType<PropositionDto>(StatusCodes.Status201Created)]
+    /// <summary>Crée une nouvelle offre.</summary>
+    [HttpPost("offres")]
+    [ProducesResponseType<OffreDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create([FromBody] CreatePropositionCommand command, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateOffre([FromBody] CreateOffreCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(command, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+    }
+
+    /// <summary>Crée une nouvelle demande.</summary>
+    [HttpPost("demandes")]
+    [ProducesResponseType<DemandeDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateDemande([FromBody] CreateDemandeCommand command, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(command, cancellationToken);
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
