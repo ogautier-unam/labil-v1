@@ -132,4 +132,15 @@ public class ApiClient
         var response = await _http.PatchAsync($"api/paniers/{panierId}/annuler", null, ct);
         return response.IsSuccessStatusCode;
     }
+
+    // ── Notifications ─────────────────────────────────────────────────────────
+
+    public Task<IReadOnlyList<NotificationModel>?> GetNotificationsAsync(Guid destinataireId, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<NotificationModel>>($"api/notifications/{destinataireId}", ct);
+
+    public async Task<bool> MarkNotificationAsReadAsync(Guid notificationId, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/notifications/{notificationId}/read", null, ct);
+        return response.IsSuccessStatusCode;
+    }
 }
