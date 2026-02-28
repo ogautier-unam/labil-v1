@@ -743,3 +743,10 @@ packages/
 ✅ Auth/Logout : SignOutAsync + redirect Index
 ✅ _Layout.cshtml : affichage User.Identity.Name + Role si connecté, bouton Déconnexion (form POST), sinon S'inscrire/Connexion
 ✅ Build : 0 erreur
+
+#### Session 7 — 2026-02-28 — Tests unitaires (Domain + Application)
+✅ Domain.Tests : OffreTests (11), DemandeTests (7), TransactionTests (6), PanierTests (10) — 34 tests, 0 échec
+✅ Application.Tests : LoginCommandHandlerTests (4), CreatePanierCommandHandlerTests (2), AjouterOffreAuPanierCommandHandlerTests (3) — 9 tests, 0 échec
+✅ AutoMapperFixture.cs : ServiceCollection + AddLogging() + AddAutoMapper(cfg => cfg.AddMaps(...))
+✅ Packages ajoutés Application.Tests : NSubstitute 5.3.0, Microsoft.Extensions.DependencyInjection 10.0.0, Microsoft.Extensions.Logging 10.0.0
+✅ Total : 43 tests, 0 échec (Domain.Tests 33, Application.Tests 9, Infrastructure.Tests 1)
