@@ -750,3 +750,13 @@ packages/
 ✅ AutoMapperFixture.cs : ServiceCollection + AddLogging() + AddAutoMapper(cfg => cfg.AddMaps(...))
 ✅ Packages ajoutés Application.Tests : NSubstitute 5.3.0, Microsoft.Extensions.DependencyInjection 10.0.0, Microsoft.Extensions.Logging 10.0.0
 ✅ Total : 43 tests, 0 échec (Domain.Tests 33, Application.Tests 9, Infrastructure.Tests 1)
+
+#### Session 8 — 2026-02-28 — Renommage + tests Application (use cases transactions/offres/demandes)
+✅ MissionsController.cs renommé en TransactionsController.cs (git mv — contenu inchangé)
+✅ RegisterActeurCommandHandlerTests (2 tests : succès + email dupliqué)
+✅ CreateOffreCommandHandlerTests (2 tests : sans localisation, avec livraison)
+✅ CreateDemandeCommandHandlerTests (2 tests : urgence par défaut, urgence critique)
+✅ InitierTransactionCommandHandlerTests (3 tests : succès, proposition introuvable, offre déjà en transaction)
+✅ ConfirmerTransactionCommandHandlerTests (2 tests : succès + proposition clôturée, introuvable)
+✅ AnnulerTransactionCommandHandlerTests (2 tests : succès + proposition libérée, introuvable)
+✅ Total : 56 tests, 0 échec (Domain.Tests 33, Application.Tests 22, Infrastructure.Tests 1)
