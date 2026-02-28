@@ -12,13 +12,22 @@ public abstract class Proposition
     public StatutProposition Statut { get; protected set; } = StatutProposition.Active;
     public Localisation? Localisation { get; protected set; }
     public Guid CreePar { get; protected set; }
+    public Guid? CategorieId { get; protected set; }
     public DateTime CreeLe { get; protected set; } = DateTime.UtcNow;
     public DateTime? ModifieLe { get; protected set; }
     public DateTime? DateRelance { get; protected set; }
     public DateTime? DateArchivage { get; protected set; }
     public DateTime? DateCloture { get; protected set; }
 
+    private readonly List<Media> _medias = [];
+    public IReadOnlyCollection<Media> Medias => _medias.AsReadOnly();
+
     public abstract void Clore();
+
+    public void AjouterMedia(string url, TypeMedia type)
+    {
+        _medias.Add(new Media(Id, url, type));
+    }
 
     public void Archiver()
     {

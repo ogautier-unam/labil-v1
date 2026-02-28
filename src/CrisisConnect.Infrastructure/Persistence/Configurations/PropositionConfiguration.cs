@@ -12,7 +12,11 @@ public class PropositionConfiguration : IEntityTypeConfiguration<Proposition>
 
         builder.HasDiscriminator<string>("type_proposition")
             .HasValue<Offre>("Offre")
-            .HasValue<Demande>("Demande");
+            .HasValue<Demande>("Demande")
+            .HasValue<DemandeQuota>("DemandeQuota")
+            .HasValue<DemandeRepartitionGeo>("DemandeRepartitionGeo")
+            .HasValue<DemandeSurCatalogue>("DemandeSurCatalogue")
+            .HasValue<PropositionAvecValidation>("PropositionAvecValidation");
 
         builder.Property(p => p.Titre)
             .IsRequired()
