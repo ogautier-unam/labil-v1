@@ -686,4 +686,19 @@ packages/
 ✅ PropositionsController mis a jour (POST /offres, POST /demandes), TransactionsController cree
 ✅ Suppression use cases Missions (CreateMission, AssignBenevole)
 ✅ Anciennes migrations supprimees + nouvelle migration InitialCreate (20260228151932)
-✅ Build : 0 erreur — migration generee (Pending, base pas encore resetee)
+✅ Build : 0 erreur — migration appliquee — commit b96071f (96 fichiers)
+
+#### Session 3 — 2026-02-28 — Modele domaine complet (P2/P3/P4/P5/P6)
+✅ P5 (Services) : IServiceTraduction, IStrategiePriorisation + 3 Adapters (CorpusInterne, DeepL, LibreTranslate) + 4 Strategies (Anciennete, Urgence, RegionSeverite, Type)
+✅ P3 (Config) : ConfigCatastrophe, CategorieTaxonomie (Pattern Composite self-ref)
+✅ P4 (Media+Specialises) : Media, DemandeQuota + IntentionDon, DemandeRepartitionGeo, DemandeSurCatalogue + LigneCatalogue, PropositionAvecValidation
+✅ P2 (MethodeIdentification) : 8 sous-types TPH (LoginPassword, CarteIdentiteElectronique, VerificationSMS, VerificationBancaire, VerificationFacture, VerificationPhoto, Parrainage, Delegation)
+✅ P6 (Suggestion) : SuggestionAppariement
+✅ Nouveaux enums : TypeMedia, StatutIntention, StatutLigne, StatutValidation, NiveauFiabilite, TypeFacture, ModeVerification
+✅ Interfaces repo : IConfigCatastropheRepository, ICategorieTaxonomieRepository, IMethodeIdentificationRepository, ISuggestionAppariementRepository
+✅ EF configs : 11 nouveaux fichiers (Media, MethodeIdentification+Parrainage, ConfigCatastrophe, CategorieTaxonomie, DemandeQuota, IntentionDon, DemandeRepartitionGeo, DemandeSurCatalogue, LigneCatalogue, PropositionAvecValidation, SuggestionAppariement)
+✅ PropositionConfiguration : discriminateur etendu a 6 valeurs (+ DemandeQuota, DemandeRepartitionGeo, DemandeSurCatalogue, PropositionAvecValidation)
+✅ Repos : ConfigCatastropheRepository, CategorieTaxonomieRepository, MethodeIdentificationRepository, SuggestionAppariementRepository
+✅ AppDbContext + DependencyInjection mis a jour
+✅ Migration AddDomainModel (20260228155244) appliquee
+✅ Build : 0 erreur — commit b52e73e (53 fichiers, 3932 insertions)
