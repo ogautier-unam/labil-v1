@@ -45,6 +45,8 @@ public static class DependencyInjection
         services.AddScoped<IMethodeIdentificationRepository, MethodeIdentificationRepository>();
         services.AddScoped<ISuggestionAppariementRepository, SuggestionAppariementRepository>();
         services.AddScoped<IDemandeQuotaRepository, DemandeQuotaRepository>();
+        services.AddScoped<IDemandeSurCatalogueRepository, DemandeSurCatalogueRepository>();
+        services.AddScoped<IDemandeRepartitionGeoRepository, DemandeRepartitionGeoRepository>();
 
         // Services d'authentification
         services.AddScoped<IJwtService, JwtService>();

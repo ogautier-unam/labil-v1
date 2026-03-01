@@ -31,6 +31,18 @@ public partial class AppMapper
             dq.CapaciteMax, dq.UniteCapacite, dq.CapaciteUtilisee, dq.AdresseDepot, dq.DateLimit,
             dq.Intentions.Select(ToDto).ToList());
 
+    // DemandeSurCatalogue + LigneCatalogue — mapping manuel (Lignes = IReadOnlyCollection → List<LigneCatalogueDto>)
+    public static LigneCatalogueDto ToDto(LigneCatalogue l) =>
+        new(l.Id, l.DemandeSurCatalogueId, l.Reference, l.Designation, l.Quantite, l.PrixUnitaire, l.UrlProduit, l.Statut);
+    public static DemandeSurCatalogueDto ToDto(DemandeSurCatalogue dsc) =>
+        new(dsc.Id, dsc.Titre, dsc.Description, dsc.Statut, dsc.CreePar, dsc.CreeLe,
+            dsc.UrlCatalogue, dsc.Lignes.Select(ToDto).ToList());
+
+    // DemandeRepartitionGeo — mapping manuel
+    public static DemandeRepartitionGeoDto ToDto(DemandeRepartitionGeo drg) =>
+        new(drg.Id, drg.Titre, drg.Description, drg.Statut, drg.CreePar, drg.CreeLe,
+            drg.NombreRessourcesRequises, drg.DescriptionMission);
+
     // Transactions
     public partial TransactionDto ToDto(Transaction transaction);
     public partial List<TransactionDto> ToDto(List<Transaction> transactions);

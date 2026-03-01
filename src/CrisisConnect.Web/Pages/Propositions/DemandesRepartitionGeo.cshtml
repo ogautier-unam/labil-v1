@@ -1,0 +1,89 @@
+@page
+@model CrisisConnect.Web.Pages.Propositions.DemandesRepartitionGeoModel
+@{
+    ViewData["Title"] = "Demandes répartition géo";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Demandes de répartition géographique</h2>
+    <button class="btn btn-success btn-sm" type="button"
+            data-bs-toggle="collapse" data-bs-target="#formCreer">
+        + Nouvelle demande
+    </button>
+</div>
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @ok <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @err <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@* Formulaire création *@
+<div class="collapse mb-4" id="formCreer">
+    <div class="card">
+        <div class="card-header fw-semibold">Créer une demande de répartition géographique</div>
+        <div class="card-body">
+            <form method="post" asp-page-handler="Creer">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label for="Titre" class="form-label">Titre <span class="text-danger">*</span></label>
+                        <input asp-for="Titre" id="Titre" class="form-control" required maxlength="200" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="NombreRessourcesRequises" class="form-label">Nb. ressources requises <span class="text-danger">*</span></label>
+                        <input asp-for="NombreRessourcesRequises" id="NombreRessourcesRequises"
+                               class="form-control" type="number" min="1" required />
+                    </div>
+                    <div class="col-12">
+                        <label for="Description" class="form-label">Description <span class="text-danger">*</span></label>
+                        <textarea asp-for="Description" id="Description" class="form-control" rows="3" required maxlength="2000"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label for="DescriptionMission" class="form-label">Description de la mission <span class="text-danger">*</span></label>
+                        <textarea asp-for="DescriptionMission" id="DescriptionMission" class="form-control" rows="3" required maxlength="2000"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success">Créer</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@if (!Model.Demandes.Any())
+{
+    <div class="alert alert-info">Aucune demande de répartition géographique en cours.</div>
+}
+else
+{
+    @foreach (var d in Model.Demandes)
+    {
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">@d.Titre</span>
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="badge bg-primary">@d.NombreRessourcesRequises ressource(s)</span>
+                    <span class="badge @(d.Statut == "Active" ? "bg-success" : "bg-secondary")">@d.Statut</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-2">@d.Description</p>
+                <div class="alert alert-light border mb-0 small">
+                    <strong>Mission :</strong> @d.DescriptionMission
+                </div>
+            </div>
+        </div>
+    }
+}

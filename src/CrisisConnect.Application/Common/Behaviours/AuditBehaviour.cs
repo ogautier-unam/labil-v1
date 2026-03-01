@@ -65,6 +65,9 @@ public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         ["AccepterIntentionDonCommand"]               = TypeOperation.ModificationProposition,
         ["RefuserIntentionDonCommand"]                = TypeOperation.ModificationProposition,
         ["ConfirmerIntentionDonCommand"]              = TypeOperation.ModificationProposition,
+        ["CreateDemandeSurCatalogueCommand"]          = TypeOperation.DepotProposition,
+        ["AjouterLigneCatalogueCommand"]              = TypeOperation.ModificationProposition,
+        ["CreateDemandeRepartitionGeoCommand"]        = TypeOperation.DepotProposition,
     };
 
     public AuditBehaviour(

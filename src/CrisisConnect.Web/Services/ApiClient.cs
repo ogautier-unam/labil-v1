@@ -505,6 +505,60 @@ public class ApiClient
         return response.IsSuccessStatusCode;
     }
 
+    // ── DemandeSurCatalogue ───────────────────────────────────────────────────
+
+    public Task<IReadOnlyList<DemandeSurCatalogueModel>?> GetDemandesSurCatalogueAsync(CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<DemandeSurCatalogueModel>>("api/demandes-sur-catalogue", ct);
+
+    public Task<DemandeSurCatalogueModel?> GetDemandeSurCatalogueByIdAsync(Guid id, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<DemandeSurCatalogueModel>($"api/demandes-sur-catalogue/{id}", ct);
+
+    public async Task<DemandeSurCatalogueModel?> CreateDemandeSurCatalogueAsync(
+        string titre, string description, Guid creePar, string urlCatalogue,
+        CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("api/demandes-sur-catalogue", new
+        {
+            Titre = titre, Description = description, CreePar = creePar, UrlCatalogue = urlCatalogue
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<DemandeSurCatalogueModel>(ct);
+    }
+
+    public async Task<LigneCatalogueModel?> AjouterLigneAsync(
+        Guid demandeId, string reference, string designation, int quantite, double prixUnitaire,
+        string? urlProduit, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync($"api/demandes-sur-catalogue/{demandeId}/lignes", new
+        {
+            Reference = reference, Designation = designation,
+            Quantite = quantite, PrixUnitaire = prixUnitaire, UrlProduit = urlProduit
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<LigneCatalogueModel>(ct);
+    }
+
+    // ── DemandeRepartitionGeo ─────────────────────────────────────────────────
+
+    public Task<IReadOnlyList<DemandeRepartitionGeoModel>?> GetDemandesRepartitionGeoAsync(CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<DemandeRepartitionGeoModel>>("api/demandes-repartition-geo", ct);
+
+    public Task<DemandeRepartitionGeoModel?> GetDemandeRepartitionGeoByIdAsync(Guid id, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<DemandeRepartitionGeoModel>($"api/demandes-repartition-geo/{id}", ct);
+
+    public async Task<DemandeRepartitionGeoModel?> CreateDemandeRepartitionGeoAsync(
+        string titre, string description, Guid creePar,
+        int nombreRessourcesRequises, string descriptionMission, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("api/demandes-repartition-geo", new
+        {
+            Titre = titre, Description = description, CreePar = creePar,
+            NombreRessourcesRequises = nombreRessourcesRequises, DescriptionMission = descriptionMission
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<DemandeRepartitionGeoModel>(ct);
+    }
+
     // ── Discussion ────────────────────────────────────────────────────────────
 
     public Task<DiscussionData?> GetDiscussionAsync(Guid transactionId, CancellationToken ct = default)
