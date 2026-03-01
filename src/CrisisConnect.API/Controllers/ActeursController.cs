@@ -1,5 +1,6 @@
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Acteurs.GetActeur;
+using CrisisConnect.Application.UseCases.Acteurs.SupprimerActeur;
 using CrisisConnect.Application.UseCases.Acteurs.UpdateActeur;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -38,5 +39,15 @@ public class ActeursController : ControllerBase
     {
         var result = await _mediator.Send(command with { Id = id }, cancellationToken);
         return Ok(result);
+    }
+
+    /// <summary>RGPD — droit à l'oubli (NF-06) : anonymise toutes les données personnelles identifiantes.</summary>
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Supprimer(Guid id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new SupprimerActeurCommand(id), cancellationToken);
+        return NoContent();
     }
 }

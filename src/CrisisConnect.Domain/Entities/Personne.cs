@@ -43,6 +43,25 @@ public class Personne : Acteur
     }
 
     /// <summary>
+    /// RGPD — droit à l'oubli (NF-06) : anonymise toutes les données personnelles identifiantes.
+    /// L'acteur reste en base pour préserver l'intégrité référentielle de l'audit.
+    /// </summary>
+    public void Anonymiser()
+    {
+        var id = Id.ToString()[..8];
+        Email = $"supprime-{id}@anonymise.rgpd";
+        MotDePasseHash = string.Empty;
+        Prenom = "Supprimé";
+        Nom = "RGPD";
+        Telephone = null;
+        UrlPhoto = null;
+        LanguePreferee = null;
+        MoyensContact = null;
+        Adresse = null;
+        ModifieLe = DateTime.UtcNow;
+    }
+
+    /// <summary>
     /// Badge basé sur la meilleure méthode d'identification vérifiée (§5 ex.14).
     /// TresHaute/Haute → Vert · Moyenne → Orange · Faible/ExplicitementFaible → Rouge.
     /// </summary>
