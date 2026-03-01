@@ -25,6 +25,8 @@ public static class DependencyInjection
         // Repositories — Acteurs
         services.AddScoped<IPersonneRepository, PersonneRepository>();
         services.AddScoped<IEntiteRepository, EntiteRepository>();
+        services.AddScoped<IAttributionRoleRepository, AttributionRoleRepository>();
+        services.AddScoped<IMandatRepository, MandatRepository>();
 
         // Repositories — Transactions & paniers
         services.AddScoped<ITransactionRepository, TransactionRepository>();

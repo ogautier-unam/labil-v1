@@ -26,4 +26,11 @@ public class Mandat
         DateDebut = dateDebut;
         DateFin = dateFin;
     }
+
+    public bool EstActif => DateFin is null || DateFin > DateTime.UtcNow;
+
+    public void Revoquer()
+    {
+        DateFin = DateTime.UtcNow;
+    }
 }

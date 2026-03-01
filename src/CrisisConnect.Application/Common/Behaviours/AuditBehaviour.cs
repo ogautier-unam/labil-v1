@@ -44,6 +44,10 @@ public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         ["EnvoyerMessageCommand"]                     = TypeOperation.EnvoiMessage,
         ["BasculerVisibiliteDiscussionCommand"]       = TypeOperation.BasculeVisibiliteDiscussion,
         ["UpdateConfigCatastropheCommand"]            = TypeOperation.ModificationConfigCatastrophe,
+        ["AttribuerRoleCommand"]                      = TypeOperation.AttributionRole,
+        ["RevoquerRoleCommand"]                       = TypeOperation.RevocationRole,
+        ["CreerMandatCommand"]                        = TypeOperation.MandatCree,
+        ["RevoquerMandatCommand"]                     = TypeOperation.MandatRevoque,
     };
 
     public AuditBehaviour(

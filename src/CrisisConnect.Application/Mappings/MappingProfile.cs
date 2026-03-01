@@ -20,5 +20,11 @@ public class MappingProfile : Profile
         CreateMap<EntreeJournal, EntreeJournalDto>();
         CreateMap<SuggestionAppariement, SuggestionAppariementDto>();
         CreateMap<Message, MessageDto>();
+        CreateMap<AttributionRole, AttributionRoleDto>()
+            .ForMember(dest => dest.TypeRole, opt => opt.MapFrom(src => src.TypeRole.ToString()))
+            .ForMember(dest => dest.Statut,   opt => opt.MapFrom(src => src.Statut.ToString()));
+        CreateMap<Mandat, MandatDto>()
+            .ForMember(dest => dest.Portee,   opt => opt.MapFrom(src => src.Portee.ToString()))
+            .ForMember(dest => dest.EstActif, opt => opt.MapFrom(src => src.EstActif));
     }
 }
