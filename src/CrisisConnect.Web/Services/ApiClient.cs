@@ -72,6 +72,12 @@ public class ApiClient
         return response.IsSuccessStatusCode;
     }
 
+    public async Task<bool> ReconfirmerPropositionAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/propositions/{id}/reconfirmer", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
     // ── Offres (création) ─────────────────────────────────────────────────────
 
     public async Task<OffreModel?> CreateOffreAsync(

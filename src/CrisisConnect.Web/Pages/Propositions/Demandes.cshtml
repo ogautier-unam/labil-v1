@@ -130,6 +130,14 @@ else
                                                     onclick="return confirm('Marquer en attente de relance ?')">Relancer</button>
                                         </form>
                                     }
+                                    @if (d.Statut == "EnAttenteRelance")
+                                    {
+                                        <form method="post" asp-page-handler="Reconfirmer">
+                                            <input type="hidden" name="demandeId" value="@d.Id" />
+                                            <button class="btn btn-outline-success btn-sm"
+                                                    onclick="return confirm('Reconfirmer cette demande (→ Active) ?')">Reconfirmer</button>
+                                        </form>
+                                    }
                                 </div>
                             </td>
                         }

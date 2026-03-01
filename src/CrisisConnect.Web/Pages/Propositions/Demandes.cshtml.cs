@@ -94,4 +94,16 @@ public class DemandesModel : PageModel
         catch (HttpRequestException) { TempData[KeyError] = ErrApi; }
         return RedirectToPage();
     }
+
+    public async Task<IActionResult> OnPostReconfirmerAsync(Guid demandeId, CancellationToken ct)
+    {
+        if (GetUserId(User) is null) return RedirectToPage(LoginPage);
+        try
+        {
+            var ok = await _api.ReconfirmerPropositionAsync(demandeId, ct);
+            TempData[ok ? KeySuccess : KeyError] = ok ? "Demande reconfirmée (Active)." : "Impossible de reconfirmer cette demande.";
+        }
+        catch (HttpRequestException) { TempData[KeyError] = ErrApi; }
+        return RedirectToPage();
+    }
 }

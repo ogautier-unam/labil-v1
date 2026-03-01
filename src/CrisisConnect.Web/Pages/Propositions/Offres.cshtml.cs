@@ -82,6 +82,30 @@ public class OffresModel : PageModel
         return RedirectToPage();
     }
 
+    public async Task<IActionResult> OnPostRelancerAsync(Guid offreId, CancellationToken ct)
+    {
+        if (GetUserId(User) is null) return RedirectToPage(LoginPage);
+        try
+        {
+            var ok = await _api.RelancerPropositionAsync(offreId, ct);
+            TempData[ok ? KeySuccess : KeyError] = ok ? "Offre mise en attente de relance." : "Impossible de relancer cette offre.";
+        }
+        catch (HttpRequestException) { TempData[KeyError] = ErrApi; }
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostReconfirmerAsync(Guid offreId, CancellationToken ct)
+    {
+        if (GetUserId(User) is null) return RedirectToPage(LoginPage);
+        try
+        {
+            var ok = await _api.ReconfirmerPropositionAsync(offreId, ct);
+            TempData[ok ? KeySuccess : KeyError] = ok ? "Offre reconfirmée (Active)." : "Impossible de reconfirmer cette offre.";
+        }
+        catch (HttpRequestException) { TempData[KeyError] = ErrApi; }
+        return RedirectToPage();
+    }
+
     public async Task<IActionResult> OnPostAjouterAuPanierAsync(Guid offreId, CancellationToken ct)
     {
         if (GetUserId(User) is not { } userId) return RedirectToPage(LoginPage);

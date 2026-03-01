@@ -18,7 +18,7 @@ public class JournalIndexModel : PageModel
 
     public async Task OnGetAsync(CancellationToken ct)
     {
-        var userId = UserId();
+        var userId = GetUserId(User);
         if (userId == Guid.Empty) return;
 
         try
@@ -31,9 +31,9 @@ public class JournalIndexModel : PageModel
         }
     }
 
-    private Guid UserId()
+    private static Guid GetUserId(ClaimsPrincipal user)
     {
-        var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var raw = user.FindFirstValue(ClaimTypes.NameIdentifier);
         return Guid.TryParse(raw, out var id) ? id : Guid.Empty;
     }
 }

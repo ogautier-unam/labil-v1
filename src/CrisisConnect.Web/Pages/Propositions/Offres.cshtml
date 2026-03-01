@@ -90,19 +90,37 @@ else
                                     <button type="submit" class="btn btn-outline-primary btn-sm">+ Panier</button>
                                 </form>
                             }
-                            @if ((User.IsInRole("Coordinateur") || User.IsInRole("Responsable"))
-                                 && offre.Statut is "Active" or "EnAttenteRelance")
+                            @if (User.IsInRole("Coordinateur") || User.IsInRole("Responsable"))
                             {
-                                <form method="post" asp-page-handler="Archiver">
-                                    <input type="hidden" name="offreId" value="@offre.Id" />
-                                    <button type="submit" class="btn btn-outline-warning btn-sm"
-                                            onclick="return confirm('Archiver cette offre ?')">Archiver</button>
-                                </form>
-                                <form method="post" asp-page-handler="Clore">
-                                    <input type="hidden" name="offreId" value="@offre.Id" />
-                                    <button type="submit" class="btn btn-outline-danger btn-sm"
-                                            onclick="return confirm('Clôturer cette offre ?')">Clôturer</button>
-                                </form>
+                                @if (offre.Statut is "Active" or "EnAttenteRelance")
+                                {
+                                    <form method="post" asp-page-handler="Archiver">
+                                        <input type="hidden" name="offreId" value="@offre.Id" />
+                                        <button type="submit" class="btn btn-outline-warning btn-sm"
+                                                onclick="return confirm('Archiver cette offre ?')">Archiver</button>
+                                    </form>
+                                    <form method="post" asp-page-handler="Clore">
+                                        <input type="hidden" name="offreId" value="@offre.Id" />
+                                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                onclick="return confirm('Clôturer cette offre ?')">Clôturer</button>
+                                    </form>
+                                }
+                                @if (offre.Statut == "Active")
+                                {
+                                    <form method="post" asp-page-handler="Relancer">
+                                        <input type="hidden" name="offreId" value="@offre.Id" />
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm"
+                                                onclick="return confirm('Marquer en attente de relance ?')">Relancer</button>
+                                    </form>
+                                }
+                                @if (offre.Statut == "EnAttenteRelance")
+                                {
+                                    <form method="post" asp-page-handler="Reconfirmer">
+                                        <input type="hidden" name="offreId" value="@offre.Id" />
+                                        <button type="submit" class="btn btn-outline-success btn-sm"
+                                                onclick="return confirm('Reconfirmer cette offre (→ Active) ?')">Reconfirmer</button>
+                                    </form>
+                                }
                             }
                         </div>
                     </div>

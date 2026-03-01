@@ -44,8 +44,7 @@ public class DiscussionModel : PageModel
             return RedirectToPage(new { transactionId = TransactionId });
         }
 
-        var userId = Guid.TryParse(
-            User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : Guid.Empty;
+        var userId = GetUserId(User);
 
         try
         {
@@ -57,9 +56,9 @@ public class DiscussionModel : PageModel
         return RedirectToPage(new { transactionId = TransactionId });
     }
 
-    private Guid UserId()
+    private static Guid GetUserId(ClaimsPrincipal user)
     {
-        var raw = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var raw = user.FindFirstValue(ClaimTypes.NameIdentifier);
         return Guid.TryParse(raw, out var id) ? id : Guid.Empty;
     }
 }
