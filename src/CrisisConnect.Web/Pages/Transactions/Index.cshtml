@@ -59,29 +59,30 @@ else
                         @if (isAuth)
                         {
                             <td>
-                                @if (t.Statut == "EnCours")
-                                {
-                                    <div class="d-flex gap-1">
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <a class="btn btn-outline-secondary btn-sm"
+                                       asp-page="/Transactions/Discussion"
+                                       asp-route-transactionId="@t.Id">
+                                        💬
+                                    </a>
+                                    @if (t.Statut == "EnCours")
+                                    {
                                         <form method="post" asp-page-handler="Confirmer">
                                             <input type="hidden" name="transactionId" value="@t.Id" />
                                             <button class="btn btn-success btn-sm"
                                                     onclick="return confirm('Confirmer cette transaction ?')">
-                                                ✓ Confirmer
+                                                ✓
                                             </button>
                                         </form>
                                         <form method="post" asp-page-handler="Annuler">
                                             <input type="hidden" name="transactionId" value="@t.Id" />
                                             <button class="btn btn-outline-danger btn-sm"
                                                     onclick="return confirm('Annuler cette transaction ?')">
-                                                ✕ Annuler
+                                                ✕
                                             </button>
                                         </form>
-                                    </div>
-                                }
-                                else
-                                {
-                                    <span class="text-muted small">—</span>
-                                }
+                                    }
+                                </div>
                             </td>
                         }
                     </tr>

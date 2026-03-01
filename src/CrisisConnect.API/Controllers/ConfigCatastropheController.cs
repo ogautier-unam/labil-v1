@@ -1,6 +1,7 @@
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.ConfigCatastrophe.CreateConfigCatastrophe;
 using CrisisConnect.Application.UseCases.ConfigCatastrophe.GetConfigCatastrophe;
+using CrisisConnect.Application.UseCases.ConfigCatastrophe.UpdateConfigCatastrophe;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,5 +39,18 @@ public class ConfigCatastropheController : ControllerBase
     {
         var result = await _mediator.Send(command, cancellationToken);
         return CreatedAtAction(nameof(GetActive), result);
+    }
+
+    /// <summary>Met à jour les paramètres d'une configuration de crise (Responsable uniquement).</summary>
+    [HttpPatch("{id:guid}")]
+    [Authorize(Roles = "Responsable")]
+    [ProducesResponseType<ConfigCatastropheDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateConfigCatastropheCommand command, CancellationToken cancellationToken)
+    {
+        var cmd = command with { Id = id };
+        var result = await _mediator.Send(cmd, cancellationToken);
+        return Ok(result);
     }
 }

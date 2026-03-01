@@ -1,11 +1,13 @@
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Transactions.AnnulerTransaction;
+using CrisisConnect.Application.UseCases.Transactions.BasculerVisibiliteDiscussion;
 using CrisisConnect.Application.UseCases.Transactions.ConfirmerTransaction;
 using CrisisConnect.Application.UseCases.Transactions.EnvoyerMessage;
 using CrisisConnect.Application.UseCases.Transactions.GetDiscussion;
 using CrisisConnect.Application.UseCases.Transactions.GetTransactionById;
 using CrisisConnect.Application.UseCases.Transactions.GetTransactions;
 using CrisisConnect.Application.UseCases.Transactions.InitierTransaction;
+using CrisisConnect.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -98,5 +100,17 @@ public class TransactionsController : ControllerBase
         var cmd = command with { TransactionId = id };
         var result = await _mediator.Send(cmd, cancellationToken);
         return CreatedAtAction(nameof(GetDiscussion), new { id }, result);
+    }
+
+    /// <summary>Bascule la visibilité de la discussion (Publique/Privee).</summary>
+    [HttpPatch("{id:guid}/discussion/visibilite")]
+    [Authorize(Roles = "Coordinateur,Responsable")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> BasculerVisibilite(
+        Guid id, [FromQuery] Visibilite visibilite, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new BasculerVisibiliteDiscussionCommand(id, visibilite), cancellationToken);
+        return NoContent();
     }
 }

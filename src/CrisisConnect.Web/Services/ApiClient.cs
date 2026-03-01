@@ -193,4 +193,21 @@ public class ApiClient
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadFromJsonAsync<IReadOnlyList<SuggestionAppariementModel>>(ct);
     }
+
+    // ── Discussion ────────────────────────────────────────────────────────────
+
+    public Task<DiscussionData?> GetDiscussionAsync(Guid transactionId, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<DiscussionData>($"api/transactions/{transactionId}/discussion", ct);
+
+    public async Task<MessageModel?> EnvoyerMessageAsync(
+        Guid transactionId, Guid expediteurId, string contenu, string langue = "fr",
+        CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync(
+            $"api/transactions/{transactionId}/messages",
+            new { TransactionId = transactionId, ExpediteurId = expediteurId, Contenu = contenu, Langue = langue },
+            ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<MessageModel>(ct);
+    }
 }

@@ -1,0 +1,86 @@
+@page
+@model CrisisConnect.Web.Pages.Transactions.DiscussionModel
+@{
+    ViewData["Title"] = "Discussion";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Discussion</h2>
+    <a asp-page="/Transactions/Index" class="btn btn-outline-secondary btn-sm">← Retour</a>
+</div>
+
+@if (Model.TransactionId == Guid.Empty)
+{
+    <div class="alert alert-warning">Aucun identifiant de transaction fourni.</div>
+}
+else
+{
+    <p class="text-muted small">Transaction : <code>@Model.TransactionId</code></p>
+}
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @ok <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @err <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@if (Model.Discussion is not null)
+{
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="badge bg-secondary">Visibilité : @Model.Discussion.Visibilite</span>
+        <span class="text-muted small">@Model.Discussion.Messages.Count message(s)</span>
+    </div>
+
+    @if (!Model.Discussion.Messages.Any())
+    {
+        <div class="alert alert-info">Aucun message pour le moment. Soyez le premier à écrire.</div>
+    }
+    else
+    {
+        <div class="list-group mb-4">
+            @foreach (var m in Model.Discussion.Messages)
+            {
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="fw-semibold small text-primary font-monospace">
+                            @m.ExpediteurId.ToString()[..8]…
+                        </span>
+                        <small class="text-muted">@m.DateEnvoi.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</small>
+                    </div>
+                    <p class="mb-1 mt-1">@m.Contenu</p>
+                    @if (m.IssueTraductionAuto)
+                    {
+                        <small class="text-muted fst-italic">Traduit automatiquement (langue originale : @m.Langue)</small>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    @* Formulaire d'envoi *@
+    <div class="card">
+        <div class="card-header fw-semibold">Envoyer un message</div>
+        <div class="card-body">
+            <form method="post">
+                <input type="hidden" name="TransactionId" value="@Model.TransactionId" />
+                <div class="mb-3">
+                    <label for="Contenu" class="form-label">Message</label>
+                    <textarea asp-for="Contenu" id="Contenu" class="form-control" rows="3"
+                              placeholder="Votre message…" maxlength="2000" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Envoyer</button>
+            </form>
+        </div>
+    </div>
+}
