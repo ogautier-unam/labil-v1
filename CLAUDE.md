@@ -1011,3 +1011,10 @@ packages/
 ✅ Fix test : VerifierMethodeCommandHandlerTests utilise VerificationSMS (LoginPassword.EstVerifiee=true dans constructeur)
 ✅ Total : 310 tests, 0 échec (Domain 117, Application 141, Infrastructure 52)
 ✅ Build : 0 erreur, 0 warning — commit 3a60422
+
+#### Session 18 — 2026-03-01 — Couverture tests complète
+✅ GenererSuggestionsCommandHandlerTests (4 tests : introuvable, demande non active, suggestion créée, offre déjà traitée)
+✅ DesactiverCategorieCommandHandlerTests (2 tests), DesactiverEntiteCommandHandlerTests (2 tests)
+✅ UpdateConfigCatastropheValidatorTests (4), AttribuerRoleValidatorTests (4), CreerMandatValidatorTests (5), CreateCategorieValidatorTests (4), CreateEntiteValidatorTests (5)
+✅ Total : 340 tests, 0 échec (Domain 117, Application 171, Infrastructure 52)
+✅ Build : 0 erreur, 0 warning — commit b33796d
