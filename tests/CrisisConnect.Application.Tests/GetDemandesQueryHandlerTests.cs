@@ -3,6 +3,7 @@ using CrisisConnect.Application.UseCases.Demandes.GetDemandes;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
 using CrisisConnect.Domain.Interfaces.Repositories;
+using CrisisConnect.Domain.Interfaces.Services;
 using NSubstitute;
 
 namespace CrisisConnect.Application.Tests;
@@ -11,8 +12,10 @@ public class GetDemandesQueryHandlerTests
 {
     private readonly IDemandeRepository _demandeRepo = Substitute.For<IDemandeRepository>();
     private readonly AppMapper _mapper = AutoMapperFixture.Créer();
+    // Aucune stratégie injectée par défaut — liste vide = aucun tri appliqué
+    private readonly IEnumerable<IStrategiePriorisation> _strategies = [];
 
-    private GetDemandesQueryHandler CréerHandler() => new(_demandeRepo, _mapper);
+    private GetDemandesQueryHandler CréerHandler() => new(_demandeRepo, _mapper, _strategies);
 
     [Fact]
     public async Task GetDemandes_DeuxDemandes_RetourneDeuxDtos()

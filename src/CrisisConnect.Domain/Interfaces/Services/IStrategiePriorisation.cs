@@ -9,5 +9,8 @@ namespace CrisisConnect.Domain.Interfaces.Services;
 /// </summary>
 public interface IStrategiePriorisation
 {
+    /// <summary>Identifiant de la stratégie (anciennete | urgence | region | type).</summary>
+    string Nom { get; }
+
     IReadOnlyList<Demande> Trier(IEnumerable<Demande> demandes);
 }

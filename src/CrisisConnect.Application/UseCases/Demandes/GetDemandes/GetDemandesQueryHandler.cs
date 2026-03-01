@@ -1,6 +1,7 @@
 using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Interfaces.Repositories;
+using CrisisConnect.Domain.Interfaces.Services;
 using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Demandes.GetDemandes;
@@ -9,11 +10,16 @@ public class GetDemandesQueryHandler : IRequestHandler<GetDemandesQuery, IReadOn
 {
     private readonly IDemandeRepository _repository;
     private readonly AppMapper _mapper;
+    private readonly IEnumerable<IStrategiePriorisation> _strategies;
 
-    public GetDemandesQueryHandler(IDemandeRepository repository, AppMapper mapper)
+    public GetDemandesQueryHandler(
+        IDemandeRepository repository,
+        AppMapper mapper,
+        IEnumerable<IStrategiePriorisation> strategies)
     {
         _repository = repository;
         _mapper = mapper;
+        _strategies = strategies;
     }
 
     public async ValueTask<IReadOnlyList<DemandeDto>> Handle(GetDemandesQuery request, CancellationToken cancellationToken)
@@ -25,6 +31,15 @@ public class GetDemandesQueryHandler : IRequestHandler<GetDemandesQuery, IReadOn
 
         if (request.Urgence.HasValue)
             demandes = demandes.Where(d => d.Urgence == request.Urgence.Value).ToList();
+
+        // NF-11 — appliquer la stratégie de priorisation si spécifiée
+        if (request.Strategie is not null)
+        {
+            var strategie = _strategies.FirstOrDefault(s =>
+                s.Nom.Equals(request.Strategie, StringComparison.OrdinalIgnoreCase));
+            if (strategie is not null)
+                demandes = strategie.Trier(demandes).ToList();
+        }
 
         return _mapper.ToDto(demandes);
     }

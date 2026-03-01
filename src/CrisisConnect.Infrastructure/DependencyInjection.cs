@@ -57,11 +57,11 @@ public static class DependencyInjection
         // P5 — Adapter traduction (corpus interne par défaut)
         services.AddScoped<IServiceTraduction, AdaptateurCorpusInterne>();
 
-        // P5 — Stratégies de priorisation (enregistrées individuellement pour injection nommée)
-        services.AddScoped<PriorisationParAnciennete>();
-        services.AddScoped<PriorisationParUrgence>();
-        services.AddScoped<PriorisationParRegionSeverite>();
-        services.AddScoped<PriorisationParType>();
+        // P5 — Stratégies de priorisation (NF-11 : injectables via IEnumerable<IStrategiePriorisation>)
+        services.AddScoped<IStrategiePriorisation, PriorisationParAnciennete>();
+        services.AddScoped<IStrategiePriorisation, PriorisationParUrgence>();
+        services.AddScoped<IStrategiePriorisation, PriorisationParRegionSeverite>();
+        services.AddScoped<IStrategiePriorisation, PriorisationParType>();
 
         // HTTP clients pour les adaptateurs de traduction externes
         services.AddHttpClient<AdaptateurDeepL>();

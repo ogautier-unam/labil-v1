@@ -6,5 +6,6 @@ namespace CrisisConnect.Application.UseCases.Demandes.GetDemandes;
 
 public record GetDemandesQuery(
     StatutProposition? Statut = null,
-    NiveauUrgence? Urgence = null)
+    NiveauUrgence? Urgence = null,
+    string? Strategie = null)
     : IRequest<IReadOnlyList<DemandeDto>>;

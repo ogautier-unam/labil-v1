@@ -109,9 +109,10 @@ public class PropositionsController : ControllerBase
     public async Task<IActionResult> GetAllDemandes(
         [FromQuery] StatutProposition? statut,
         [FromQuery] NiveauUrgence? urgence,
+        [FromQuery] string? strategie,
         CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetDemandesQuery(statut, urgence), cancellationToken);
+        var result = await _mediator.Send(new GetDemandesQuery(statut, urgence, strategie), cancellationToken);
         return Ok(result);
     }
 
