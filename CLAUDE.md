@@ -1003,3 +1003,11 @@ packages/
 ✅ ApiClient.CreerMandatAsync : refactorisé avec CreerMandatRequest record (S107 — 8→2 paramètres) + CancellationToken propagé
 ✅ Models/CreerMandatRequest.cs : nouveau record Web layer
 ✅ Build : 0 erreur, 0 warning — commits da62fd1, 56b2f67, c956c75, 205188b
+
+#### Session 17 — 2026-03-01 — 15 validators + 13 handler tests + fix AutoMapper
+✅ 15 validators manquants créés (tous les commands couverts) : Logout, ConfirmerTransaction, AnnulerTransaction, BasculerVisibiliteDiscussion, ConfirmerPanier, AnnulerPanier, ArchiverProposition, CloreProposition, MarquerEnAttenteRelance, ReconfirmerProposition, RevoquerRole, RevoquerMandat, DesactiverCategorie, DesactiverEntite, VerifierMethode
+✅ 13 handler tests Application : PropositionLifecycleCommandHandlerTests (8), AttribuerRole (2), RevoquerRole (2), CreerMandat (2), RevoquerMandat (2), CreateCategorie (2), CreateEntite (2), GetMethodes (2), VerifierMethode (2), UpdateConfigCatastrophe (3)
+✅ Fix MappingProfile : MethodeIdentification→MethodeIdentificationDto migré de ForMember vers ConstructUsing (AutoMapper 16 incompatible avec propriétés protected set + ForMember)
+✅ Fix test : VerifierMethodeCommandHandlerTests utilise VerificationSMS (LoginPassword.EstVerifiee=true dans constructeur)
+✅ Total : 310 tests, 0 échec (Domain 117, Application 141, Infrastructure 52)
+✅ Build : 0 erreur, 0 warning — commit 3a60422
