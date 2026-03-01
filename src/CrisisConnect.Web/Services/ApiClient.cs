@@ -354,6 +354,157 @@ public class ApiClient
         return response.IsSuccessStatusCode;
     }
 
+    // ── Acteurs ───────────────────────────────────────────────────────────────
+
+    public Task<PersonneModel?> GetActeurAsync(Guid id, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<PersonneModel>($"api/acteurs/{id}", ct);
+
+    public async Task<PersonneModel?> UpdateActeurAsync(
+        Guid id, UpdateActeurRequest req, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsJsonAsync($"api/acteurs/{id}", new
+        {
+            Id = id, Prenom = req.Prenom, Nom = req.Nom,
+            Telephone = req.Telephone, UrlPhoto = req.UrlPhoto, LanguePreferee = req.LanguePreferee,
+            MoyensContact = req.MoyensContact, AdresseRue = req.Rue, AdresseVille = req.Ville,
+            AdresseCodePostal = req.CodePostal, AdressePays = req.Pays
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<PersonneModel>(ct);
+    }
+
+    // ── Entités (détail) ──────────────────────────────────────────────────────
+
+    public Task<EntiteModel?> GetEntiteByIdAsync(Guid id, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<EntiteModel>($"api/entites/{id}", ct);
+
+    // ── Update propositions ───────────────────────────────────────────────────
+
+    public async Task<OffreModel?> UpdateOffreAsync(
+        Guid id, string titre, string description, bool livraisonIncluse = false,
+        CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsJsonAsync($"api/propositions/offres/{id}",
+            new { Id = id, Titre = titre, Description = description, LivraisonIncluse = livraisonIncluse }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<OffreModel>(ct);
+    }
+
+    public async Task<DemandeModel?> UpdateDemandeAsync(
+        Guid id, string titre, string description, string urgence = "Moyen",
+        string? regionSeverite = null, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsJsonAsync($"api/propositions/demandes/{id}",
+            new { Id = id, Titre = titre, Description = description, Urgence = urgence, RegionSeverite = regionSeverite }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<DemandeModel>(ct);
+    }
+
+    public async Task<bool> RecyclerPropositionAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/propositions/{id}/recycler", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    // ── Bascule visibilité discussion ─────────────────────────────────────────
+
+    public async Task<bool> BasculerVisibiliteDiscussionAsync(
+        Guid transactionId, string visibilite, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync(
+            $"api/transactions/{transactionId}/discussion/visibilite?visibilite={visibilite}", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    // ── DemandeQuota ──────────────────────────────────────────────────────────
+
+    public Task<IReadOnlyList<DemandeQuotaModel>?> GetDemandesQuotaAsync(CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<DemandeQuotaModel>>("api/demandes-quota", ct);
+
+    public Task<DemandeQuotaModel?> GetDemandeQuotaByIdAsync(Guid id, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<DemandeQuotaModel>($"api/demandes-quota/{id}", ct);
+
+    public async Task<DemandeQuotaModel?> CreateDemandeQuotaAsync(
+        Guid creePar, CreateDemandeQuotaRequest req, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("api/demandes-quota", new
+        {
+            Titre = req.Titre, Description = req.Description, CreePar = creePar,
+            CapaciteMax = req.CapaciteMax, UniteCapacite = req.UniteCapacite,
+            AdresseDepot = req.AdresseDepot, DateLimit = req.DateLimit
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<DemandeQuotaModel>(ct);
+    }
+
+    public async Task<IntentionDonModel?> SoumettreIntentionDonAsync(
+        Guid demandeQuotaId, Guid acteurId, int quantite, string unite, string description,
+        CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync($"api/demandes-quota/{demandeQuotaId}/intentions", new
+        {
+            DemandeQuotaId = demandeQuotaId, ActeurId = acteurId,
+            Quantite = quantite, Unite = unite, Description = description
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<IntentionDonModel>(ct);
+    }
+
+    public async Task<bool> AccepterIntentionDonAsync(
+        Guid demandeQuotaId, Guid intentionId, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync(
+            $"api/demandes-quota/{demandeQuotaId}/intentions/{intentionId}/accepter", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> RefuserIntentionDonAsync(
+        Guid demandeQuotaId, Guid intentionId, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync(
+            $"api/demandes-quota/{demandeQuotaId}/intentions/{intentionId}/refuser", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> ConfirmerIntentionDonAsync(
+        Guid demandeQuotaId, Guid intentionId, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync(
+            $"api/demandes-quota/{demandeQuotaId}/intentions/{intentionId}/confirmer", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    // ── PropositionAvecValidation ─────────────────────────────────────────────
+
+    public async Task<PropositionAvecValidationModel?> CreatePropositionAvecValidationAsync(
+        string titre, string description, Guid creePar, string descriptionValidation,
+        CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("api/propositions/avec-validation", new
+        {
+            Titre = titre, Description = description, CreePar = creePar,
+            DescriptionValidation = descriptionValidation
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<PropositionAvecValidationModel>(ct);
+    }
+
+    public async Task<bool> ValiderPropositionAsync(
+        Guid id, Guid valideurEntiteId, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsJsonAsync($"api/propositions/{id}/valider",
+            new { Id = id, ValideurEntiteId = valideurEntiteId }, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> RefuserValidationPropositionAsync(
+        Guid id, Guid valideurEntiteId, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsJsonAsync($"api/propositions/{id}/refuser-validation",
+            new { Id = id, ValideurEntiteId = valideurEntiteId }, ct);
+        return response.IsSuccessStatusCode;
+    }
+
     // ── Discussion ────────────────────────────────────────────────────────────
 
     public Task<DiscussionData?> GetDiscussionAsync(Guid transactionId, CancellationToken ct = default)

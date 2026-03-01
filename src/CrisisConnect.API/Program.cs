@@ -65,6 +65,12 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader()
               .AllowCredentials()));
 
+// NF-07 — Compression des réponses (Brotli + Gzip)
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
+
 // Health check (utilisé par Docker/k8s pour vérifier la disponibilité)
 builder.Services.AddHealthChecks();
 
@@ -97,6 +103,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseResponseCompression();
 app.UseMiddleware<CrisisConnect.API.Middleware.ExceptionMiddleware>();
 app.UseSerilogRequestLogging();
 if (!app.Environment.IsDevelopment())

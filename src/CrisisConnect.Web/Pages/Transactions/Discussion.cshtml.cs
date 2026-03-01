@@ -10,6 +10,10 @@ namespace CrisisConnect.Web.Pages.Transactions;
 [Authorize]
 public class DiscussionModel : PageModel
 {
+    private const string KeySuccess = "Success";
+    private const string KeyError = "Error";
+    private const string ErrApi = "Impossible de contacter l'API.";
+
     private readonly ApiClient _api;
 
     public DiscussionModel(ApiClient api) => _api = api;
@@ -40,7 +44,7 @@ public class DiscussionModel : PageModel
     {
         if (string.IsNullOrWhiteSpace(Contenu))
         {
-            TempData["Error"] = "Le message ne peut pas être vide.";
+            TempData[KeyError] = "Le message ne peut pas être vide.";
             return RedirectToPage(new { transactionId = TransactionId });
         }
 
@@ -49,9 +53,25 @@ public class DiscussionModel : PageModel
         try
         {
             var msg = await _api.EnvoyerMessageAsync(TransactionId, userId, Contenu, ct: ct);
-            TempData["Success"] = msg is not null ? "Message envoyé." : "Impossible d'envoyer le message.";
+            TempData[msg is not null ? KeySuccess : KeyError] = msg is not null
+                ? "Message envoyé."
+                : "Impossible d'envoyer le message.";
         }
-        catch (HttpRequestException) { TempData["Error"] = "Impossible de contacter l'API."; }
+        catch (HttpRequestException) { TempData[KeyError] = ErrApi; }
+
+        return RedirectToPage(new { transactionId = TransactionId });
+    }
+
+    public async Task<IActionResult> OnPostBasculerVisibiliteAsync(string visibilite, CancellationToken ct)
+    {
+        try
+        {
+            var ok = await _api.BasculerVisibiliteDiscussionAsync(TransactionId, visibilite, ct);
+            TempData[ok ? KeySuccess : KeyError] = ok
+                ? $"Discussion passée en mode {visibilite}."
+                : "Impossible de modifier la visibilité.";
+        }
+        catch (HttpRequestException) { TempData[KeyError] = ErrApi; }
 
         return RedirectToPage(new { transactionId = TransactionId });
     }

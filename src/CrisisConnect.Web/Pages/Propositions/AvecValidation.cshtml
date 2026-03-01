@@ -1,0 +1,92 @@
+@page
+@model CrisisConnect.Web.Pages.Propositions.AvecValidationModel
+@{
+    ViewData["Title"] = "Propositions avec validation";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Propositions avec validation</h2>
+    <button class="btn btn-success btn-sm" type="button"
+            data-bs-toggle="collapse" data-bs-target="#formCreer">
+        + Soumettre une proposition
+    </button>
+</div>
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @ok <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @err <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@* Formulaire de création *@
+<div class="collapse mb-4" id="formCreer">
+    <div class="card">
+        <div class="card-header fw-semibold">Soumettre une proposition à validation</div>
+        <div class="card-body">
+            <form method="post" asp-page-handler="Creer">
+                <div class="mb-3">
+                    <label class="form-label">Titre <span class="text-danger">*</span></label>
+                    <input asp-for="Titre" class="form-control" required maxlength="200" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description <span class="text-danger">*</span></label>
+                    <textarea asp-for="Description" class="form-control" rows="4" required maxlength="2000"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Critères de validation <span class="text-danger">*</span></label>
+                    <textarea asp-for="DescriptionValidation" class="form-control" rows="3" required maxlength="1000"
+                              placeholder="Ex. : L'entité doit être reconnue par la Croix-Rouge…"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">Soumettre</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* Actions de validation — Coordinateur / Responsable *@
+@if (User.IsInRole("Coordinateur") || User.IsInRole("Responsable"))
+{
+    <div class="card mb-4">
+        <div class="card-header fw-semibold">Valider / Refuser une proposition</div>
+        <div class="card-body">
+            <p class="text-muted small">
+                Entrez l'identifiant d'une proposition en attente de validation,
+                puis choisissez l'action à effectuer.
+            </p>
+            <form method="post">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="ActionPropositionId" class="form-label">ID de la proposition</label>
+                        <input asp-for="ActionPropositionId" id="ActionPropositionId"
+                               class="form-control font-monospace"
+                               placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="ActionEntiteId" class="form-label">ID de l'entité validatrice</label>
+                        <input asp-for="ActionEntiteId" id="ActionEntiteId"
+                               class="form-control font-monospace"
+                               placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required />
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" name="handler" value="Valider"
+                            class="btn btn-success btn-sm">✓ Valider</button>
+                    <button type="submit" name="handler" value="RefuserValidation"
+                            class="btn btn-danger btn-sm">✗ Refuser la validation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<div class="alert alert-info small">
+    Consultez <a asp-page="/Propositions/Index">toutes les propositions</a> pour voir les propositions
+    en attente de validation (<code>StatutValidation = EnAttente</code>).
+</div>

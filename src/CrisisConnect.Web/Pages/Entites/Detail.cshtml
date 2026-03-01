@@ -1,0 +1,63 @@
+@page "{id:guid}"
+@model CrisisConnect.Web.Pages.Entites.DetailModel
+@{
+    ViewData["Title"] = Model.Entite?.Nom ?? "Détail organisation";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>@(Model.Entite?.Nom ?? "Organisation")</h2>
+    <a asp-page="/Entites/Index" class="btn btn-outline-secondary btn-sm">← Retour</a>
+</div>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+else if (Model.Entite is null)
+{
+    <div class="alert alert-warning">Organisation introuvable.</div>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <h5 class="card-title">@Model.Entite.Nom</h5>
+                    <p class="card-text text-muted">@Model.Entite.Description</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    @if (Model.Entite.EstActive)
+                    {
+                        <span class="badge bg-success fs-6">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary fs-6">Inactive</span>
+                    }
+                </div>
+            </div>
+            <hr />
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Email</dt>
+                <dd class="col-sm-8"><a href="mailto:@Model.Entite.Email">@Model.Entite.Email</a></dd>
+
+                <dt class="col-sm-4">Moyens de contact</dt>
+                <dd class="col-sm-8">@Model.Entite.MoyensContact</dd>
+
+                @if (Model.Entite.UrlPagePresentation is not null)
+                {
+                    <dt class="col-sm-4">Page de présentation</dt>
+                    <dd class="col-sm-8">
+                        <a href="@Model.Entite.UrlPagePresentation" target="_blank" rel="noopener">
+                            @Model.Entite.UrlPagePresentation
+                        </a>
+                    </dd>
+                }
+
+                <dt class="col-sm-4">Identifiant</dt>
+                <dd class="col-sm-8 font-monospace small text-muted">@Model.Entite.Id</dd>
+            </dl>
+        </div>
+    </div>
+}

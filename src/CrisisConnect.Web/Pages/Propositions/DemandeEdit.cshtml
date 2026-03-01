@@ -1,0 +1,50 @@
+@page "{id:guid}"
+@model CrisisConnect.Web.Pages.Propositions.DemandeEditModel
+@{
+    ViewData["Title"] = "Modifier la demande";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Modifier la demande</h2>
+    <a asp-page="/Propositions/Demandes" class="btn btn-outline-secondary btn-sm">← Retour</a>
+</div>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                <div class="mb-3">
+                    <label asp-for="Titre" class="form-label">Titre <span class="text-danger">*</span></label>
+                    <input asp-for="Titre" class="form-control" required maxlength="200" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">Description <span class="text-danger">*</span></label>
+                    <textarea asp-for="Description" class="form-control" rows="5" required maxlength="2000"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Urgence" class="form-label">Niveau d'urgence</label>
+                    <select asp-for="Urgence" class="form-select">
+                        <option value="Faible">Faible</option>
+                        <option value="Moyen">Moyen</option>
+                        <option value="Eleve">Élevé</option>
+                        <option value="Critique">Critique</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="RegionSeverite" class="form-label">Région de sévérité</label>
+                    <input asp-for="RegionSeverite" class="form-control"
+                           placeholder="Ex. : Liège, Vallée de la Meuse…" />
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <a asp-page="/Propositions/Demandes" class="btn btn-outline-secondary">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+}

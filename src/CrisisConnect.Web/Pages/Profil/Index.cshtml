@@ -1,0 +1,109 @@
+@page
+@model CrisisConnect.Web.Pages.Profil.IndexModel
+@{
+    ViewData["Title"] = "Mon profil";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Mon profil</h2>
+</div>
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @ok <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @err <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@if (Model.Profil is not null)
+{
+    <div class="row mb-4">
+        <div class="col-md-3 text-center">
+            @if (Model.Profil.UrlPhoto is not null)
+            {
+                <img src="@Model.Profil.UrlPhoto" alt="Photo de profil"
+                     class="rounded-circle img-thumbnail mb-2"
+                     style="width:120px;height:120px;object-fit:cover;" />
+            }
+            else
+            {
+                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-2 text-white fw-bold fs-3"
+                     style="width:120px;height:120px;">
+                    @Model.Profil.Prenom[..1]@Model.Profil.Nom[..1]
+                </div>
+            }
+            <div class="fw-semibold">@Model.Profil.NomComplet</div>
+            <span class="badge @(Model.Profil.NiveauBadge == "Vert" ? "bg-success" : Model.Profil.NiveauBadge == "Orange" ? "bg-warning text-dark" : "bg-danger")">
+                Badge : @Model.Profil.NiveauBadge
+            </span>
+            <div class="text-muted small mt-1">@Model.Profil.Role</div>
+            <div class="text-muted small font-monospace">@Model.Profil.Email</div>
+        </div>
+        <div class="col-md-9">
+            <form method="post">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Prenom" class="form-label">Prénom</label>
+                        <input asp-for="Prenom" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Nom" class="form-label">Nom</label>
+                        <input asp-for="Nom" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Telephone" class="form-label">Téléphone</label>
+                        <input asp-for="Telephone" class="form-control" type="tel" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="LanguePreferee" class="form-label">Langue préférée</label>
+                        <select asp-for="LanguePreferee" class="form-select">
+                            <option value="">— Sélectionner —</option>
+                            <option value="fr">Français</option>
+                            <option value="en">English</option>
+                            <option value="de">Deutsch</option>
+                            <option value="es">Español</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="UrlPhoto" class="form-label">URL de photo</label>
+                        <input asp-for="UrlPhoto" class="form-control" type="url" />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="MoyensContact" class="form-label">Moyens de contact préférés</label>
+                        <input asp-for="MoyensContact" class="form-control"
+                               placeholder="Ex. : Email, SMS, WhatsApp…" />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Rue" class="form-label">Adresse (rue)</label>
+                        <input asp-for="Rue" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Ville" class="form-label">Ville</label>
+                        <input asp-for="Ville" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label asp-for="CodePostal" class="form-label">Code postal</label>
+                        <input asp-for="CodePostal" class="form-control" />
+                    </div>
+                    <div class="col-md-5">
+                        <label asp-for="Pays" class="form-label">Pays</label>
+                        <input asp-for="Pays" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}

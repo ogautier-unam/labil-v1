@@ -40,6 +40,23 @@ else
     <div class="d-flex justify-content-between align-items-center mb-3">
         <span class="badge bg-secondary">Visibilité : @Model.Discussion.Visibilite</span>
         <span class="text-muted small">@Model.Discussion.Messages.Count message(s)</span>
+        <form method="post" asp-page-handler="BasculerVisibilite" class="ms-2">
+            <input type="hidden" name="TransactionId" value="@Model.TransactionId" />
+            @if (Model.Discussion.Visibilite == "Publique")
+            {
+                <button type="submit" name="Visibilite" value="Privee"
+                        class="btn btn-outline-secondary btn-sm">
+                    Rendre privée
+                </button>
+            }
+            else
+            {
+                <button type="submit" name="Visibilite" value="Publique"
+                        class="btn btn-outline-primary btn-sm">
+                    Rendre publique
+                </button>
+            }
+        </form>
     </div>
 
     @if (!Model.Discussion.Messages.Any())
