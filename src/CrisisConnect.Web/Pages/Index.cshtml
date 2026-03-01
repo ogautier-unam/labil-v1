@@ -11,6 +11,13 @@
         </div>
     </div>
 
+    @if (Model.ErrorMessage is not null)
+    {
+        <div class="col-12">
+            <div class="alert alert-warning">@Model.ErrorMessage</div>
+        </div>
+    }
+
     <div class="col-md-4">
         <div class="card h-100 border-primary">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -19,6 +26,10 @@
             </div>
             <div class="card-body">
                 <p class="card-text text-muted">Ressources disponibles proposées par les acteurs.</p>
+                <p class="mb-3">
+                    <span class="badge bg-success">@Model.NombreOffresActives actives</span>
+                    <span class="badge bg-secondary ms-1">@(Model.NombreOffres - Model.NombreOffresActives) autres</span>
+                </p>
                 <a asp-page="/Propositions/Offres" class="btn btn-outline-primary btn-sm">Voir les offres</a>
             </div>
         </div>
@@ -32,6 +43,10 @@
             </div>
             <div class="card-body">
                 <p class="card-text text-muted">Besoins exprimés par les citoyens et coordinateurs.</p>
+                <p class="mb-3">
+                    <span class="badge bg-warning text-dark">@Model.NombreDemandesActives actives</span>
+                    <span class="badge bg-secondary ms-1">@(Model.NombreDemandes - Model.NombreDemandesActives) autres</span>
+                </p>
                 <a asp-page="/Propositions/Demandes" class="btn btn-outline-warning btn-sm">Voir les demandes</a>
             </div>
         </div>
@@ -45,6 +60,10 @@
             </div>
             <div class="card-body">
                 <p class="card-text text-muted">Échanges en cours entre offres et demandes.</p>
+                <p class="mb-3">
+                    <span class="badge bg-primary">@Model.NombreTransactionsEnCours en cours</span>
+                    <span class="badge bg-secondary ms-1">@(Model.NombreTransactions - Model.NombreTransactionsEnCours) terminées</span>
+                </p>
                 <a asp-page="/Transactions/Index" class="btn btn-outline-success btn-sm">Voir les transactions</a>
             </div>
         </div>
