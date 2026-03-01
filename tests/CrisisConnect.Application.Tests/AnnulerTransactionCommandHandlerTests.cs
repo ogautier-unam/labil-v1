@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Transactions.AnnulerTransaction;
+﻿using CrisisConnect.Application.UseCases.Transactions.AnnulerTransaction;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
 using CrisisConnect.Domain.Exceptions;
@@ -51,7 +51,7 @@ public class AnnulerTransactionCommandHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(
-            () => handler.Handle(new AnnulerTransactionCommand(Guid.NewGuid()), CancellationToken.None));
+            () => handler.Handle(new AnnulerTransactionCommand(Guid.NewGuid()), CancellationToken.None).AsTask());
     }
 
     [Fact]

@@ -1,5 +1,5 @@
-using AutoMapper;
-using CrisisConnect.Application.DTOs;
+﻿using CrisisConnect.Application.DTOs;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Paniers.CreatePanier;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
@@ -12,7 +12,7 @@ namespace CrisisConnect.Application.Tests;
 public class CreatePanierCommandHandlerTests
 {
     private readonly IPanierRepository _panierRepo = Substitute.For<IPanierRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private CreatePanierCommandHandler CréerHandler() =>
         new(_panierRepo, _mapper);
@@ -51,7 +51,7 @@ public class CreatePanierCommandHandlerTests
         var command = new CreatePanierCommand(proprietaireId);
 
         // Act & Assert
-        await Assert.ThrowsAsync<DomainException>(() => handler.Handle(command, CancellationToken.None));
+        await Assert.ThrowsAsync<DomainException>(() => handler.Handle(command, CancellationToken.None).AsTask());
         await _panierRepo.DidNotReceive().AddAsync(Arg.Any<Panier>(), Arg.Any<CancellationToken>());
     }
 }

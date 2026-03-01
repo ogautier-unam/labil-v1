@@ -1,5 +1,5 @@
-using CrisisConnect.Application.DTOs;
-using MediatR;
+﻿using CrisisConnect.Application.DTOs;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.MethodesIdentification.GetMethodes;
 

@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Paniers.ConfirmerPanier;
+﻿using CrisisConnect.Application.UseCases.Paniers.ConfirmerPanier;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -37,6 +37,6 @@ public class ConfirmerPanierCommandHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new ConfirmerPanierCommand(panierId), CancellationToken.None));
+            CréerHandler().Handle(new ConfirmerPanierCommand(panierId), CancellationToken.None).AsTask());
     }
 }

@@ -1,23 +1,23 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Mandats.CreerMandat;
 
 public class CreerMandatCommandHandler : IRequestHandler<CreerMandatCommand, MandatDto>
 {
     private readonly IMandatRepository _repository;
-    private readonly IMapper _mapper;
+    private readonly AppMapper _mapper;
 
-    public CreerMandatCommandHandler(IMandatRepository repository, IMapper mapper)
+    public CreerMandatCommandHandler(IMandatRepository repository, AppMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
     }
 
-    public async Task<MandatDto> Handle(CreerMandatCommand request, CancellationToken cancellationToken)
+    public async ValueTask<MandatDto> Handle(CreerMandatCommand request, CancellationToken cancellationToken)
     {
         var mandat = new Mandat(
             request.MandantId,
@@ -29,6 +29,6 @@ public class CreerMandatCommandHandler : IRequestHandler<CreerMandatCommand, Man
             request.DateFin);
 
         await _repository.AddAsync(mandat, cancellationToken);
-        return _mapper.Map<MandatDto>(mandat);
+        return _mapper.ToDto(mandat);
     }
 }

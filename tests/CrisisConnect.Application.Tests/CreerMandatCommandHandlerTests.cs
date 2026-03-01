@@ -1,4 +1,4 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Mandats.CreerMandat;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
@@ -10,7 +10,7 @@ namespace CrisisConnect.Application.Tests;
 public class CreerMandatCommandHandlerTests
 {
     private readonly IMandatRepository _mandatRepo = Substitute.For<IMandatRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private CreerMandatCommandHandler CréerHandler() => new(_mandatRepo, _mapper);
 

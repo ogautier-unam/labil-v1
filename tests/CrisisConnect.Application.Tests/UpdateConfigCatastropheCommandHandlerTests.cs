@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.ConfigCatastrophe.UpdateConfigCatastrophe;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
@@ -10,7 +10,7 @@ namespace CrisisConnect.Application.Tests;
 public class UpdateConfigCatastropheCommandHandlerTests
 {
     private readonly IConfigCatastropheRepository _configRepo = Substitute.For<IConfigCatastropheRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private UpdateConfigCatastropheCommandHandler CréerHandler() => new(_configRepo, _mapper);
 
@@ -48,6 +48,6 @@ public class UpdateConfigCatastropheCommandHandlerTests
         _configRepo.GetByIdAsync(id, Arg.Any<CancellationToken>()).Returns((ConfigCatastrophe?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new UpdateConfigCatastropheCommand(id, 30, 7, true), CancellationToken.None));
+            CréerHandler().Handle(new UpdateConfigCatastropheCommand(id, 30, 7, true), CancellationToken.None).AsTask());
     }
 }

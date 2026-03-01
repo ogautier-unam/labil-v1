@@ -1,7 +1,7 @@
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.MethodesIdentification.GetMethodes;
 using CrisisConnect.Application.UseCases.MethodesIdentification.VerifierMethode;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

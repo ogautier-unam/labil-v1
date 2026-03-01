@@ -1,9 +1,9 @@
 using CrisisConnect.Domain.Enums;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Transactions.BasculerVisibiliteDiscussion;
 
 public record BasculerVisibiliteDiscussionCommand(
     Guid TransactionId,
     Visibilite NouvelleVisibilite)
-    : IRequest;
+    : ICommand;

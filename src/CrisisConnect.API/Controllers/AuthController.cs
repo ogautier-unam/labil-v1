@@ -5,7 +5,7 @@ using CrisisConnect.Application.UseCases.Auth.Login;
 using CrisisConnect.Application.UseCases.Auth.Logout;
 using CrisisConnect.Application.UseCases.Auth.RefreshToken;
 using CrisisConnect.Application.UseCases.Auth.Register;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

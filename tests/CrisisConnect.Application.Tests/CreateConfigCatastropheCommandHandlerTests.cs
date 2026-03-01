@@ -1,4 +1,4 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.ConfigCatastrophe.CreateConfigCatastrophe;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -9,7 +9,7 @@ namespace CrisisConnect.Application.Tests;
 public class CreateConfigCatastropheCommandHandlerTests
 {
     private readonly IConfigCatastropheRepository _configRepo = Substitute.For<IConfigCatastropheRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private CreateConfigCatastropheCommandHandler CréerHandler() => new(_configRepo, _mapper);
 

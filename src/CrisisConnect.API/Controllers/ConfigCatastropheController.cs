@@ -2,7 +2,7 @@ using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.ConfigCatastrophe.CreateConfigCatastrophe;
 using CrisisConnect.Application.UseCases.ConfigCatastrophe.GetConfigCatastrophe;
 using CrisisConnect.Application.UseCases.ConfigCatastrophe.UpdateConfigCatastrophe;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

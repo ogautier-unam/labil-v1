@@ -1,4 +1,4 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Demandes.GetDemandes;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
@@ -10,7 +10,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetDemandesQueryHandlerTests
 {
     private readonly IDemandeRepository _demandeRepo = Substitute.For<IDemandeRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetDemandesQueryHandler CréerHandler() => new(_demandeRepo, _mapper);
 

@@ -1,11 +1,11 @@
-using CrisisConnect.Application.Common.Behaviours;
+﻿using CrisisConnect.Application.Common.Behaviours;
 using FluentValidation;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.Tests;
 
 // Types de test pour le ValidationBehaviour
-public record ValidationTestCommand(string Nom) : IRequest<string>;
+public record ValidationTestCommand(string Nom) : ICommand<string>;
 
 public class ValidationTestCommandValidatorOK : AbstractValidator<ValidationTestCommand>
 {
@@ -31,7 +31,7 @@ public class ValidationBehaviourTests
         // Arrange
         var behaviour = new ValidationBehaviour<ValidationTestCommand, string>(
             Array.Empty<IValidator<ValidationTestCommand>>());
-        RequestHandlerDelegate<string> next = _ => Task.FromResult("ok");
+        MessageHandlerDelegate<ValidationTestCommand, string> next = (_, _) => ValueTask.FromResult("ok");
 
         // Act
         var result = await behaviour.Handle(new ValidationTestCommand("Alice"), next, CancellationToken.None);
@@ -46,7 +46,7 @@ public class ValidationBehaviourTests
         // Arrange
         var behaviour = new ValidationBehaviour<ValidationTestCommand, string>(
             [new ValidationTestCommandValidatorOK()]);
-        RequestHandlerDelegate<string> next = _ => Task.FromResult("ok");
+        MessageHandlerDelegate<ValidationTestCommand, string> next = (_, _) => ValueTask.FromResult("ok");
 
         // Act
         var result = await behaviour.Handle(new ValidationTestCommand("Alice"), next, CancellationToken.None);
@@ -62,15 +62,15 @@ public class ValidationBehaviourTests
         var behaviour = new ValidationBehaviour<ValidationTestCommand, string>(
             [new ValidationTestCommandValidatorKO()]);
         var nextCalled = false;
-        RequestHandlerDelegate<string> next = _ =>
+        MessageHandlerDelegate<ValidationTestCommand, string> next = (_, _) =>
         {
             nextCalled = true;
-            return Task.FromResult("ne doit pas être appelé");
+            return ValueTask.FromResult("ne doit pas être appelé");
         };
 
         // Act & Assert
         await Assert.ThrowsAsync<ValidationException>(() =>
-            behaviour.Handle(new ValidationTestCommand("Alice"), next, CancellationToken.None));
+            behaviour.Handle(new ValidationTestCommand("Alice"), next, CancellationToken.None).AsTask());
         Assert.False(nextCalled);
     }
 
@@ -80,11 +80,11 @@ public class ValidationBehaviourTests
         // Arrange — deux validateurs qui échouent chacun sur une propriété
         var behaviour = new ValidationBehaviour<ValidationTestCommand, string>(
             [new ValidationTestCommandValidatorKO(), new ValidationTestCommandValidatorKO()]);
-        RequestHandlerDelegate<string> next = _ => Task.FromResult("ok");
+        MessageHandlerDelegate<ValidationTestCommand, string> next = (_, _) => ValueTask.FromResult("ok");
 
         // Act
         var exception = await Assert.ThrowsAsync<ValidationException>(() =>
-            behaviour.Handle(new ValidationTestCommand("Alice"), next, CancellationToken.None));
+            behaviour.Handle(new ValidationTestCommand("Alice"), next, CancellationToken.None).AsTask());
 
         // Assert — au moins une erreur par validateur (le context partagé peut en accumuler plus)
         Assert.True(exception.Errors.Count() >= 2);
@@ -96,11 +96,11 @@ public class ValidationBehaviourTests
         // Arrange — commande avec Nom vide → validateur OK doit échouer
         var behaviour = new ValidationBehaviour<ValidationTestCommand, string>(
             [new ValidationTestCommandValidatorOK()]);
-        RequestHandlerDelegate<string> next = _ => Task.FromResult("ok");
+        MessageHandlerDelegate<ValidationTestCommand, string> next = (_, _) => ValueTask.FromResult("ok");
 
         // Act
         var exception = await Assert.ThrowsAsync<ValidationException>(() =>
-            behaviour.Handle(new ValidationTestCommand(string.Empty), next, CancellationToken.None));
+            behaviour.Handle(new ValidationTestCommand(string.Empty), next, CancellationToken.None).AsTask());
 
         // Assert
         Assert.Contains(exception.Errors, e => e.PropertyName == "Nom");

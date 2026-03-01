@@ -1,23 +1,23 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.ConfigCatastrophe.UpdateConfigCatastrophe;
 
 public class UpdateConfigCatastropheCommandHandler : IRequestHandler<UpdateConfigCatastropheCommand, ConfigCatastropheDto>
 {
     private readonly IConfigCatastropheRepository _repository;
-    private readonly IMapper _mapper;
+    private readonly AppMapper _mapper;
 
-    public UpdateConfigCatastropheCommandHandler(IConfigCatastropheRepository repository, IMapper mapper)
+    public UpdateConfigCatastropheCommandHandler(IConfigCatastropheRepository repository, AppMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
     }
 
-    public async Task<ConfigCatastropheDto> Handle(UpdateConfigCatastropheCommand request, CancellationToken cancellationToken)
+    public async ValueTask<ConfigCatastropheDto> Handle(UpdateConfigCatastropheCommand request, CancellationToken cancellationToken)
     {
         var config = await _repository.GetByIdAsync(request.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(Domain.Entities.ConfigCatastrophe), request.Id);
@@ -30,6 +30,6 @@ public class UpdateConfigCatastropheCommandHandler : IRequestHandler<UpdateConfi
             config.Desactiver();
 
         await _repository.UpdateAsync(config, cancellationToken);
-        return _mapper.Map<ConfigCatastropheDto>(config);
+        return _mapper.ToDto(config);
     }
 }

@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Auth.Login;
+﻿using CrisisConnect.Application.UseCases.Auth.Login;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -53,7 +53,7 @@ public class LoginCommandHandlerTests
         var command = new LoginCommand("inconnu@example.com", "motdepasse");
 
         // Act & Assert
-        await Assert.ThrowsAsync<DomainException>(() => handler.Handle(command, CancellationToken.None));
+        await Assert.ThrowsAsync<DomainException>(() => handler.Handle(command, CancellationToken.None).AsTask());
     }
 
     [Fact]
@@ -69,7 +69,7 @@ public class LoginCommandHandlerTests
         var command = new LoginCommand("test@example.com", "mauvais");
 
         // Act & Assert
-        await Assert.ThrowsAsync<DomainException>(() => handler.Handle(command, CancellationToken.None));
+        await Assert.ThrowsAsync<DomainException>(() => handler.Handle(command, CancellationToken.None).AsTask());
     }
 
     [Fact]

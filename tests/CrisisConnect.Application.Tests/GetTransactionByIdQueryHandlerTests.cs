@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Transactions.GetTransactionById;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
@@ -10,7 +10,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetTransactionByIdQueryHandlerTests
 {
     private readonly ITransactionRepository _txRepo = Substitute.For<ITransactionRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetTransactionByIdQueryHandler CréerHandler() => new(_txRepo, _mapper);
 
@@ -39,6 +39,6 @@ public class GetTransactionByIdQueryHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new GetTransactionByIdQuery(id), CancellationToken.None));
+            CréerHandler().Handle(new GetTransactionByIdQuery(id), CancellationToken.None).AsTask());
     }
 }

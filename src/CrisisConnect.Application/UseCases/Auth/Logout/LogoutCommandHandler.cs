@@ -1,9 +1,9 @@
-using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+﻿using CrisisConnect.Domain.Interfaces.Repositories;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Auth.Logout;
 
-public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
+public class LogoutCommandHandler : ICommandHandler<LogoutCommand>
 {
     private readonly IRefreshTokenRepository _refreshTokenRepository;
 
@@ -12,8 +12,9 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
         _refreshTokenRepository = refreshTokenRepository;
     }
 
-    public async Task Handle(LogoutCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(LogoutCommand request, CancellationToken cancellationToken)
     {
         await _refreshTokenRepository.RevoquerTousAsync(request.PersonneId, cancellationToken);
+        return Unit.Value;
     }
 }

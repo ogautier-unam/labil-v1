@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Paniers.AjouterOffreAuPanier;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
@@ -11,7 +11,7 @@ public class AjouterOffreAuPanierCommandHandlerTests
 {
     private readonly IPanierRepository _panierRepo = Substitute.For<IPanierRepository>();
     private readonly IOffreRepository _offreRepo = Substitute.For<IOffreRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private AjouterOffreAuPanierCommandHandler CréerHandler() =>
         new(_panierRepo, _offreRepo, _mapper);
@@ -49,7 +49,7 @@ public class AjouterOffreAuPanierCommandHandlerTests
         var command = new AjouterOffreAuPanierCommand(Guid.NewGuid(), Guid.NewGuid());
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
+        await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None).AsTask());
     }
 
     [Fact]
@@ -65,6 +65,6 @@ public class AjouterOffreAuPanierCommandHandlerTests
         var command = new AjouterOffreAuPanierCommand(panier.Id, Guid.NewGuid());
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
+        await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None).AsTask());
     }
 }

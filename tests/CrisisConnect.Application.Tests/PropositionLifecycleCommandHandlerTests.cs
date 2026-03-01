@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Propositions.ArchiverProposition;
+﻿using CrisisConnect.Application.UseCases.Propositions.ArchiverProposition;
 using CrisisConnect.Application.UseCases.Propositions.CloreProposition;
 using CrisisConnect.Application.UseCases.Propositions.MarquerEnAttenteRelance;
 using CrisisConnect.Application.UseCases.Propositions.ReconfirmerProposition;
@@ -38,7 +38,7 @@ public class PropositionLifecycleCommandHandlerTests
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
             new ArchiverPropositionCommandHandler(_propositionRepo)
-                .Handle(new ArchiverPropositionCommand(id), CancellationToken.None));
+                .Handle(new ArchiverPropositionCommand(id), CancellationToken.None).AsTask());
     }
 
     // ── CloreProposition ──────────────────────────────────────────────────────
@@ -64,7 +64,7 @@ public class PropositionLifecycleCommandHandlerTests
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
             new ClorePropositionCommandHandler(_propositionRepo)
-                .Handle(new ClorePropositionCommand(id), CancellationToken.None));
+                .Handle(new ClorePropositionCommand(id), CancellationToken.None).AsTask());
     }
 
     // ── MarquerEnAttenteRelance ───────────────────────────────────────────────
@@ -90,7 +90,7 @@ public class PropositionLifecycleCommandHandlerTests
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
             new MarquerEnAttenteRelanceCommandHandler(_propositionRepo)
-                .Handle(new MarquerEnAttenteRelanceCommand(id), CancellationToken.None));
+                .Handle(new MarquerEnAttenteRelanceCommand(id), CancellationToken.None).AsTask());
     }
 
     // ── ReconfirmerProposition ────────────────────────────────────────────────
@@ -117,6 +117,6 @@ public class PropositionLifecycleCommandHandlerTests
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
             new ReconfirmerPropositionCommandHandler(_propositionRepo)
-                .Handle(new ReconfirmerPropositionCommand(id), CancellationToken.None));
+                .Handle(new ReconfirmerPropositionCommand(id), CancellationToken.None).AsTask());
     }
 }

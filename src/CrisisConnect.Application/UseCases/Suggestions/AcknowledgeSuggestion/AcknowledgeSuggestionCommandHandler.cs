@@ -1,11 +1,11 @@
-using CrisisConnect.Domain.Entities;
+﻿using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Suggestions.AcknowledgeSuggestion;
 
-public class AcknowledgeSuggestionCommandHandler : IRequestHandler<AcknowledgeSuggestionCommand>
+public class AcknowledgeSuggestionCommandHandler : ICommandHandler<AcknowledgeSuggestionCommand>
 {
     private readonly ISuggestionAppariementRepository _suggestionRepository;
 
@@ -14,12 +14,13 @@ public class AcknowledgeSuggestionCommandHandler : IRequestHandler<AcknowledgeSu
         _suggestionRepository = suggestionRepository;
     }
 
-    public async Task Handle(AcknowledgeSuggestionCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(AcknowledgeSuggestionCommand request, CancellationToken cancellationToken)
     {
         var suggestion = await _suggestionRepository.GetByIdAsync(request.SuggestionId, cancellationToken)
             ?? throw new NotFoundException(nameof(SuggestionAppariement), request.SuggestionId);
 
         suggestion.Acknowledger();
         await _suggestionRepository.UpdateAsync(suggestion, cancellationToken);
+        return Unit.Value;
     }
 }

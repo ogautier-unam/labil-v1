@@ -1,10 +1,10 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Suggestions.GenererSuggestions;
 
@@ -14,7 +14,7 @@ public class GenererSuggestionsCommandHandler
     private readonly IDemandeRepository _demandeRepository;
     private readonly IOffreRepository _offreRepository;
     private readonly ISuggestionAppariementRepository _suggestionRepository;
-    private readonly IMapper _mapper;
+    private readonly AppMapper _mapper;
 
     private const double SeuilMinimum = 0.10;
 
@@ -22,7 +22,7 @@ public class GenererSuggestionsCommandHandler
         IDemandeRepository demandeRepository,
         IOffreRepository offreRepository,
         ISuggestionAppariementRepository suggestionRepository,
-        IMapper mapper)
+        AppMapper mapper)
     {
         _demandeRepository = demandeRepository;
         _offreRepository = offreRepository;
@@ -30,7 +30,7 @@ public class GenererSuggestionsCommandHandler
         _mapper = mapper;
     }
 
-    public async Task<IReadOnlyList<SuggestionAppariementDto>> Handle(
+    public async ValueTask<IReadOnlyList<SuggestionAppariementDto>> Handle(
         GenererSuggestionsCommand request,
         CancellationToken cancellationToken)
     {
@@ -44,7 +44,7 @@ public class GenererSuggestionsCommandHandler
         var offres = await _offreRepository.GetAllAsync(cancellationToken);
         var offresActives = offres.Where(o => o.Statut == StatutProposition.Active).ToList();
 
-        // Ã‰viter les doublons : ne pas rÃ©gÃ©nÃ©rer une suggestion dÃ©jÃ  existante
+        // Éviter les doublons : ne pas régénérer une suggestion déjà existante
         var existantes = await _suggestionRepository.GetByDemandeAsync(request.DemandeId, cancellationToken);
         var offreIdsDejaTraites = existantes.Select(s => s.OffreId).ToHashSet();
 
@@ -64,12 +64,12 @@ public class GenererSuggestionsCommandHandler
             nouvelles.Add(suggestion);
         }
 
-        return _mapper.Map<IReadOnlyList<SuggestionAppariementDto>>(nouvelles);
+        return _mapper.ToDto(nouvelles);
     }
 
     /// <summary>
     /// Calcule un score de correspondance [0,1] entre une offre et une demande.
-    /// CritÃ¨res : similaritÃ© textuelle (Jaccard), niveau d'urgence, livraison.
+    /// Critères : similarité textuelle (Jaccard), niveau d'urgence, livraison.
     /// </summary>
     private static (double score, string raisonnement) CalculerScore(Offre offre, Demande demande)
     {
@@ -80,7 +80,7 @@ public class GenererSuggestionsCommandHandler
         var union        = motsDemande.Union(motsOffre).Count();
         double scoreSimilarite = union == 0 ? 0.0 : (double)intersection / union;
 
-        // Bonus urgence : les demandes critiques mÃ©ritent plus de visibilitÃ©
+        // Bonus urgence : les demandes critiques méritent plus de visibilité
         double bonusUrgence = demande.Urgence switch
         {
             NiveauUrgence.Critique => 0.20,

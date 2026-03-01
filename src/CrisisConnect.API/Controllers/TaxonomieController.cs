@@ -2,7 +2,7 @@ using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Taxonomie.CreateCategorie;
 using CrisisConnect.Application.UseCases.Taxonomie.DesactiverCategorie;
 using CrisisConnect.Application.UseCases.Taxonomie.GetCategories;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

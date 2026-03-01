@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Transactions.GetDiscussion;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
@@ -10,7 +10,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetDiscussionQueryHandlerTests
 {
     private readonly ITransactionRepository _transactionRepo = Substitute.For<ITransactionRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetDiscussionQueryHandler CréerHandler() => new(_transactionRepo, _mapper);
 
@@ -43,6 +43,6 @@ public class GetDiscussionQueryHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(
-            () => CréerHandler().Handle(new GetDiscussionQuery(Guid.NewGuid()), CancellationToken.None));
+            () => CréerHandler().Handle(new GetDiscussionQuery(Guid.NewGuid()), CancellationToken.None).AsTask());
     }
 }

@@ -1,10 +1,10 @@
-using CrisisConnect.Domain.Exceptions;
+﻿using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Mandats.RevoquerMandat;
 
-public class RevoquerMandatCommandHandler : IRequestHandler<RevoquerMandatCommand>
+public class RevoquerMandatCommandHandler : ICommandHandler<RevoquerMandatCommand>
 {
     private readonly IMandatRepository _repository;
 
@@ -13,12 +13,13 @@ public class RevoquerMandatCommandHandler : IRequestHandler<RevoquerMandatComman
         _repository = repository;
     }
 
-    public async Task Handle(RevoquerMandatCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(RevoquerMandatCommand request, CancellationToken cancellationToken)
     {
         var mandat = await _repository.GetByIdAsync(request.MandatId, cancellationToken)
             ?? throw new NotFoundException(nameof(Domain.Entities.Mandat), request.MandatId);
 
         mandat.Revoquer();
         await _repository.UpdateAsync(mandat, cancellationToken);
+        return Unit.Value;
     }
 }

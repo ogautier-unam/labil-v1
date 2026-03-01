@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Roles.RevoquerRole;
+﻿using CrisisConnect.Application.UseCases.Roles.RevoquerRole;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
 using CrisisConnect.Domain.Exceptions;
@@ -32,6 +32,6 @@ public class RevoquerRoleCommandHandlerTests
         _roleRepo.GetByIdAsync(id, Arg.Any<CancellationToken>()).Returns((AttributionRole?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new RevoquerRoleCommand(id), CancellationToken.None));
+            CréerHandler().Handle(new RevoquerRoleCommand(id), CancellationToken.None).AsTask());
     }
 }

@@ -1,7 +1,7 @@
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Notifications.GetNotifications;
 using CrisisConnect.Application.UseCases.Notifications.MarkAsRead;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

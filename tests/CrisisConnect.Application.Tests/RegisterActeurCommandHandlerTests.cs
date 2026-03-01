@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Auth.Register;
+﻿using CrisisConnect.Application.UseCases.Auth.Register;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -53,7 +53,7 @@ public class RegisterActeurCommandHandlerTests
         var handler = CréerHandler();
 
         // Act & Assert
-        await Assert.ThrowsAsync<DomainException>(() => handler.Handle(command, CancellationToken.None));
+        await Assert.ThrowsAsync<DomainException>(() => handler.Handle(command, CancellationToken.None).AsTask());
         await _personneRepo.DidNotReceive().AddAsync(Arg.Any<Personne>(), Arg.Any<CancellationToken>());
     }
 }

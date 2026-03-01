@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Notifications.MarkAsRead;
+﻿using CrisisConnect.Application.UseCases.Notifications.MarkAsRead;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
 using CrisisConnect.Domain.Exceptions;
@@ -39,6 +39,6 @@ public class MarkNotificationAsReadCommandHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new MarkNotificationAsReadCommand(notifId), CancellationToken.None));
+            CréerHandler().Handle(new MarkNotificationAsReadCommand(notifId), CancellationToken.None).AsTask());
     }
 }

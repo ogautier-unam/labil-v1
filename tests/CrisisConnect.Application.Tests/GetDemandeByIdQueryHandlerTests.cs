@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Demandes.GetDemandeById;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
@@ -11,7 +11,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetDemandeByIdQueryHandlerTests
 {
     private readonly IDemandeRepository _demandeRepo = Substitute.For<IDemandeRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetDemandeByIdQueryHandler CréerHandler() => new(_demandeRepo, _mapper);
 
@@ -42,6 +42,6 @@ public class GetDemandeByIdQueryHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new GetDemandeByIdQuery(id), CancellationToken.None));
+            CréerHandler().Handle(new GetDemandeByIdQuery(id), CancellationToken.None).AsTask());
     }
 }

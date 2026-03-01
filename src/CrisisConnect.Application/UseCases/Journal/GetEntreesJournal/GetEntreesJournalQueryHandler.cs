@@ -1,24 +1,24 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Journal.GetEntreesJournal;
 
 public class GetEntreesJournalQueryHandler : IRequestHandler<GetEntreesJournalQuery, IReadOnlyList<EntreeJournalDto>>
 {
     private readonly IEntreeJournalRepository _journalRepository;
-    private readonly IMapper _mapper;
+    private readonly AppMapper _mapper;
 
-    public GetEntreesJournalQueryHandler(IEntreeJournalRepository journalRepository, IMapper mapper)
+    public GetEntreesJournalQueryHandler(IEntreeJournalRepository journalRepository, AppMapper mapper)
     {
         _journalRepository = journalRepository;
         _mapper = mapper;
     }
 
-    public async Task<IReadOnlyList<EntreeJournalDto>> Handle(GetEntreesJournalQuery request, CancellationToken cancellationToken)
+    public async ValueTask<IReadOnlyList<EntreeJournalDto>> Handle(GetEntreesJournalQuery request, CancellationToken cancellationToken)
     {
         var entrees = await _journalRepository.GetByActeurAsync(request.ActeurId, cancellationToken);
-        return _mapper.Map<IReadOnlyList<EntreeJournalDto>>(entrees);
+        return _mapper.ToDto(entrees);
     }
 }

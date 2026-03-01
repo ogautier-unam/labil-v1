@@ -1,10 +1,10 @@
-using CrisisConnect.Domain.Exceptions;
+﻿using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Roles.RevoquerRole;
 
-public class RevoquerRoleCommandHandler : IRequestHandler<RevoquerRoleCommand>
+public class RevoquerRoleCommandHandler : ICommandHandler<RevoquerRoleCommand>
 {
     private readonly IAttributionRoleRepository _repository;
 
@@ -13,12 +13,13 @@ public class RevoquerRoleCommandHandler : IRequestHandler<RevoquerRoleCommand>
         _repository = repository;
     }
 
-    public async Task Handle(RevoquerRoleCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(RevoquerRoleCommand request, CancellationToken cancellationToken)
     {
         var attribution = await _repository.GetByIdAsync(request.AttributionId, cancellationToken)
             ?? throw new NotFoundException(nameof(Domain.Entities.AttributionRole), request.AttributionId);
 
         attribution.Expirer();
         await _repository.UpdateAsync(attribution, cancellationToken);
+        return Unit.Value;
     }
 }

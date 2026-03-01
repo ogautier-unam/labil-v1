@@ -2,7 +2,7 @@ using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Entites.CreateEntite;
 using CrisisConnect.Application.UseCases.Entites.DesactiverEntite;
 using CrisisConnect.Application.UseCases.Entites.GetEntites;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

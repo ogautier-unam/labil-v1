@@ -1,24 +1,24 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
 using CrisisConnect.Domain.ValueObjects;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Demandes.CreateDemande;
 
 public class CreateDemandeCommandHandler : IRequestHandler<CreateDemandeCommand, DemandeDto>
 {
     private readonly IDemandeRepository _repository;
-    private readonly IMapper _mapper;
+    private readonly AppMapper _mapper;
 
-    public CreateDemandeCommandHandler(IDemandeRepository repository, IMapper mapper)
+    public CreateDemandeCommandHandler(IDemandeRepository repository, AppMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
     }
 
-    public async Task<DemandeDto> Handle(CreateDemandeCommand request, CancellationToken cancellationToken)
+    public async ValueTask<DemandeDto> Handle(CreateDemandeCommand request, CancellationToken cancellationToken)
     {
         Localisation? localisation = null;
         if (request.Latitude.HasValue && request.Longitude.HasValue)
@@ -35,6 +35,6 @@ public class CreateDemandeCommandHandler : IRequestHandler<CreateDemandeCommand,
 
         await _repository.AddAsync(demande, cancellationToken);
 
-        return _mapper.Map<DemandeDto>(demande);
+        return _mapper.ToDto(demande);
     }
 }

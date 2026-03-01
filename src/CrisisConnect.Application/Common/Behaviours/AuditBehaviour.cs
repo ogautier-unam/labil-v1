@@ -2,17 +2,17 @@ using CrisisConnect.Application.Common.Interfaces;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 using Microsoft.Extensions.Logging;
 
 namespace CrisisConnect.Application.Common.Behaviours;
 
 /// <summary>
-/// Pipeline MediatR qui persiste une EntreeJournal pour chaque commande exécutée avec succès.
+/// Pipeline behavior qui persiste une EntreeJournal pour chaque commande exécutée avec succès.
 /// Les Query ne sont pas auditées (leurs noms se terminent par "Query").
 /// </summary>
 public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+    where TRequest : notnull, IMessage
 {
     private readonly ICurrentUserService _currentUser;
     private readonly IEntreeJournalRepository _journalRepository;
@@ -65,15 +65,15 @@ public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         _logger = logger;
     }
 
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async ValueTask<TResponse> Handle(TRequest message, MessageHandlerDelegate<TRequest, TResponse> next, CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
 
         // N'audite que les commandes (pas les queries)
         if (requestName.EndsWith("Query", StringComparison.Ordinal))
-            return await next(cancellationToken);
+            return await next(message, cancellationToken);
 
-        var response = await next(cancellationToken);
+        var response = await next(message, cancellationToken);
 
         // Après succès : persiste l'entrée d'audit
         try

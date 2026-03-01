@@ -1,4 +1,4 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.MethodesIdentification.GetMethodes;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -9,7 +9,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetMethodesQueryHandlerTests
 {
     private readonly IMethodeIdentificationRepository _methodeRepo = Substitute.For<IMethodeIdentificationRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetMethodesQueryHandler CréerHandler() => new(_methodeRepo, _mapper);
 

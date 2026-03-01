@@ -12,7 +12,7 @@ using CrisisConnect.Application.UseCases.Propositions.GetPropositions;
 using CrisisConnect.Application.UseCases.Propositions.MarquerEnAttenteRelance;
 using CrisisConnect.Application.UseCases.Propositions.ReconfirmerProposition;
 using CrisisConnect.Domain.Enums;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

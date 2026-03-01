@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Mandats.RevoquerMandat;
+﻿using CrisisConnect.Application.UseCases.Mandats.RevoquerMandat;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
 using CrisisConnect.Domain.Exceptions;
@@ -34,6 +34,6 @@ public class RevoquerMandatCommandHandlerTests
         _mandatRepo.GetByIdAsync(id, Arg.Any<CancellationToken>()).Returns((Mandat?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new RevoquerMandatCommand(id), CancellationToken.None));
+            CréerHandler().Handle(new RevoquerMandatCommand(id), CancellationToken.None).AsTask());
     }
 }

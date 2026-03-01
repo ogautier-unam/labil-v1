@@ -4,7 +4,7 @@ using CrisisConnect.Application.UseCases.Paniers.AnnulerPanier;
 using CrisisConnect.Application.UseCases.Paniers.ConfirmerPanier;
 using CrisisConnect.Application.UseCases.Paniers.CreatePanier;
 using CrisisConnect.Application.UseCases.Paniers.GetPanier;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Taxonomie.DesactiverCategorie;
+﻿using CrisisConnect.Application.UseCases.Taxonomie.DesactiverCategorie;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -32,6 +32,6 @@ public class DesactiverCategorieCommandHandlerTests
         _categorieRepo.GetByIdAsync(id, Arg.Any<CancellationToken>()).Returns((CategorieTaxonomie?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new DesactiverCategorieCommand(id), CancellationToken.None));
+            CréerHandler().Handle(new DesactiverCategorieCommand(id), CancellationToken.None).AsTask());
     }
 }

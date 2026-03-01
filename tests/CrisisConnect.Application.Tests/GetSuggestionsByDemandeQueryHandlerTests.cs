@@ -1,4 +1,4 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Suggestions.GetSuggestionsByDemande;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -9,7 +9,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetSuggestionsByDemandeQueryHandlerTests
 {
     private readonly ISuggestionAppariementRepository _suggestionRepo = Substitute.For<ISuggestionAppariementRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetSuggestionsByDemandeQueryHandler CréerHandler() => new(_suggestionRepo, _mapper);
 

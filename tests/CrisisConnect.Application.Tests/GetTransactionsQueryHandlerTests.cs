@@ -1,4 +1,4 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Transactions.GetTransactions;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -9,7 +9,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetTransactionsQueryHandlerTests
 {
     private readonly ITransactionRepository _txRepo = Substitute.For<ITransactionRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetTransactionsQueryHandler CréerHandler() => new(_txRepo, _mapper);
 

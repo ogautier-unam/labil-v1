@@ -1,11 +1,11 @@
-using CrisisConnect.Domain.Entities;
+﻿using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Transactions.ConfirmerTransaction;
 
-public class ConfirmerTransactionCommandHandler : IRequestHandler<ConfirmerTransactionCommand>
+public class ConfirmerTransactionCommandHandler : ICommandHandler<ConfirmerTransactionCommand>
 {
     private readonly ITransactionRepository _repository;
     private readonly IPropositionRepository _propositionRepository;
@@ -16,7 +16,7 @@ public class ConfirmerTransactionCommandHandler : IRequestHandler<ConfirmerTrans
         _propositionRepository = propositionRepository;
     }
 
-    public async Task Handle(ConfirmerTransactionCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(ConfirmerTransactionCommand request, CancellationToken cancellationToken)
     {
         var transaction = await _repository.GetByIdAsync(request.TransactionId, cancellationToken)
             ?? throw new NotFoundException(nameof(Transaction), request.TransactionId);
@@ -24,12 +24,13 @@ public class ConfirmerTransactionCommandHandler : IRequestHandler<ConfirmerTrans
         transaction.Confirmer();
         await _repository.UpdateAsync(transaction, cancellationToken);
 
-        // Clore la proposition associée
+        // Clore la proposition associ�e
         var proposition = await _propositionRepository.GetByIdAsync(transaction.PropositionId, cancellationToken);
         if (proposition is not null)
         {
             proposition.Clore();
             await _propositionRepository.UpdateAsync(proposition, cancellationToken);
         }
+        return Unit.Value;
     }
 }

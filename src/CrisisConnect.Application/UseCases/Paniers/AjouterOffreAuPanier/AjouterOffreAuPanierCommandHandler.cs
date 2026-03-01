@@ -1,8 +1,8 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Paniers.AjouterOffreAuPanier;
 
@@ -10,19 +10,19 @@ public class AjouterOffreAuPanierCommandHandler : IRequestHandler<AjouterOffreAu
 {
     private readonly IPanierRepository _panierRepository;
     private readonly IOffreRepository _offreRepository;
-    private readonly IMapper _mapper;
+    private readonly AppMapper _mapper;
 
     public AjouterOffreAuPanierCommandHandler(
         IPanierRepository panierRepository,
         IOffreRepository offreRepository,
-        IMapper mapper)
+        AppMapper mapper)
     {
         _panierRepository = panierRepository;
         _offreRepository = offreRepository;
         _mapper = mapper;
     }
 
-    public async Task<PanierDto> Handle(AjouterOffreAuPanierCommand request, CancellationToken cancellationToken)
+    public async ValueTask<PanierDto> Handle(AjouterOffreAuPanierCommand request, CancellationToken cancellationToken)
     {
         var panier = await _panierRepository.GetByIdAsync(request.PanierId, cancellationToken)
             ?? throw new NotFoundException("Panier", request.PanierId);
@@ -32,6 +32,6 @@ public class AjouterOffreAuPanierCommandHandler : IRequestHandler<AjouterOffreAu
 
         panier.AjouterOffre(offre);
         await _panierRepository.UpdateAsync(panier, cancellationToken);
-        return _mapper.Map<PanierDto>(panier);
+        return _mapper.ToDto(panier);
     }
 }

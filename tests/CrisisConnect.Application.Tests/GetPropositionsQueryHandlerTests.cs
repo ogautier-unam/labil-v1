@@ -1,4 +1,4 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositions;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -9,7 +9,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetPropositionsQueryHandlerTests
 {
     private readonly IPropositionRepository _propRepo = Substitute.For<IPropositionRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetPropositionsQueryHandler CréerHandler() => new(_propRepo, _mapper);
 

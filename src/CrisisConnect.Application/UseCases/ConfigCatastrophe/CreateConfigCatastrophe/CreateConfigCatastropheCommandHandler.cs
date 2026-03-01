@@ -1,22 +1,22 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.ConfigCatastrophe.CreateConfigCatastrophe;
 
 public class CreateConfigCatastropheCommandHandler : IRequestHandler<CreateConfigCatastropheCommand, ConfigCatastropheDto>
 {
     private readonly IConfigCatastropheRepository _repository;
-    private readonly IMapper _mapper;
+    private readonly AppMapper _mapper;
 
-    public CreateConfigCatastropheCommandHandler(IConfigCatastropheRepository repository, IMapper mapper)
+    public CreateConfigCatastropheCommandHandler(IConfigCatastropheRepository repository, AppMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
     }
 
-    public async Task<ConfigCatastropheDto> Handle(CreateConfigCatastropheCommand request, CancellationToken cancellationToken)
+    public async ValueTask<ConfigCatastropheDto> Handle(CreateConfigCatastropheCommand request, CancellationToken cancellationToken)
     {
         var config = new Domain.Entities.ConfigCatastrophe(
             request.Nom,
@@ -27,6 +27,6 @@ public class CreateConfigCatastropheCommandHandler : IRequestHandler<CreateConfi
             request.DelaiRappelAvantArchivage);
 
         await _repository.AddAsync(config, cancellationToken);
-        return _mapper.Map<ConfigCatastropheDto>(config);
+        return _mapper.ToDto(config);
     }
 }

@@ -2,7 +2,7 @@ using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Mandats.CreerMandat;
 using CrisisConnect.Application.UseCases.Mandats.GetMandats;
 using CrisisConnect.Application.UseCases.Mandats.RevoquerMandat;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

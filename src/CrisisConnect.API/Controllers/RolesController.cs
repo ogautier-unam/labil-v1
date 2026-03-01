@@ -2,7 +2,7 @@ using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Roles.AttribuerRole;
 using CrisisConnect.Application.UseCases.Roles.GetRolesActeur;
 using CrisisConnect.Application.UseCases.Roles.RevoquerRole;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,5 +1,5 @@
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Roles.RevoquerRole;
 
-public record RevoquerRoleCommand(Guid AttributionId) : IRequest;
+public record RevoquerRoleCommand(Guid AttributionId) : ICommand;

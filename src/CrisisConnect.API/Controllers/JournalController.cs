@@ -1,6 +1,6 @@
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Journal.GetEntreesJournal;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

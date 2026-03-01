@@ -3,7 +3,7 @@ using CrisisConnect.Application.UseCases.Suggestions.AcknowledgeSuggestion;
 using CrisisConnect.Application.UseCases.Suggestions.GenererSuggestions;
 using CrisisConnect.Application.UseCases.Suggestions.GetNonAcknowledgedSuggestions;
 using CrisisConnect.Application.UseCases.Suggestions.GetSuggestionsByDemande;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

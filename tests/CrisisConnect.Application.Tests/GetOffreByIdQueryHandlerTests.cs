@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Offres.GetOffreById;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
@@ -10,7 +10,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetOffreByIdQueryHandlerTests
 {
     private readonly IOffreRepository _offreRepo = Substitute.For<IOffreRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetOffreByIdQueryHandler CréerHandler() => new(_offreRepo, _mapper);
 
@@ -40,6 +40,6 @@ public class GetOffreByIdQueryHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new GetOffreByIdQuery(id), CancellationToken.None));
+            CréerHandler().Handle(new GetOffreByIdQuery(id), CancellationToken.None).AsTask());
     }
 }

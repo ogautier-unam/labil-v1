@@ -1,11 +1,11 @@
-using CrisisConnect.Domain.Entities;
+﻿using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Transactions.AnnulerTransaction;
 
-public class AnnulerTransactionCommandHandler : IRequestHandler<AnnulerTransactionCommand>
+public class AnnulerTransactionCommandHandler : ICommandHandler<AnnulerTransactionCommand>
 {
     private readonly ITransactionRepository _repository;
     private readonly IPropositionRepository _propositionRepository;
@@ -16,7 +16,7 @@ public class AnnulerTransactionCommandHandler : IRequestHandler<AnnulerTransacti
         _propositionRepository = propositionRepository;
     }
 
-    public async Task Handle(AnnulerTransactionCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(AnnulerTransactionCommand request, CancellationToken cancellationToken)
     {
         var transaction = await _repository.GetByIdAsync(request.TransactionId, cancellationToken)
             ?? throw new NotFoundException(nameof(Transaction), request.TransactionId);
@@ -24,12 +24,13 @@ public class AnnulerTransactionCommandHandler : IRequestHandler<AnnulerTransacti
         transaction.Annuler();
         await _repository.UpdateAsync(transaction, cancellationToken);
 
-        // Libérer la proposition pour qu'elle soit de nouveau disponible
+        // Lib�rer la proposition pour qu'elle soit de nouveau disponible
         var proposition = await _propositionRepository.GetByIdAsync(transaction.PropositionId, cancellationToken);
         if (proposition is not null && proposition.Statut == Domain.Enums.StatutProposition.EnTransaction)
         {
             proposition.LibererDeTransaction();
             await _propositionRepository.UpdateAsync(proposition, cancellationToken);
         }
+        return Unit.Value;
     }
 }

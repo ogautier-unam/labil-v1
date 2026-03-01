@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositionById;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
@@ -10,7 +10,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetPropositionByIdQueryHandlerTests
 {
     private readonly IPropositionRepository _propRepo = Substitute.For<IPropositionRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetPropositionByIdQueryHandler CréerHandler() => new(_propRepo, _mapper);
 
@@ -40,6 +40,6 @@ public class GetPropositionByIdQueryHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new GetPropositionByIdQuery(id), CancellationToken.None));
+            CréerHandler().Handle(new GetPropositionByIdQuery(id), CancellationToken.None).AsTask());
     }
 }

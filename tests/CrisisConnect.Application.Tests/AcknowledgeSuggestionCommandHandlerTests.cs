@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Suggestions.AcknowledgeSuggestion;
+﻿using CrisisConnect.Application.UseCases.Suggestions.AcknowledgeSuggestion;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -38,7 +38,7 @@ public class AcknowledgeSuggestionCommandHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new AcknowledgeSuggestionCommand(suggestionId), CancellationToken.None));
+            CréerHandler().Handle(new AcknowledgeSuggestionCommand(suggestionId), CancellationToken.None).AsTask());
     }
 
     [Fact]

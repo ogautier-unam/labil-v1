@@ -8,7 +8,7 @@ using CrisisConnect.Application.UseCases.Transactions.GetTransactionById;
 using CrisisConnect.Application.UseCases.Transactions.GetTransactions;
 using CrisisConnect.Application.UseCases.Transactions.InitierTransaction;
 using CrisisConnect.Domain.Enums;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

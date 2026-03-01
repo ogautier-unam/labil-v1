@@ -1,5 +1,5 @@
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Transactions.AnnulerTransaction;
 
-public record AnnulerTransactionCommand(Guid TransactionId) : IRequest;
+public record AnnulerTransactionCommand(Guid TransactionId) : ICommand;

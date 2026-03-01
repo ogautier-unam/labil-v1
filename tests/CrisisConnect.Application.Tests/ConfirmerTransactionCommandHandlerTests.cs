@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Transactions.ConfirmerTransaction;
+﻿using CrisisConnect.Application.UseCases.Transactions.ConfirmerTransaction;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -50,7 +50,7 @@ public class ConfirmerTransactionCommandHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(
-            () => handler.Handle(new ConfirmerTransactionCommand(Guid.NewGuid()), CancellationToken.None));
+            () => handler.Handle(new ConfirmerTransactionCommand(Guid.NewGuid()), CancellationToken.None).AsTask());
     }
 
     [Fact]

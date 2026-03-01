@@ -1,4 +1,4 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Roles.GetRolesActeur;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
@@ -10,7 +10,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetRolesActeurQueryHandlerTests
 {
     private readonly IAttributionRoleRepository _roleRepo = Substitute.For<IAttributionRoleRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetRolesActeurQueryHandler CréerHandler() => new(_roleRepo, _mapper);
 

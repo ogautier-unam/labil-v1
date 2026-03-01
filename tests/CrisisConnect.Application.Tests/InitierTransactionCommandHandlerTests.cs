@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Transactions.InitierTransaction;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
@@ -12,7 +12,7 @@ public class InitierTransactionCommandHandlerTests
 {
     private readonly IPropositionRepository _propositionRepo = Substitute.For<IPropositionRepository>();
     private readonly ITransactionRepository _transactionRepo = Substitute.For<ITransactionRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private InitierTransactionCommandHandler CréerHandler() =>
         new(_propositionRepo, _transactionRepo, _mapper);
@@ -49,7 +49,7 @@ public class InitierTransactionCommandHandlerTests
         var handler = CréerHandler();
 
         // Act & Assert
-        await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None));
+        await Assert.ThrowsAsync<NotFoundException>(() => handler.Handle(command, CancellationToken.None).AsTask());
         await _transactionRepo.DidNotReceive().AddAsync(Arg.Any<Transaction>(), Arg.Any<CancellationToken>());
     }
 
@@ -66,7 +66,7 @@ public class InitierTransactionCommandHandlerTests
         var handler = CréerHandler();
 
         // Act & Assert
-        await Assert.ThrowsAsync<DomainException>(() => handler.Handle(command, CancellationToken.None));
+        await Assert.ThrowsAsync<DomainException>(() => handler.Handle(command, CancellationToken.None).AsTask());
         await _transactionRepo.DidNotReceive().AddAsync(Arg.Any<Transaction>(), Arg.Any<CancellationToken>());
     }
 }

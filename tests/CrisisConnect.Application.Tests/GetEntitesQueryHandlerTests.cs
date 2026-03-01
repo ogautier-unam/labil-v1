@@ -1,4 +1,4 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Entites.GetEntites;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -9,7 +9,7 @@ namespace CrisisConnect.Application.Tests;
 public class GetEntitesQueryHandlerTests
 {
     private readonly IEntiteRepository _entiteRepo = Substitute.For<IEntiteRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GetEntitesQueryHandler CréerHandler() => new(_entiteRepo, _mapper);
 

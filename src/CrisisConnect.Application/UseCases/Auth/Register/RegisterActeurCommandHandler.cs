@@ -1,9 +1,9 @@
-using CrisisConnect.Application.DTOs;
+﻿using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
 using CrisisConnect.Domain.Interfaces.Services;
-using MediatR;
+using Mediator;
 using DomainRefreshToken = CrisisConnect.Domain.Entities.RefreshToken;
 
 namespace CrisisConnect.Application.UseCases.Auth.Register;
@@ -27,7 +27,7 @@ public class RegisterActeurCommandHandler : IRequestHandler<RegisterActeurComman
         _passwordHasher = passwordHasher;
     }
 
-    public async Task<AuthResponse> Handle(RegisterActeurCommand request, CancellationToken cancellationToken)
+    public async ValueTask<AuthResponse> Handle(RegisterActeurCommand request, CancellationToken cancellationToken)
     {
         var existant = await _personneRepository.GetByEmailAsync(request.Email, cancellationToken);
         if (existant is not null)

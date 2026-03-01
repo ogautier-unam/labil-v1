@@ -1,16 +1,16 @@
-using CrisisConnect.Application.Common.Behaviours;
+﻿using CrisisConnect.Application.Common.Behaviours;
 using CrisisConnect.Application.Common.Interfaces;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 
 namespace CrisisConnect.Application.Tests;
 
 // Types publics pour éviter les problèmes de proxy NSubstitute avec ILogger<T> générique
-public record AuditTestCommand : IRequest<string>;
-public record AuditTestQuery : IRequest<string>;
+public record AuditTestCommand : ICommand<string>;
+public record AuditTestQuery : IQuery<string>;
 
 public class AuditBehaviourTests
 {
@@ -27,7 +27,7 @@ public class AuditBehaviourTests
     public async Task Handle_RequêteQuery_NePersistePasJournal()
     {
         // Arrange
-        RequestHandlerDelegate<string> next = _ => Task.FromResult("ok");
+        MessageHandlerDelegate<AuditTestQuery, string> next = (_, _) => ValueTask.FromResult("ok");
 
         // Act
         var result = await CréerQueryBehaviour().Handle(new AuditTestQuery(), next, CancellationToken.None);
@@ -42,7 +42,7 @@ public class AuditBehaviourTests
     {
         // Arrange
         _currentUser.UserId.Returns(Guid.NewGuid());
-        RequestHandlerDelegate<string> next = _ => Task.FromResult("ok");
+        MessageHandlerDelegate<AuditTestCommand, string> next = (_, _) => ValueTask.FromResult("ok");
 
         // Act
         var result = await CréerCommandBehaviour().Handle(new AuditTestCommand(), next, CancellationToken.None);
@@ -59,7 +59,7 @@ public class AuditBehaviourTests
         _currentUser.UserId.Returns(Guid.NewGuid());
         _journalRepo.AddAsync(Arg.Any<EntreeJournal>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromException(new InvalidOperationException("DB indisponible")));
-        RequestHandlerDelegate<string> next = _ => Task.FromResult("ok");
+        MessageHandlerDelegate<AuditTestCommand, string> next = (_, _) => ValueTask.FromResult("ok");
 
         // Act — ne doit pas lever d'exception
         var result = await CréerCommandBehaviour().Handle(new AuditTestCommand(), next, CancellationToken.None);
@@ -74,10 +74,10 @@ public class AuditBehaviourTests
         // Arrange
         _currentUser.UserId.Returns(Guid.NewGuid());
         var nextCalled = false;
-        RequestHandlerDelegate<string> next = _ =>
+        MessageHandlerDelegate<AuditTestCommand, string> next = (_, _) =>
         {
             nextCalled = true;
-            return Task.FromResult("handled");
+            return ValueTask.FromResult("handled");
         };
 
         // Act

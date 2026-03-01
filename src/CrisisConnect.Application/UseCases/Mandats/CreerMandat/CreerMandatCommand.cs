@@ -1,6 +1,6 @@
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Enums;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Mandats.CreerMandat;
 

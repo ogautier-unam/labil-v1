@@ -1,5 +1,5 @@
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Paniers.ConfirmerPanier;
 
-public record ConfirmerPanierCommand(Guid PanierId) : IRequest;
+public record ConfirmerPanierCommand(Guid PanierId) : ICommand;

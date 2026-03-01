@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Entites.DesactiverEntite;
+﻿using CrisisConnect.Application.UseCases.Entites.DesactiverEntite;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -32,6 +32,6 @@ public class DesactiverEntiteCommandHandlerTests
         _entiteRepo.GetByIdAsync(id, Arg.Any<CancellationToken>()).Returns((Entite?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new DesactiverEntiteCommand(id), CancellationToken.None));
+            CréerHandler().Handle(new DesactiverEntiteCommand(id), CancellationToken.None).AsTask());
     }
 }

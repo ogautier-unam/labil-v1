@@ -1,10 +1,10 @@
-using CrisisConnect.Domain.Exceptions;
+﻿using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Paniers.ConfirmerPanier;
 
-public class ConfirmerPanierCommandHandler : IRequestHandler<ConfirmerPanierCommand>
+public class ConfirmerPanierCommandHandler : ICommandHandler<ConfirmerPanierCommand>
 {
     private readonly IPanierRepository _panierRepository;
 
@@ -13,12 +13,13 @@ public class ConfirmerPanierCommandHandler : IRequestHandler<ConfirmerPanierComm
         _panierRepository = panierRepository;
     }
 
-    public async Task Handle(ConfirmerPanierCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Unit> Handle(ConfirmerPanierCommand request, CancellationToken cancellationToken)
     {
         var panier = await _panierRepository.GetByIdAsync(request.PanierId, cancellationToken)
             ?? throw new NotFoundException("Panier", request.PanierId);
 
         panier.Confirmer();
         await _panierRepository.UpdateAsync(panier, cancellationToken);
+        return Unit.Value;
     }
 }

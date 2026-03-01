@@ -5,7 +5,7 @@ using CrisisConnect.Application.Mappings;
 using CrisisConnect.Infrastructure;
 using CrisisConnect.API.Services;
 using FluentValidation;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -21,12 +21,11 @@ builder.Services.AddControllers()
             new System.Text.Json.Serialization.JsonStringEnumConverter()));
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(MappingProfile).Assembly));
+builder.Services.AddMediator(options => options.ServiceLifetime = ServiceLifetime.Transient);
 
-builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(MappingProfile).Assembly));
+builder.Services.AddSingleton<AppMapper>();
 
-builder.Services.AddValidatorsFromAssembly(typeof(MappingProfile).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(AppMapper).Assembly);
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditBehaviour<,>));

@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Auth.RefreshToken;
+﻿using CrisisConnect.Application.UseCases.Auth.RefreshToken;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -51,7 +51,7 @@ public class RefreshTokenCommandHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<DomainException>(() =>
-            CréerHandler().Handle(new RefreshTokenCommand("expired-token"), CancellationToken.None));
+            CréerHandler().Handle(new RefreshTokenCommand("expired-token"), CancellationToken.None).AsTask());
     }
 
     [Fact]
@@ -63,6 +63,6 @@ public class RefreshTokenCommandHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<DomainException>(() =>
-            CréerHandler().Handle(new RefreshTokenCommand("inconnu"), CancellationToken.None));
+            CréerHandler().Handle(new RefreshTokenCommand("inconnu"), CancellationToken.None).AsTask());
     }
 }

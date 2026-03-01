@@ -1,23 +1,23 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Taxonomie.CreateCategorie;
 
 public class CreateCategorieCommandHandler : IRequestHandler<CreateCategorieCommand, CategorieTaxonomieDto>
 {
     private readonly ICategorieTaxonomieRepository _repository;
-    private readonly IMapper _mapper;
+    private readonly AppMapper _mapper;
 
-    public CreateCategorieCommandHandler(ICategorieTaxonomieRepository repository, IMapper mapper)
+    public CreateCategorieCommandHandler(ICategorieTaxonomieRepository repository, AppMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
     }
 
-    public async Task<CategorieTaxonomieDto> Handle(CreateCategorieCommand request, CancellationToken cancellationToken)
+    public async ValueTask<CategorieTaxonomieDto> Handle(CreateCategorieCommand request, CancellationToken cancellationToken)
     {
         var categorie = new CategorieTaxonomie(
             request.Code,
@@ -27,6 +27,6 @@ public class CreateCategorieCommandHandler : IRequestHandler<CreateCategorieComm
             request.DescriptionJson);
 
         await _repository.AddAsync(categorie, cancellationToken);
-        return _mapper.Map<CategorieTaxonomieDto>(categorie);
+        return _mapper.ToDto(categorie);
     }
 }

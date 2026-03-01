@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.Transactions.BasculerVisibiliteDiscussion;
+﻿using CrisisConnect.Application.UseCases.Transactions.BasculerVisibiliteDiscussion;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
 using CrisisConnect.Domain.Exceptions;
@@ -42,6 +42,6 @@ public class BasculerVisibiliteDiscussionCommandHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(
-            () => CréerHandler().Handle(cmd, CancellationToken.None));
+            () => CréerHandler().Handle(cmd, CancellationToken.None).AsTask());
     }
 }

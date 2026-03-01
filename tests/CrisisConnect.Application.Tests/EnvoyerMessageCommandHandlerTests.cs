@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Transactions.EnvoyerMessage;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
@@ -10,7 +10,7 @@ namespace CrisisConnect.Application.Tests;
 public class EnvoyerMessageCommandHandlerTests
 {
     private readonly ITransactionRepository _transactionRepo = Substitute.For<ITransactionRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private EnvoyerMessageCommandHandler CréerHandler() => new(_transactionRepo, _mapper);
 
@@ -48,6 +48,6 @@ public class EnvoyerMessageCommandHandlerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(
-            () => CréerHandler().Handle(cmd, CancellationToken.None));
+            () => CréerHandler().Handle(cmd, CancellationToken.None).AsTask());
     }
 }

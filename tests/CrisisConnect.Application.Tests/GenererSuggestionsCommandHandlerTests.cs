@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Suggestions.GenererSuggestions;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
@@ -13,7 +13,7 @@ public class GenererSuggestionsCommandHandlerTests
     private readonly IDemandeRepository _demandeRepo = Substitute.For<IDemandeRepository>();
     private readonly IOffreRepository _offreRepo = Substitute.For<IOffreRepository>();
     private readonly ISuggestionAppariementRepository _suggestionRepo = Substitute.For<ISuggestionAppariementRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private GenererSuggestionsCommandHandler CréerHandler() =>
         new(_demandeRepo, _offreRepo, _suggestionRepo, _mapper);
@@ -25,7 +25,7 @@ public class GenererSuggestionsCommandHandlerTests
         _demandeRepo.GetByIdAsync(demandeId, Arg.Any<CancellationToken>()).Returns((Demande?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new GenererSuggestionsCommand(demandeId), CancellationToken.None));
+            CréerHandler().Handle(new GenererSuggestionsCommand(demandeId), CancellationToken.None).AsTask());
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Entites.CreateEntite;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -11,7 +11,7 @@ public class CreateEntiteCommandHandlerTests
 {
     private readonly IEntiteRepository _entiteRepo = Substitute.For<IEntiteRepository>();
     private readonly IPasswordHasher _passwordHasher = Substitute.For<IPasswordHasher>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private CreateEntiteCommandHandler CréerHandler() => new(_entiteRepo, _passwordHasher, _mapper);
 

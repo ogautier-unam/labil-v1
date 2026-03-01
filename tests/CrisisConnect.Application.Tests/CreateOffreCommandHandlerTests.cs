@@ -1,4 +1,4 @@
-using AutoMapper;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Offres.CreateOffre;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
@@ -10,7 +10,7 @@ namespace CrisisConnect.Application.Tests;
 public class CreateOffreCommandHandlerTests
 {
     private readonly IOffreRepository _offreRepo = Substitute.For<IOffreRepository>();
-    private readonly IMapper _mapper = AutoMapperFixture.Créer();
+    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private CreateOffreCommandHandler CréerHandler() =>
         new(_offreRepo, _mapper);

@@ -1,5 +1,5 @@
 using CrisisConnect.Application.DTOs;
-using MediatR;
+using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Paniers.GetPanier;
 

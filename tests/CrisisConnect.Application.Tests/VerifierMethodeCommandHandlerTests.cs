@@ -1,4 +1,4 @@
-using CrisisConnect.Application.UseCases.MethodesIdentification.VerifierMethode;
+﻿using CrisisConnect.Application.UseCases.MethodesIdentification.VerifierMethode;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -32,6 +32,6 @@ public class VerifierMethodeCommandHandlerTests
         _methodeRepo.GetByIdAsync(id, Arg.Any<CancellationToken>()).Returns((MethodeIdentification?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            CréerHandler().Handle(new VerifierMethodeCommand(id), CancellationToken.None));
+            CréerHandler().Handle(new VerifierMethodeCommand(id), CancellationToken.None).AsTask());
     }
 }

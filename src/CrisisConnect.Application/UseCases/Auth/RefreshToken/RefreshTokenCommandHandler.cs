@@ -1,9 +1,9 @@
-using CrisisConnect.Application.DTOs;
+﻿using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
 using CrisisConnect.Domain.Interfaces.Services;
-using MediatR;
+using Mediator;
 using DomainRefreshToken = CrisisConnect.Domain.Entities.RefreshToken;
 
 namespace CrisisConnect.Application.UseCases.Auth.RefreshToken;
@@ -24,7 +24,7 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, A
         _jwtService = jwtService;
     }
 
-    public async Task<AuthResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+    public async ValueTask<AuthResponse> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         var refreshToken = await _refreshTokenRepository.GetByTokenAsync(request.Token, cancellationToken);
         if (refreshToken is null || !refreshToken.EstValide)
