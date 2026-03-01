@@ -29,7 +29,12 @@ public class MappingProfile : Profile
         CreateMap<CategorieTaxonomie, CategorieTaxonomieDto>();
         CreateMap<Entite, EntiteDto>();
         CreateMap<MethodeIdentification, MethodeIdentificationDto>()
-            .ForMember(dest => dest.TypeMethode,     opt => opt.MapFrom(src => src.GetType().Name))
-            .ForMember(dest => dest.NiveauFiabilite, opt => opt.MapFrom(src => src.NiveauFiabilite.ToString()));
+            .ConstructUsing((src, _) => new MethodeIdentificationDto(
+                src.Id,
+                src.PersonneId,
+                src.GetType().Name,
+                src.NiveauFiabilite.ToString(),
+                src.EstVerifiee,
+                src.DateVerification));
     }
 }
