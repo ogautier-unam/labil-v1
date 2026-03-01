@@ -43,6 +43,11 @@ public partial class AppMapper
         new(drg.Id, drg.Titre, drg.Description, drg.Statut, drg.CreePar, drg.CreeLe,
             drg.NombreRessourcesRequises, drg.DescriptionMission);
 
+    // Médias (§5.1 ex.7)
+    public static MediaDto ToDto(Media m) =>
+        new(m.Id, m.PropositionId, m.Url, m.Type, m.DateAjout);
+    public static List<MediaDto> ToDto(List<Media> medias) => medias.ConvertAll(ToDto);
+
     // Transactions
     public partial TransactionDto ToDto(Transaction transaction);
     public partial List<TransactionDto> ToDto(List<Transaction> transactions);

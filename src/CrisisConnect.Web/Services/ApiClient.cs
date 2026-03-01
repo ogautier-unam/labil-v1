@@ -559,6 +559,21 @@ public class ApiClient
         return await response.Content.ReadFromJsonAsync<DemandeRepartitionGeoModel>(ct);
     }
 
+    // ── Médias ────────────────────────────────────────────────────────────────
+
+    public Task<IReadOnlyList<MediaModel>?> GetMediasAsync(Guid propositionId, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<MediaModel>>($"api/propositions/{propositionId}/medias", ct);
+
+    public async Task<MediaModel?> AttacherMediaAsync(
+        Guid propositionId, string url, string type, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync(
+            $"api/propositions/{propositionId}/medias",
+            new { Url = url, Type = type }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<MediaModel>(ct);
+    }
+
     // ── Discussion ────────────────────────────────────────────────────────────
 
     public Task<DiscussionData?> GetDiscussionAsync(Guid transactionId, CancellationToken ct = default)

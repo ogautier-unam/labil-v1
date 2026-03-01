@@ -68,6 +68,8 @@ public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         ["CreateDemandeSurCatalogueCommand"]          = TypeOperation.DepotProposition,
         ["AjouterLigneCatalogueCommand"]              = TypeOperation.ModificationProposition,
         ["CreateDemandeRepartitionGeoCommand"]        = TypeOperation.DepotProposition,
+        ["AttacherMediaCommand"]                      = TypeOperation.ModificationProposition,
+        ["SupprimerActeurCommand"]                    = TypeOperation.EntiteSupprimee,
     };
 
     public AuditBehaviour(

@@ -1,0 +1,107 @@
+@page
+@model CrisisConnect.Web.Pages.Propositions.MediasModel
+@{
+    ViewData["Title"] = "Médias de la proposition";
+}
+
+<h2>Médias attachés à une proposition</h2>
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        @ok <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @err <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@* Formulaire recherche par proposition *@
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-8">
+        <label for="PropositionId" class="form-label">ID de la proposition</label>
+        <input asp-for="PropositionId" id="PropositionId" class="form-control font-monospace"
+               placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-outline-primary w-100">Charger</button>
+    </div>
+</form>
+
+@if (Model.PropositionId != Guid.Empty)
+{
+    @* Formulaire attacher un média *@
+    <div class="card mb-4">
+        <div class="card-header fw-semibold">Attacher un nouveau média</div>
+        <div class="card-body">
+            <form method="post" asp-page-handler="Attacher">
+                <input type="hidden" name="PropositionId" value="@Model.PropositionId" />
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label for="Url" class="form-label">URL du média <span class="text-danger">*</span></label>
+                        <input asp-for="Url" id="Url" class="form-control" required
+                               placeholder="https://storage.example.com/photo.jpg" />
+                    </div>
+                    <div class="col-md-4">
+                        <label for="Type" class="form-label">Type <span class="text-danger">*</span></label>
+                        <select asp-for="Type" id="Type" class="form-select">
+                            <option value="Photo">Photo</option>
+                            <option value="Video">Vidéo</option>
+                            <option value="Audio">Audio</option>
+                            <option value="Document">Document</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success">Attacher</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @* Liste des médias *@
+    @if (!Model.Medias.Any())
+    {
+        <div class="alert alert-info">Aucun média attaché à cette proposition.</div>
+    }
+    else
+    {
+        <h5>@Model.Medias.Count média(s)</h5>
+        <div class="row g-3">
+            @foreach (var m in Model.Medias)
+            {
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-@(m.Type switch { "Photo" => "primary", "Video" => "danger", "Audio" => "warning text-dark", _ => "secondary" })">
+                                    @m.Type
+                                </span>
+                                <small class="text-muted">@m.DateAjout.ToString("dd/MM/yyyy")</small>
+                            </div>
+                            @if (m.Type == "Photo")
+                            {
+                                <div class="text-center mb-2">
+                                    <img src="@m.Url" alt="Média photo" class="img-fluid rounded"
+                                         style="max-height:150px; object-fit:cover;"
+                                         onerror="this.style.display='none'" />
+                                </div>
+                            }
+                            <a href="@m.Url" target="_blank" rel="noopener"
+                               class="btn btn-outline-secondary btn-sm w-100">
+                                Ouvrir le lien
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
