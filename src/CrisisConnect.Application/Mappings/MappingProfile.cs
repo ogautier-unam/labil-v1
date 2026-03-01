@@ -17,5 +17,6 @@ public class MappingProfile : Profile
         CreateMap<ConfigCatastrophe, ConfigCatastropheDto>();
         CreateMap<Panier, PanierDto>()
             .ForMember(dest => dest.Offres, opt => opt.MapFrom(src => src.Offres));
+        CreateMap<EntreeJournal, EntreeJournalDto>();
     }
 }
