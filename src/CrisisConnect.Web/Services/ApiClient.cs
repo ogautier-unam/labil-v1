@@ -166,4 +166,23 @@ public class ApiClient
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadFromJsonAsync<ConfigCatastropheModel>(ct);
     }
+
+    // ── Journal d'audit ───────────────────────────────────────────────────────
+
+    public Task<IReadOnlyList<EntreeJournalModel>?> GetEntreesJournalAsync(Guid acteurId, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<EntreeJournalModel>>($"api/journal/{acteurId}", ct);
+
+    // ── Suggestions d'appariement ─────────────────────────────────────────────
+
+    public Task<IReadOnlyList<SuggestionAppariementModel>?> GetSuggestionsByDemandeAsync(Guid demandeId, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<SuggestionAppariementModel>>($"api/suggestions/demande/{demandeId}", ct);
+
+    public Task<IReadOnlyList<SuggestionAppariementModel>?> GetSuggestionsPendingAsync(CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<SuggestionAppariementModel>>("api/suggestions/pending", ct);
+
+    public async Task<bool> AcknowledgeSuggestionAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/suggestions/{id}/acknowledge", null, ct);
+        return response.IsSuccessStatusCode;
+    }
 }
