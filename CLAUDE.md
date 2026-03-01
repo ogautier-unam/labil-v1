@@ -1018,3 +1018,14 @@ packages/
 ✅ UpdateConfigCatastropheValidatorTests (4), AttribuerRoleValidatorTests (4), CreerMandatValidatorTests (5), CreateCategorieValidatorTests (4), CreateEntiteValidatorTests (5)
 ✅ Total : 340 tests, 0 échec (Domain 117, Application 171, Infrastructure 52)
 ✅ Build : 0 erreur, 0 warning — commit b33796d
+
+#### Session 19 — 2026-03-01 — 7 handler tests finaux (couverture complète)
+✅ EnvoyerMessageCommandHandlerTests (2 tests : message ajouté + retourné, NotFoundException)
+✅ BasculerVisibiliteDiscussionCommandHandlerTests (2 tests : visibilité mise à jour, NotFoundException)
+✅ GetDiscussionQueryHandlerTests (2 tests : avec messages + ids corrects, NotFoundException)
+✅ GetRolesActeurQueryHandlerTests (2 tests : liste avec 2 rôles, liste vide)
+✅ GetMandatsQueryHandlerTests (2 tests : liste avec 2 mandats, liste vide)
+✅ GetCategoriesQueryHandlerTests (2 tests : liste avec 2 catégories, liste vide)
+✅ GetEntitesQueryHandlerTests (2 tests : liste avec 2 entités, liste vide)
+✅ Total : 354 tests, 0 échec (Domain 117, Application 185, Infrastructure 52)
+✅ Build : 0 erreur, 0 warning — commit 1b1f2b9
