@@ -1,6 +1,6 @@
 # CrisisConnect — Rapport d'audit des fonctionnalités manquantes
 
-**Date :** 2026-03-01 · **Mis à jour :** session 24
+**Date :** 2026-03-02 · **Mis à jour :** session 25
 **Sources analysées :** Énoncé IHDCM032 · ROADMAP.md · Diagrammes de classes P1–P7 · Code source (`src/`)
 **État courant :** 433 tests passants · 0 erreur de build
 
@@ -81,11 +81,9 @@
 
 ---
 
-### 2.4 Profil acteur — partiellement résolu *(API session 24)*
+### ✅ 2.4 Profil acteur *(résolu session 25)*
 
-✅ `GET /api/acteurs/{id}` et `PATCH /api/acteurs/{id}` implémentés (`GetActeurQuery`, `UpdateActeurCommand`, `ActeursController`).
-
-🟠 **Reste à faire :** page Web `Pages/Profil/` — consulter/modifier son profil, badge visible.
+`GET /api/acteurs/{id}` et `PATCH /api/acteurs/{id}` (session 24) + `Pages/Profil/Index` : consulter et modifier son profil, badge NiveauBadge visible (Vert/Orange/Rouge) (session 25).
 
 ---
 
@@ -139,16 +137,18 @@
 
 ---
 
-## 4. Pages Web manquantes 🟠
+## 4. Pages Web manquantes
 
-| Page manquante | Justification |
+| Page | État |
 |---|---|
-| `Pages/Profil/` (Mon profil) | Consulter et modifier son profil, badge visible (énoncé §5 ex.12) |
-| `Pages/Entites/Detail.cshtml` | Page de présentation synthétique d'une entité (énoncé §5 ex.13) |
-| `Pages/Propositions/OffreEdit.cshtml` | Formulaire d'édition d'une offre existante |
-| `Pages/Propositions/DemandeEdit.cshtml` | Formulaire d'édition d'une demande existante |
-| Bouton bascule visibilité dans `Discussion.cshtml` | UI pour BasculerVisibiliteDiscussion (endpoint API existe) |
-| Pages pour DemandeQuota, DemandeSurCatalogue, DemandeRepartitionGeo, PropositionAvecValidation | Formulaires spécifiques requis par énoncé §5.1.3 |
+| `Pages/Profil/` (Mon profil) | ✅ résolu session 25 |
+| `Pages/Entites/Detail.cshtml` | ✅ résolu session 25 |
+| `Pages/Propositions/OffreEdit.cshtml` | ✅ résolu session 25 |
+| `Pages/Propositions/DemandeEdit.cshtml` | ✅ résolu session 25 |
+| Bouton bascule visibilité dans `Discussion.cshtml` | ✅ résolu session 25 |
+| `Pages/Propositions/DemandesQuota.cshtml` | ✅ résolu session 25 |
+| `Pages/Propositions/AvecValidation.cshtml` | ✅ résolu session 25 |
+| Pages DemandeSurCatalogue, DemandeRepartitionGeo | 🔴 toujours absent |
 
 ---
 
@@ -178,9 +178,9 @@ Aucune politique de confidentialité, aucun `DELETE /api/acteurs/{id}`, aucune m
 
 ---
 
-### NF-07 — Bande passante minimisée (obligatoire)
+### ✅ NF-07 — Bande passante minimisée *(résolu session 25)*
 
-Pas de `UseResponseCompression`, pas d'interface allégée, pas de lazy loading.
+`AddResponseCompression(EnableForHttps=true)` + `UseResponseCompression()` dans `Program.cs` API (Brotli + Gzip intégrés ASP.NET Core).
 
 ---
 
@@ -230,10 +230,10 @@ Aucun dossier `/doc` dans le dépôt.
 | M2 | Relation `Offre → DemandesCouplees` | ✅ session 24 |
 | M3 | Workflow `DemandeQuota` + `IntentionDon` (API) | ✅ session 24 (page Web manquante) |
 | M4 | Workflow `PropositionAvecValidation` (API) | ✅ session 24 (page Web manquante) |
-| M5 | Profil acteur (API) | ✅ session 24 (page Web manquante) |
+| M5 | Profil acteur (API + Web) | ✅ session 24-25 |
 | M6 | Médias attachés aux propositions (upload + stockage) | 🔴 non démarré |
 | M7 | Correction rôle bascule visibilité discussion | ✅ session 22 |
-| M8 | Page detail entité + endpoint `GET /api/entites/{id}` | ✅ session 23 (page Web manquante) |
+| M8 | Page detail entité + endpoint `GET /api/entites/{id}` | ✅ session 23-25 |
 
 ### Priorité basse — Non-fonctionnel / Qualité
 
@@ -242,7 +242,7 @@ Aucun dossier `/doc` dans le dépôt.
 | L1 | NF-04 Multilingue — désérialisation `NomJson` selon langue | 🔵 non démarré |
 | L2 | NF-05 WCAG — audit accessibilité + corrections | 🔵 non démarré |
 | L3 | NF-06 RGPD — politique + suppression données | 🔵 non démarré |
-| L4 | NF-07 Compression réponses API | 🔵 non démarré |
+| L4 | NF-07 Compression réponses API | ✅ session 25 |
 | L5 | NF-10 Documentation `/doc` en anglais | 🔵 non démarré |
 | L6 | Stratégies de mise en avant — branchement effectif | 🔵 non démarré |
 | L7 | Recherche avancée (fulltext, catégorie, géolocalisation) | 🔵 non démarré |
@@ -266,6 +266,8 @@ Aucun dossier `/doc` dans le dépôt.
 - JWT + cookies HttpOnly + refresh tokens
 - Docker Compose (API + DB + Web)
 - 433 tests unitaires (0 échec) — couverture handlers 100%, validators 100%, repos 100%
+- Pages Web complètes : Profil, OffreEdit, DemandeEdit, Entités/Detail, DemandesQuota, AvecValidation, bascule visibilité Discussion
+- Compression API (NF-07) : Brotli + Gzip via UseResponseCompression
 - Taxonomy Web configurable sans redéploiement
 - Mandats + rôles temporels avec portée configurable
 - Suggestions d'appariement (score Jaccard + bonus urgence)

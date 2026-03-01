@@ -1085,3 +1085,17 @@ packages/
 ✅ Sonar S2325 : ToDto(Offre) + ToDto(List<Offre>) + ToDto(MethodeIdentification) rendus static ; pragma disable S2325 autour des overrides IReadOnlyList → instance Mapperly
 ✅ Total : 433 tests, 0 échec (Domain 117, Application 256, Infrastructure 60)
 ✅ Build : 0 erreur, 0 warning — commit 0fd803d
+
+#### Session 25 — 2026-03-02 — Pages Web manquantes + NF-07 compression API
+✅ ApiClient.cs : 17 nouvelles méthodes (Acteurs GET/PATCH, Entites GET/{id}, UpdateOffre, UpdateDemande, RecyclerProposition, BasculerVisibiliteDiscussion, DemandeQuota CRUD+intentions×4, PropositionAvecValidation Create/Valider/Refuser) ; records UpdateActeurRequest + CreateDemandeQuotaRequest (S107)
+✅ Modèles Web : PersonneModel, IntentionDonModel, DemandeQuotaModel, PropositionAvecValidationModel (créés)
+✅ Discussion.cshtml + .cs : bouton bascule visibilité (Publique↔Privée), handler OnPostBasculerVisibiliteAsync, constantes KeySuccess/KeyError/ErrApi
+✅ Pages/Profil/Index : consulter + modifier son profil, photo, badge NiveauBadge (Vert/Orange/Rouge)
+✅ Pages/Entites/Detail : page de présentation synthétique d'une entité (route /{id:guid})
+✅ Pages/Propositions/OffreEdit : formulaire PATCH offre existante (route /{id:guid})
+✅ Pages/Propositions/DemandeEdit : formulaire PATCH demande existante (route /{id:guid})
+✅ Pages/Propositions/DemandesQuota : liste + créer (CreateDemandeQuotaRequest) + soumettre intention + Accepter/Refuser/Confirmer intention
+✅ Pages/Propositions/AvecValidation : soumettre proposition à validation + Valider/Refuser (name="handler" multi-bouton)
+✅ _Layout.cshtml : lien "Mon profil" (connecté), liens "Demandes quota" + "Avec validation" dans dropdown Propositions
+✅ NF-07 : AddResponseCompression(EnableForHttps=true) + UseResponseCompression() dans Program.cs API
+✅ Build : 0 erreur, 43 warnings RMG020 préexistants — commit 42072a4
