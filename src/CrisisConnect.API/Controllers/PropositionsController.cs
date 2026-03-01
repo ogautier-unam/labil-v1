@@ -5,8 +5,11 @@ using CrisisConnect.Application.UseCases.Demandes.GetDemandes;
 using CrisisConnect.Application.UseCases.Offres.CreateOffre;
 using CrisisConnect.Application.UseCases.Offres.GetOffreById;
 using CrisisConnect.Application.UseCases.Offres.GetOffres;
+using CrisisConnect.Application.UseCases.Propositions.ArchiverProposition;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositionById;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositions;
+using CrisisConnect.Application.UseCases.Propositions.MarquerEnAttenteRelance;
+using CrisisConnect.Application.UseCases.Propositions.ReconfirmerProposition;
 using CrisisConnect.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -113,5 +116,43 @@ public class PropositionsController : ControllerBase
     {
         var result = await _mediator.Send(command, cancellationToken);
         return CreatedAtAction(nameof(GetDemandeById), new { id = result.Id }, result);
+    }
+
+    // ── Cycle de vie ──────────────────────────────────────────────────────────
+
+    /// <summary>Archive une proposition (statut → Archivée). Coordinateur ou Responsable.</summary>
+    [HttpPatch("{id:guid}/archiver")]
+    [Authorize(Roles = "Coordinateur,Responsable")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Archiver(Guid id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new ArchiverPropositionCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>Passe une proposition en attente de relance (statut → EnAttenteRelance).</summary>
+    [HttpPatch("{id:guid}/relance")]
+    [Authorize(Roles = "Coordinateur,Responsable")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> MarquerRelance(Guid id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new MarquerEnAttenteRelanceCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>Reconfirme une proposition en attente de relance (statut → Active).</summary>
+    [HttpPatch("{id:guid}/reconfirmer")]
+    [Authorize(Roles = "Coordinateur,Responsable")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Reconfirmer(Guid id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new ReconfirmerPropositionCommand(id), cancellationToken);
+        return NoContent();
     }
 }

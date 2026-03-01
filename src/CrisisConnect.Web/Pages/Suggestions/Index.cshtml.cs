@@ -19,6 +19,9 @@ public class SuggestionsIndexModel : PageModel
     public IReadOnlyList<SuggestionAppariementModel> Suggestions { get; private set; } = [];
     public string? ErrorMessage { get; private set; }
 
+    [BindProperty]
+    public Guid DemandeIdGeneration { get; set; }
+
     public async Task OnGetAsync(CancellationToken ct)
     {
         try
@@ -34,6 +37,25 @@ public class SuggestionsIndexModel : PageModel
             // Rôle insuffisant (403) → liste vide sans erreur bloquante
             Suggestions = [];
         }
+    }
+
+    public async Task<IActionResult> OnPostGenererAsync(CancellationToken ct)
+    {
+        if (DemandeIdGeneration == Guid.Empty)
+        {
+            TempData[KeyError] = "Identifiant de demande invalide.";
+            return RedirectToPage();
+        }
+        try
+        {
+            var nouvelles = await _api.GenererSuggestionsAsync(DemandeIdGeneration, ct);
+            var count = nouvelles?.Count ?? 0;
+            TempData[KeySuccess] = count > 0
+                ? $"{count} nouvelle(s) suggestion(s) générée(s)."
+                : "Aucune nouvelle suggestion (toutes déjà générées ou score insuffisant).";
+        }
+        catch (HttpRequestException) { TempData[KeyError] = "Impossible de contacter l'API."; }
+        return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostAcknowledgeAsync(Guid suggestionId, CancellationToken ct)

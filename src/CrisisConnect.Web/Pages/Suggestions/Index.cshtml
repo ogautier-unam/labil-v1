@@ -6,6 +6,27 @@
 
 <h2 class="mb-4">Suggestions d'appariement</h2>
 
+@if (User.IsInRole("Coordinateur") || User.IsInRole("Responsable"))
+{
+    <div class="card mb-4 border-success">
+        <div class="card-header bg-success text-white fw-semibold">
+            Générer des suggestions pour une demande
+        </div>
+        <div class="card-body">
+            <form method="post" asp-page-handler="Generer" class="row g-2 align-items-end">
+                <div class="col-md-8">
+                    <label for="DemandeIdGeneration" class="form-label mb-1">Identifiant de la demande (GUID)</label>
+                    <input asp-for="DemandeIdGeneration" id="DemandeIdGeneration" class="form-control font-monospace"
+                           placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required />
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-success">Générer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
 @if (TempData["Success"] is string successMsg)
 {
     <div class="alert alert-success alert-dismissible fade show">

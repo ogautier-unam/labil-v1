@@ -35,8 +35,11 @@ public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         ["CreateConfigCatastropheCommand"]  = TypeOperation.ModificationConfigCatastrophe,
         ["MarkNotificationAsReadCommand"]    = TypeOperation.RetablissementConfiance,
         ["RefreshTokenCommand"]              = TypeOperation.RetablissementConfiance,
-        ["AcknowledgeSuggestionCommand"]    = TypeOperation.AcquittementSuggestion,
-        ["GenererSuggestionsCommand"]        = TypeOperation.GenerationSuggestion,
+        ["AcknowledgeSuggestionCommand"]         = TypeOperation.AcquittementSuggestion,
+        ["GenererSuggestionsCommand"]             = TypeOperation.GenerationSuggestion,
+        ["ArchiverPropositionCommand"]            = TypeOperation.ArchivageProposition,
+        ["MarquerEnAttenteRelanceCommand"]        = TypeOperation.ModificationProposition,
+        ["ReconfirmerPropositionCommand"]         = TypeOperation.RecyclageProposition,
     };
 
     public AuditBehaviour(

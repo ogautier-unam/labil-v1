@@ -185,4 +185,12 @@ public class ApiClient
         var response = await _http.PatchAsync($"api/suggestions/{id}/acknowledge", null, ct);
         return response.IsSuccessStatusCode;
     }
+
+    public async Task<IReadOnlyList<SuggestionAppariementModel>?> GenererSuggestionsAsync(
+        Guid demandeId, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsync($"api/suggestions/demande/{demandeId}/generer", null, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<IReadOnlyList<SuggestionAppariementModel>>(ct);
+    }
 }
