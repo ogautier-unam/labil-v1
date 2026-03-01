@@ -149,7 +149,7 @@ CrisisConnect.Domain/
 │   ├── OperateurLogique.cs    # Simple/Et/Ou (Composite Demande)
 │   ├── NiveauUrgence.cs       # Faible/Moyen/Eleve/Critique
 │   ├── TypeNotification.cs    # 8 types metier
-│   ├── TypeOperation.cs       # 28 types (audit journal)
+│   ├── TypeOperation.cs       # 27 types (audit journal)
 │   ├── TypeRole.cs            # Contributeur/.../AdminSysteme
 │   ├── NiveauBadge.cs
 │   ├── StatutRole.cs
