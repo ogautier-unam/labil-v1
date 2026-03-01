@@ -1075,3 +1075,13 @@ packages/
 ✅ Tests : UpdateOffreCommandHandlerTests (3), UpdateDemandeCommandHandlerTests (2), GetEntiteByIdQueryHandlerTests (2) — 7 nouveaux tests
 ✅ Total : 406 tests, 0 échec (Domain 117, Application 229, Infrastructure 60)
 ✅ Build : 0 erreur, 0 warning — commit ffacbd9
+
+#### Session 24 — 2026-03-01 — M2/M4/M5 complets + M3 DemandeQuota+IntentionDon workflow
+✅ Fix CS0176 : AppMapper.ToDto(Personne) devenu static — GetActeurQueryHandler + UpdateActeurCommandHandler : _mapper supprimé, AppMapper.ToDto(personne) statique
+✅ M5 Profil acteur : GetActeurQuery/Handler + UpdateActeurCommand/Handler/Validator + PersonneDto + ActeursController (GET /api/acteurs/{id} + PATCH /api/acteurs/{id} [Authorize]) ; tests : GetActeurQueryHandlerTests (2) + UpdateActeurCommandHandlerTests (3)
+✅ M2 Offre→DemandesCouplees : Offre.cs _demandesCouplees backing field + CouplerDemande() ; OffreConfiguration HasMany.WithMany.UsingEntity + HasField ; OffreRepository Include(DemandesCouplees) ; Migration AddOffreDemandesCouplees (20260301222242) ; OffreDto + CreateOffreCommand : DemandeIds + DemandesCouplees ; 4 handlers offres convertis en AppMapper.ToDto statique (fix CS0029) ; AppDbContextFactory IDesignTimeDbContextFactory ; tests mis à jour
+✅ M4 PropositionAvecValidation workflow : CreatePropositionAvecValidation/ValiderProposition/RefuserValidationProposition : Command + Handler + Validator × 3 ; PropositionAvecValidationDto ; AppMapper partial ToDto ; AuditBehaviour +3 ; PropositionsController +3 endpoints ; tests : PropositionAvecValidationCommandHandlerTests (5)
+✅ M3 DemandeQuota+IntentionDon : IDemandeQuotaRepository + DemandeQuotaRepository (Include Intentions) ; DI enregistré ; CreateDemandeQuota/SoumettreIntentionDon/AccepterIntentionDon/RefuserIntentionDon/ConfirmerIntentionDon : Command + Handler + Validator × 5 ; GetDemandesQuota + GetDemandeQuotaById : Query + Handler × 2 ; DemandeQuotaDto + IntentionDonDto ; AppMapper static ToDto(IntentionDon) + ToDto(DemandeQuota) ; AuditBehaviour +5 (total 43 entrées) ; DemandesQuotaController : GET/GET{id}/POST + 4 PATCH intentions ; tests : DemandeQuotaCommandHandlerTests (16)
+✅ Sonar S2325 : ToDto(Offre) + ToDto(List<Offre>) + ToDto(MethodeIdentification) rendus static ; pragma disable S2325 autour des overrides IReadOnlyList → instance Mapperly
+✅ Total : 433 tests, 0 échec (Domain 117, Application 256, Infrastructure 60)
+✅ Build : 0 erreur, 0 warning — commit 0fd803d
