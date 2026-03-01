@@ -1099,3 +1099,22 @@ packages/
 ✅ _Layout.cshtml : lien "Mon profil" (connecté), liens "Demandes quota" + "Avec validation" dans dropdown Propositions
 ✅ NF-07 : AddResponseCompression(EnableForHttps=true) + UseResponseCompression() dans Program.cs API
 ✅ Build : 0 erreur, 43 warnings RMG020 préexistants — commit 42072a4
+
+#### Session 26 — 2026-03-02 — DemandeSurCatalogue + DemandeRepartitionGeo complets
+✅ IDemandeSurCatalogueRepository + IDemandeRepartitionGeoRepository (Domain interfaces)
+✅ LigneCatalogueDto + DemandeSurCatalogueDto + DemandeRepartitionGeoDto (Application DTOs)
+✅ AppMapper : static ToDto(LigneCatalogue) + ToDto(DemandeSurCatalogue) + ToDto(DemandeRepartitionGeo)
+✅ AuditBehaviour : +3 entrées (CreateDemandeSurCatalogueCommand→DepotProposition, AjouterLigneCatalogueCommand→ModificationProposition, CreateDemandeRepartitionGeoCommand→DepotProposition) — total 46
+✅ Use cases DemandeSurCatalogue : CreateDemandeSurCatalogue + AjouterLigneCatalogue (×2 Validator) + GetDemandeSurCatalogues + GetDemandeSurCatalogueById
+✅ Use cases DemandeRepartitionGeo : CreateDemandeRepartitionGeo (Validator) + GetDemandesRepartitionGeo + GetDemandeRepartitionGeoById
+✅ DemandeSurCatalogueRepository (Include Lignes) + DemandeRepartitionGeoRepository — pattern OfType<T>()
+✅ DependencyInjection.cs : +2 registrations scoped
+✅ DemandesSurCatalogueController : GET / GET{id} / POST / POST{id}/lignes [Authorize]
+✅ DemandesRepartitionGeoController : GET / GET{id} / POST [Authorize]
+✅ Modèles Web : LigneCatalogueModel + DemandeSurCatalogueModel + DemandeRepartitionGeoModel
+✅ ApiClient.cs : +7 méthodes (GetDemandesSurCatalogue, GetDemandeSurCatalogueById, CreateDemandeSurCatalogue, AjouterLigne, GetDemandesRepartitionGeo, GetDemandeRepartitionGeoById, CreateDemandeRepartitionGeo)
+✅ Pages/Propositions/DemandesSurCatalogue.cshtml + .cs : liste + créer + ajouter lignes (table + collapse Bootstrap)
+✅ Pages/Propositions/DemandesRepartitionGeo.cshtml + .cs : liste + créer (nb ressources + description mission)
+✅ _Layout.cshtml : liens "Sur catalogue" + "Répartition géo" dans dropdown Propositions
+✅ Total : 433 tests, 0 échec (Domain 117, Application 256, Infrastructure 60) — inchangé
+✅ Build : 0 erreur, 43 warnings RMG020 préexistants — commit à venir

@@ -1,6 +1,6 @@
 # CrisisConnect — Rapport d'audit des fonctionnalités manquantes
 
-**Date :** 2026-03-02 · **Mis à jour :** session 25
+**Date :** 2026-03-02 · **Mis à jour :** session 26
 **Sources analysées :** Énoncé IHDCM032 · ROADMAP.md · Diagrammes de classes P1–P7 · Code source (`src/`)
 **État courant :** 433 tests passants · 0 erreur de build
 
@@ -76,8 +76,8 @@
 |---|---|
 | `DemandeQuota` + `IntentionDon` | ✅ résolu session 24 — use cases + API (7 endpoints) + tests |
 | `PropositionAvecValidation` | ✅ résolu session 24 — Create/Valider/RefuserValidation + API + tests |
-| `DemandeSurCatalogue` + `LigneCatalogue` | 🔴 toujours absent — use cases + API + Web manquants |
-| `DemandeRepartitionGeo` | 🔴 toujours absent — use cases + API + Web manquants |
+| `DemandeSurCatalogue` + `LigneCatalogue` | ✅ résolu session 26 — use cases + API + Web |
+| `DemandeRepartitionGeo` | ✅ résolu session 26 — use cases + API + Web |
 
 ---
 
@@ -148,7 +148,7 @@
 | Bouton bascule visibilité dans `Discussion.cshtml` | ✅ résolu session 25 |
 | `Pages/Propositions/DemandesQuota.cshtml` | ✅ résolu session 25 |
 | `Pages/Propositions/AvecValidation.cshtml` | ✅ résolu session 25 |
-| Pages DemandeSurCatalogue, DemandeRepartitionGeo | 🔴 toujours absent |
+| Pages DemandeSurCatalogue, DemandeRepartitionGeo | ✅ résolu session 26 |
 
 ---
 
@@ -262,7 +262,7 @@ Aucun dossier `/doc` dans le dépôt.
 - Pattern Adapter sur `IServiceTraduction` (3 adaptateurs — effectivement utilisé dans `EnvoyerMessageCommandHandler`)
 - 8 types de `MethodeIdentification` (TPH)
 - `ConfigCatastrophe` + `CategorieTaxonomie` extensible dynamiquement
-- Journal d'audit structuré (43 opérations mappées dans `AuditBehaviour`)
+- Journal d'audit structuré (46 opérations mappées dans `AuditBehaviour`)
 - JWT + cookies HttpOnly + refresh tokens
 - Docker Compose (API + DB + Web)
 - 433 tests unitaires (0 échec) — couverture handlers 100%, validators 100%, repos 100%
@@ -281,3 +281,5 @@ Aucun dossier `/doc` dans le dépôt.
 - Workflow PropositionAvecValidation complet (API)
 - Profil acteur GET + PATCH (API)
 - Relation Offre → DemandesCouplees (many-to-many)
+- Workflow DemandeSurCatalogue + LigneCatalogue complet (use cases + API + Web)
+- Workflow DemandeRepartitionGeo complet (use cases + API + Web)
