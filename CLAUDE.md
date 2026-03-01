@@ -76,17 +76,21 @@ Microsoft.AspNetCore.Authentication.JwtBearer
 BCrypt.Net-Next
 
 # API
-Swashbuckle.AspNetCore                       # Swagger/OpenAPI
-Microsoft.EntityFrameworkCore.Design         # requis par dotnet-ef (startup project)
+Swashbuckle.AspNetCore                          # Swagger/OpenAPI
+Microsoft.EntityFrameworkCore.Design            # requis par dotnet-ef (startup project)
 FluentValidation.DependencyInjectionExtensions  # AddValidatorsFromAssembly()
-Serilog.AspNetCore                           # Logging structuré
+Serilog.AspNetCore                              # Logging structuré
+
+# Web (Razor Pages)
+# (pas de packages supplémentaires — AddAuthentication/Cookie inclus dans ASP.NET Core)
+# Bootstrap 5.3.3 bundlé dans wwwroot/lib/bootstrap/ par le template dotnet new razor
 ```
 
 ---
 
 ## 🏗️ Architecture — Clean Architecture
 
-### 4 projets (1 solution)
+### 5 projets (1 solution)
 
 ```
 CrisisConnect.sln
@@ -94,7 +98,8 @@ CrisisConnect.sln
 │   ├── CrisisConnect.Domain/          ← Entités, Value Objects, Interfaces, Enums
 │   ├── CrisisConnect.Application/     ← Use Cases, DTOs, CQRS (MediatR), Validators
 │   ├── CrisisConnect.Infrastructure/  ← EF Core, Repositories, Services externes
-│   └── CrisisConnect.API/             ← Controllers, Middleware, DI, Swagger, Program.cs
+│   ├── CrisisConnect.API/             ← Controllers, Middleware, DI, Swagger, Program.cs
+│   └── CrisisConnect.Web/             ← Razor Pages, ApiClient, Models, Bootstrap 5.3
 └── tests/
     ├── CrisisConnect.Domain.Tests/
     ├── CrisisConnect.Application.Tests/
@@ -103,13 +108,15 @@ CrisisConnect.sln
 
 ### Règle de dépendance (stricte)
 ```
-API → Application → Domain
-Infrastructure → Application → Domain
+API   → Application → Domain
+Infra → Application → Domain
+Web   → API (via HttpClient — jamais de référence directe aux projets src)
 ```
 - `Domain` : **zéro dépendance** externe
 - `Application` : dépend uniquement de `Domain`
 - `Infrastructure` : implémente les interfaces de `Domain`/`Application`
-- `API` : orchestre tout, inject les implémentations
+- `API` : orchestre tout, injecte les implémentations
+- `Web` : consomme l'API REST via `ApiClient` (HttpClient + cookie JWT)
 
 ### Structure interne Domain
 ```
@@ -142,7 +149,7 @@ CrisisConnect.Domain/
 │   ├── OperateurLogique.cs    # Simple/Et/Ou (Composite Demande)
 │   ├── NiveauUrgence.cs       # Faible/Moyen/Eleve/Critique
 │   ├── TypeNotification.cs    # 8 types metier
-│   ├── TypeOperation.cs       # 26 types (audit journal)
+│   ├── TypeOperation.cs       # 28 types (audit journal)
 │   ├── TypeRole.cs            # Contributeur/.../AdminSysteme
 │   ├── NiveauBadge.cs
 │   ├── StatutRole.cs
@@ -159,35 +166,40 @@ CrisisConnect.Domain/
 ```
 CrisisConnect.Application/
 ├── UseCases/
-│   ├── Propositions/
-│   │   ├── GetPropositions/
-│   │   └── GetPropositionById/
-│   ├── Offres/
-│   │   └── CreateOffre/       # CreateOffreCommand, Handler, Validator
-│   ├── Demandes/
-│   │   └── CreateDemande/     # CreateDemandeCommand, Handler, Validator
-│   ├── Transactions/
-│   │   └── InitierTransaction/
-│   ├── Notifications/
-│   │   ├── GetNotifications/
-│   │   └── MarkAsRead/
-│   └── Auth/
-│       ├── Register/
-│       ├── Login/
-│       └── RefreshToken/
-├── DTOs/
-│   ├── PropositionDto.cs
-│   ├── OffreDto.cs
-│   ├── DemandeDto.cs
-│   ├── TransactionDto.cs
-│   ├── NotificationDto.cs
-│   └── AuthDto.cs
+│   ├── Auth/           Register, Login, Logout, RefreshToken
+│   ├── Offres/         CreateOffre, GetOffres, GetOffreById
+│   ├── Demandes/       CreateDemande, GetDemandes, GetDemandeById
+│   ├── Propositions/   GetPropositions, GetPropositionById,
+│   │                   ArchiverProposition, CloreProposition,
+│   │                   MarquerEnAttenteRelance, ReconfirmerProposition
+│   ├── Transactions/   InitierTransaction, ConfirmerTransaction, AnnulerTransaction,
+│   │                   GetTransactions, GetTransactionById, GetDiscussion,
+│   │                   EnvoyerMessage, BasculerVisibiliteDiscussion
+│   ├── Paniers/        CreatePanier, GetPanier, AjouterOffreAuPanier,
+│   │                   ConfirmerPanier, AnnulerPanier
+│   ├── Notifications/  GetNotifications, MarkAsRead
+│   ├── Journal/        GetEntreesJournal
+│   ├── Suggestions/    GenererSuggestions, GetSuggestionsByDemande,
+│   │                   GetNonAcknowledgedSuggestions, AcknowledgeSuggestion
+│   ├── ConfigCatastrophe/ GetConfigCatastrophe, CreateConfigCatastrophe,
+│   │                      UpdateConfigCatastrophe
+│   ├── Roles/          AttribuerRole, RevoquerRole, GetRolesActeur
+│   ├── Mandats/        CreerMandat, RevoquerMandat, GetMandats
+│   ├── Taxonomie/      GetCategories, CreateCategorie, DesactiverCategorie
+│   ├── Entites/        GetEntites, CreateEntite, DesactiverEntite
+│   └── MethodesIdentification/ GetMethodes, VerifierMethode
+├── DTOs/               OffreDto, DemandeDto, TransactionDto, PanierDto,
+│                       NotificationDto, EntreeJournalDto, SuggestionAppariementDto,
+│                       ConfigCatastropheDto, AttributionRoleDto, MandatDto,
+│                       CategorieTaxonomieDto, EntiteDto, MethodeIdentificationDto,
+│                       AuthDto (LoginResponse, RegisterResponse)
 ├── Mappings/
-│   └── MappingProfile.cs      # AutoMapper
+│   └── MappingProfile.cs      # AutoMapper — toutes les entités → DTOs
 └── Common/
     ├── Behaviours/
-    │   ├── ValidationBehaviour.cs
-    │   └── LoggingBehaviour.cs
+    │   ├── ValidationBehaviour.cs   # FluentValidation pipeline
+    │   ├── LoggingBehaviour.cs      # Log avant/après chaque requête
+    │   └── AuditBehaviour.cs        # Persiste EntreeJournal (33 commandes mappées)
     └── Interfaces/
         └── ICurrentUserService.cs
 ```
@@ -197,12 +209,8 @@ CrisisConnect.Application/
 CrisisConnect.Infrastructure/
 ├── Persistence/
 │   ├── AppDbContext.cs
-│   ├── Configurations/        # IEntityTypeConfiguration<T>
-│   │   ├── PropositionConfiguration.cs
-│   │   └── ...
-│   ├── Repositories/
-│   │   ├── PropositionRepository.cs
-│   │   └── ...
+│   ├── Configurations/        # IEntityTypeConfiguration<T> — 1 fichier par entité
+│   ├── Repositories/          # 1 repository par agrégat
 │   └── Migrations/            # EF Core migrations (auto-générées)
 ├── Services/
 │   ├── JwtService.cs
@@ -211,6 +219,46 @@ CrisisConnect.Infrastructure/
 │   └── MeteoAdapter.cs
 └── DependencyInjection.cs     # Extension AddInfrastructure()
 ```
+
+### Structure interne Web
+```
+CrisisConnect.Web/
+├── Models/                    # Records simples (pas de ref Domain/Application)
+│   ├── OffreModel.cs, DemandeModel.cs, TransactionModel.cs, PanierModel.cs
+│   ├── NotificationModel.cs, EntreeJournalModel.cs, SuggestionAppariementModel.cs
+│   ├── ConfigCatastropheModel.cs, AttributionRoleModel.cs, MandatModel.cs
+│   ├── CategorieTaxonomieModel.cs, EntiteModel.cs, MethodeIdentificationModel.cs
+│   ├── DiscussionModel.cs (record DiscussionData), MessageModel.cs, AuthResponseModel.cs
+│   └── PropositionModel.cs
+├── Services/
+│   └── ApiClient.cs           # HttpClient wrappé — toutes les méthodes vers l'API
+├── Pages/
+│   ├── Index.cshtml            # Tableau de bord (comptes réels via API)
+│   ├── Auth/                   # Login, Register, Logout
+│   ├── Propositions/           # Index, Offres (+ créer, archiver, clore), Demandes
+│   ├── Transactions/           # Index (+ confirmer, annuler), Discussion (+ messages)
+│   ├── Paniers/                # Index (+ créer, confirmer, annuler)
+│   ├── Notifications/          # Index (+ marquer lue)
+│   ├── Journal/                # Index (audit log de l'utilisateur)
+│   ├── Suggestions/            # Index (+ générer, acquitter)
+│   ├── ConfigCatastrophe/      # Index (+ créer, modifier)
+│   ├── Admin/                  # Roles (Coordinateur+), Mandats (Coordinateur+)
+│   ├── Taxonomie/              # Index (+ créer catégorie, désactiver)
+│   ├── Entites/                # Index (+ créer organisation, désactiver) [Responsable]
+│   └── MethodesIdentification/ # Index (+ vérifier méthode) [Coordinateur+]
+├── wwwroot/
+│   └── lib/bootstrap/          # Bootstrap 5.3.3 (bundlé par le template)
+├── Program.cs                  # AddAuthentication(Cookie), AddHttpClient<ApiClient>
+│                               # JwtCookieHandler (DelegatingHandler → Bearer token)
+└── appsettings.json            # ApiSettings:BaseUrl = http://localhost:8080
+```
+
+**Pattern Razor Pages — autorisation par rôle :**
+- `[Authorize]` au niveau de la **classe** uniquement (pas sur les méthodes handler — MVC1001)
+- Vérification de rôle dans le handler : `if (!User.IsInRole("Responsable")) return Forbid();`
+- Helper statique pour l'UserId : `private static Guid? GetUserId(ClaimsPrincipal user)`
+
+**JwtCookieHandler :** injecte le Bearer token depuis le claim `access_token` du cookie dans chaque requête sortante vers l'API.
 
 ---
 
@@ -223,9 +271,16 @@ CrisisConnect/
 ├── docker-compose.override.yml    # dev local (hot reload, ports)
 ├── .env                           # variables d'environnement (non commité)
 ├── .env.example                   # template commité
-└── src/CrisisConnect.API/
+├── src/CrisisConnect.API/
+│   └── Dockerfile
+└── src/CrisisConnect.Web/
     └── Dockerfile
 ```
+
+**3 services Docker :**
+- `db` — PostgreSQL 17-alpine (port 5432)
+- `api` — CrisisConnect.API (port 8080, dépend de `db`)
+- `web` — CrisisConnect.Web (port 8081→8080, `ApiSettings__BaseUrl=http://api:8080`)
 
 ### docker-compose.yml (production-like)
 ```yaml
@@ -383,22 +438,86 @@ dotnet ef migrations remove \
 - **Result pattern** ou exceptions domaine : pas de `null` return pour les erreurs
 - **Async/await partout** : toutes les méthodes I/O sont asynchrones (`Async` suffix)
 
-### Endpoints REST
+### Endpoints REST (13 controllers)
 ```
-GET    /api/propositions              # liste (Offres + Demandes)
-GET    /api/propositions/{id}         # detail
-POST   /api/propositions/offres       # creer une Offre
-POST   /api/propositions/demandes     # creer une Demande
-
-POST   /api/transactions              # initier une Transaction
-
-GET    /api/notifications             # liste des notifications du user
-PATCH  /api/notifications/{id}/read   # marquer comme lue
-
+# Auth
 POST   /api/auth/register
 POST   /api/auth/login
 POST   /api/auth/refresh
-POST   /api/auth/logout
+POST   /api/auth/logout                   [Authorize]
+
+# Propositions
+GET    /api/propositions                  ?statut=
+GET    /api/propositions/{id}
+GET    /api/propositions/offres           ?statut=
+POST   /api/propositions/offres           [Authorize]
+GET    /api/propositions/offres/{id}
+GET    /api/propositions/demandes         ?statut=&urgence=
+POST   /api/propositions/demandes         [Authorize]
+GET    /api/propositions/demandes/{id}
+PATCH  /api/propositions/{id}/archiver    [Coordinateur,Responsable]
+PATCH  /api/propositions/{id}/clore       [Coordinateur,Responsable]
+PATCH  /api/propositions/{id}/relance     [Coordinateur,Responsable]
+PATCH  /api/propositions/{id}/reconfirmer [Coordinateur,Responsable]
+
+# Transactions
+GET    /api/transactions
+GET    /api/transactions/{id}
+POST   /api/transactions                  [Authorize]
+PATCH  /api/transactions/{id}/confirmer   [Authorize]
+PATCH  /api/transactions/{id}/annuler     [Authorize]
+GET    /api/transactions/{id}/discussion  [Authorize]
+POST   /api/transactions/{id}/messages    [Authorize]
+PATCH  /api/transactions/{id}/visibilite  [Authorize]
+
+# Paniers
+GET    /api/paniers?proprietaireId=       [Authorize]
+POST   /api/paniers                       [Authorize]
+POST   /api/paniers/{id}/offres           [Authorize]
+PATCH  /api/paniers/{id}/confirmer        [Authorize]
+PATCH  /api/paniers/{id}/annuler          [Authorize]
+
+# Notifications
+GET    /api/notifications/{destinataireId} [Authorize]
+PATCH  /api/notifications/{id}/read        [Authorize]
+
+# Journal
+GET    /api/journal/{acteurId}             [Authorize]
+
+# Suggestions
+GET    /api/suggestions/demande/{id}       [Authorize]
+GET    /api/suggestions/pending            [Coordinateur,Responsable]
+POST   /api/suggestions/demande/{id}/generer [Coordinateur,Responsable]
+PATCH  /api/suggestions/{id}/acknowledge   [Authorize]
+
+# Config Catastrophe
+GET    /api/config-catastrophe
+POST   /api/config-catastrophe             [Responsable]
+PATCH  /api/config-catastrophe/{id}        [Responsable]
+
+# Rôles
+GET    /api/roles/acteur/{acteurId}        [Coordinateur,Responsable]
+POST   /api/roles                          [Coordinateur,Responsable]
+PATCH  /api/roles/{id}/revoquer            [Responsable]
+
+# Mandats
+GET    /api/mandats/mandant/{acteurId}     [Authorize]
+POST   /api/mandats                        [Authorize]
+PATCH  /api/mandats/{id}/revoquer          [Responsable]
+
+# Taxonomie
+GET    /api/taxonomie/config/{configId}
+POST   /api/taxonomie                      [Coordinateur,Responsable]
+PATCH  /api/taxonomie/{id}/desactiver      [Coordinateur,Responsable]
+
+# Entités
+GET    /api/entites
+POST   /api/entites                        [Responsable]
+PATCH  /api/entites/{id}/desactiver        [Responsable]
+
+# Méthodes d'identification
+GET    /api/methodes-identification/personne/{id} [Authorize]
+PATCH  /api/methodes-identification/{id}/verifier [Coordinateur,Responsable]
 ```
 
 ### Réponses HTTP standard
@@ -484,7 +603,8 @@ CrisisConnect/                     ← racine du repo
 │   ├── CrisisConnect.API/
 │   ├── CrisisConnect.Application/
 │   ├── CrisisConnect.Domain/
-│   └── CrisisConnect.Infrastructure/
+│   ├── CrisisConnect.Infrastructure/
+│   └── CrisisConnect.Web/
 └── tests/
     ├── CrisisConnect.Domain.Tests/
     ├── CrisisConnect.Application.Tests/
@@ -526,11 +646,12 @@ packages/
 5. **API** : controllers, auth JWT, Swagger
 6. **Tests** : unitaires Domain/Application, intégration Infrastructure
 
-### Use cases prioritaires (MVP)
-1. `RegisterActeur` / `Login` / `RefreshToken`
-2. `CreateProposition` / `GetPropositions` / `GetPropositionById`
-3. `CreateMission` / `AssignBenevole` (matching simple)
+### Use cases prioritaires (MVP) — tous implémentés
+1. `RegisterActeur` / `Login` / `RefreshToken` / `Logout`
+2. `CreateOffre` / `CreateDemande` / `GetOffres` / `GetDemandes`
+3. `InitierTransaction` / `ConfirmerTransaction` / `AnnulerTransaction`
 4. `GetNotifications` / `MarkAsRead`
+5. `CreatePanier` / `AjouterOffreAuPanier` / `ConfirmerPanier`
 
 ---
 
@@ -633,6 +754,18 @@ packages/
 ### HttpClient dans les Adapters
 - Toujours utiliser `IHttpClientFactory` (injecté via DI)
 - Enregistrer dans `DependencyInjection.cs` : `services.AddHttpClient<CartoAdapter>()`
+
+### MVC1001 : [Authorize] sur handler Razor Pages
+- Erreur : `'AuthorizeAttribute' cannot be applied to Razor Page handler methods`
+- Cause : `[Authorize]` sur une méthode `OnPost*` (Razor Pages interdit ça)
+- Fix : mettre `[Authorize]` sur la **classe** uniquement ; vérifier le rôle dans le corps du handler :
+  ```csharp
+  public async Task<IActionResult> OnPostCreerAsync(CancellationToken ct)
+  {
+      if (!User.IsInRole("Responsable")) return Forbid();
+      ...
+  }
+  ```
 
 ### TPH : conflit de MaxLength sur colonne partagee
 - Erreur : `'Entite.Nom' and 'Personne.Nom' are both mapped to column 'nom' in 'acteurs', but are configured with different maximum lengths`
@@ -820,7 +953,7 @@ packages/
 
 #### Session 14 — 2026-03-01 — Production : génération suggestions + filtres + CORS + health check
 ✅ Pages Web Journal/Suggestions créées (suite session précédente)
-✅ TypeOperation : 2 nouvelles valeurs → GenerationSuggestion, AcquittementSuggestion (total 26 valeurs, aligné CLAUDE.md)
+✅ TypeOperation : 2 nouvelles valeurs → GenerationSuggestion, AcquittementSuggestion (total 28 valeurs)
 ✅ AuditBehaviour._commandMap : ajout AcknowledgeSuggestionCommand + GenererSuggestionsCommand (total 17 entrées)
 ✅ GenererSuggestions use case : GenererSuggestionsCommand + Handler (score Jaccard + bonus urgence/livraison) + Validator
 ✅ SuggestionsController : POST /api/suggestions/demande/{id}/generer [Coordinateur,Responsable]
@@ -831,3 +964,26 @@ packages/
 ✅ Health check : AddHealthChecks() + MapHealthChecks("/health") — endpoint Docker/k8s ready
 ✅ Fix Razor : Suggestions/Index.cshtml ligne 40 — format score @((score*100).ToString("0"))% (syntaxe :0 invalide)
 ✅ Build : 0 erreur, 0 warning
+
+#### Session 15 — 2026-03-01 — Use cases manquants + Web admin complet
+✅ UpdateConfigCatastrophe : Command + Handler + PATCH /api/config-catastrophe/{id} [Responsable]
+✅ ConfigCatastrophe/Index.cshtml : formulaire de modification de la configuration active
+✅ Propositions lifecycle Web : Offres.cshtml + Demandes.cshtml → boutons Archiver/Clôturer/Relancer [Coordinateur,Responsable]
+✅ Use cases Roles : AttribuerRoleCommand, RevoquerRoleCommand, GetRolesActeurQuery + RolesController
+✅ Use cases Mandats : CreerMandatCommand, RevoquerMandatCommand, GetMandatsQuery + MandatsController
+✅ Domaine Mandat : Revoquer() + EstActif (computed) ajoutés
+✅ Use cases Taxonomie : CreateCategorie, DesactiverCategorie, GetCategories + TaxonomieController
+✅ Use cases Entites : CreateEntite, DesactiverEntite, GetEntites + EntitesController
+✅ Use cases MethodesIdentification : VerifierMethode, GetMethodes + MethodesIdentificationController
+✅ Dashboard Index.cshtml enrichi : comptes réels offres actives / demandes actives / transactions en cours
+✅ AuditBehaviour._commandMap : 33 entrées au total
+✅ MappingProfile : AttributionRole, Mandat, CategorieTaxonomie, Entite, MethodeIdentification → DTOs
+✅ Web Admin : Pages/Admin/Roles.cshtml + Mandats.cshtml (Coordinateur+, révocation Responsable)
+✅ Web : Pages/Taxonomie, Pages/Entites, Pages/MethodesIdentification créées
+✅ ApiClient : 14 nouvelles méthodes (Roles, Mandats, Taxonomie, Entites, MethodesIdentification)
+✅ _Layout.cshtml : dropdown "Administration" (5 liens, visible Coordinateur/Responsable uniquement)
+✅ Fix MVC1001 : [Authorize] sur handler methods → Forbid() manuel dans le corps du handler
+✅ Fix DiscussionModel collision : record renommé DiscussionData (conflit avec PageModel Razor)
+✅ Fix Sonar S2325 : helpers userId refactorisés en static GetUserId(ClaimsPrincipal)
+✅ Fix Sonar S1192 : constantes KeySuccess, KeyError, LoginPage, ErrApi dans chaque PageModel
+✅ Build : 0 erreur, 0 warning — commits 63094bb, ddb24c8, 760d14d, f1ae6a6, 676c4f0, 7adff53, 628cba9
