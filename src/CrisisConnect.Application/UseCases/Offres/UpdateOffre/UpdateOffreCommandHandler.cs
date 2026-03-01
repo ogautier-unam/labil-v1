@@ -11,12 +11,10 @@ namespace CrisisConnect.Application.UseCases.Offres.UpdateOffre;
 public class UpdateOffreCommandHandler : IRequestHandler<UpdateOffreCommand, OffreDto>
 {
     private readonly IOffreRepository _repository;
-    private readonly AppMapper _mapper;
 
-    public UpdateOffreCommandHandler(IOffreRepository repository, AppMapper mapper)
+    public UpdateOffreCommandHandler(IOffreRepository repository)
     {
         _repository = repository;
-        _mapper = mapper;
     }
 
     public async ValueTask<OffreDto> Handle(UpdateOffreCommand request, CancellationToken cancellationToken)
@@ -31,6 +29,6 @@ public class UpdateOffreCommandHandler : IRequestHandler<UpdateOffreCommand, Off
         offre.Modifier(request.Titre, request.Description, request.LivraisonIncluse, localisation);
         await _repository.UpdateAsync(offre, cancellationToken);
 
-        return _mapper.ToDto(offre);
+        return AppMapper.ToDto(offre);
     }
 }

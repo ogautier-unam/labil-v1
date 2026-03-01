@@ -23,6 +23,7 @@ public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         ["LoginCommand"]                    = TypeOperation.Connexion,
         ["LogoutCommand"]                   = TypeOperation.Deconnexion,
         ["RegisterActeurCommand"]           = TypeOperation.CreationCompte,
+        ["UpdateActeurCommand"]             = TypeOperation.ModificationProposition,
         ["CreateOffreCommand"]              = TypeOperation.DepotProposition,
         ["CreateDemandeCommand"]            = TypeOperation.DepotProposition,
         ["UpdateOffreCommand"]              = TypeOperation.ModificationProposition,
@@ -56,6 +57,14 @@ public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         ["CreateEntiteCommand"]                       = TypeOperation.EntiteAjoutee,
         ["DesactiverEntiteCommand"]                   = TypeOperation.EntiteSupprimee,
         ["VerifierMethodeCommand"]                    = TypeOperation.RetablissementConfiance,
+        ["CreatePropositionAvecValidationCommand"]    = TypeOperation.DepotProposition,
+        ["ValiderPropositionCommand"]                 = TypeOperation.ModificationProposition,
+        ["RefuserValidationPropositionCommand"]       = TypeOperation.ModificationProposition,
+        ["CreateDemandeQuotaCommand"]                 = TypeOperation.DepotProposition,
+        ["SoumettreIntentionDonCommand"]              = TypeOperation.DepotProposition,
+        ["AccepterIntentionDonCommand"]               = TypeOperation.ModificationProposition,
+        ["RefuserIntentionDonCommand"]                = TypeOperation.ModificationProposition,
+        ["ConfirmerIntentionDonCommand"]              = TypeOperation.ModificationProposition,
     };
 
     public AuditBehaviour(

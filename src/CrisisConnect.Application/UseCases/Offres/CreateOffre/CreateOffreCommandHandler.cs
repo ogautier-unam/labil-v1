@@ -1,5 +1,5 @@
-using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.DTOs;
+using CrisisConnect.Application.Mappings;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
 using CrisisConnect.Domain.ValueObjects;
@@ -10,12 +10,12 @@ namespace CrisisConnect.Application.UseCases.Offres.CreateOffre;
 public class CreateOffreCommandHandler : IRequestHandler<CreateOffreCommand, OffreDto>
 {
     private readonly IOffreRepository _repository;
-    private readonly AppMapper _mapper;
+    private readonly IDemandeRepository _demandeRepository;
 
-    public CreateOffreCommandHandler(IOffreRepository repository, AppMapper mapper)
+    public CreateOffreCommandHandler(IOffreRepository repository, IDemandeRepository demandeRepository)
     {
         _repository = repository;
-        _mapper = mapper;
+        _demandeRepository = demandeRepository;
     }
 
     public async ValueTask<OffreDto> Handle(CreateOffreCommand request, CancellationToken cancellationToken)
@@ -25,8 +25,16 @@ public class CreateOffreCommandHandler : IRequestHandler<CreateOffreCommand, Off
             localisation = new Localisation(request.Latitude.Value, request.Longitude.Value);
 
         var offre = new Offre(request.Titre, request.Description, request.CreePar, request.LivraisonIncluse, localisation);
+
+        foreach (var demandeId in request.DemandeIds ?? [])
+        {
+            var demande = await _demandeRepository.GetByIdAsync(demandeId, cancellationToken);
+            if (demande is not null)
+                offre.CouplerDemande(demande);
+        }
+
         await _repository.AddAsync(offre, cancellationToken);
 
-        return _mapper.ToDto(offre);
+        return AppMapper.ToDto(offre);
     }
 }

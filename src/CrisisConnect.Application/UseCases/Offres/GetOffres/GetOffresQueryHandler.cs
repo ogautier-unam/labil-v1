@@ -8,12 +8,10 @@ namespace CrisisConnect.Application.UseCases.Offres.GetOffres;
 public class GetOffresQueryHandler : IRequestHandler<GetOffresQuery, IReadOnlyList<OffreDto>>
 {
     private readonly IOffreRepository _repository;
-    private readonly AppMapper _mapper;
 
-    public GetOffresQueryHandler(IOffreRepository repository, AppMapper mapper)
+    public GetOffresQueryHandler(IOffreRepository repository)
     {
         _repository = repository;
-        _mapper = mapper;
     }
 
     public async ValueTask<IReadOnlyList<OffreDto>> Handle(GetOffresQuery request, CancellationToken cancellationToken)
@@ -23,6 +21,6 @@ public class GetOffresQueryHandler : IRequestHandler<GetOffresQuery, IReadOnlyLi
         if (request.Statut.HasValue)
             offres = offres.Where(o => o.Statut == request.Statut.Value).ToList();
 
-        return _mapper.ToDto(offres);
+        return AppMapper.ToDto(offres.ToList());
     }
 }

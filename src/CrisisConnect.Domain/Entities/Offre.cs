@@ -8,6 +8,9 @@ public class Offre : Proposition
 {
     public bool LivraisonIncluse { get; private set; }
 
+    private readonly List<Demande> _demandesCouplees = [];
+    public IReadOnlyCollection<Demande> DemandesCouplees => _demandesCouplees.AsReadOnly();
+
     protected Offre() { }
 
     public Offre(string titre, string description, Guid creePar, bool livraisonIncluse = false, Localisation? localisation = null)
@@ -17,6 +20,12 @@ public class Offre : Proposition
         CreePar = creePar;
         LivraisonIncluse = livraisonIncluse;
         Localisation = localisation;
+    }
+
+    public void CouplerDemande(Demande demande)
+    {
+        if (!_demandesCouplees.Any(d => d.Id == demande.Id))
+            _demandesCouplees.Add(demande);
     }
 
     public void Modifier(string titre, string description, bool livraisonIncluse, Localisation? localisation)

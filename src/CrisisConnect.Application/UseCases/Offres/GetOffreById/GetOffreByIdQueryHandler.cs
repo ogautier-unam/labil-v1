@@ -10,18 +10,16 @@ namespace CrisisConnect.Application.UseCases.Offres.GetOffreById;
 public class GetOffreByIdQueryHandler : IRequestHandler<GetOffreByIdQuery, OffreDto>
 {
     private readonly IOffreRepository _repository;
-    private readonly AppMapper _mapper;
 
-    public GetOffreByIdQueryHandler(IOffreRepository repository, AppMapper mapper)
+    public GetOffreByIdQueryHandler(IOffreRepository repository)
     {
         _repository = repository;
-        _mapper = mapper;
     }
 
     public async ValueTask<OffreDto> Handle(GetOffreByIdQuery request, CancellationToken cancellationToken)
     {
         var offre = await _repository.GetByIdAsync(request.Id, cancellationToken)
             ?? throw new NotFoundException(nameof(Offre), request.Id);
-        return _mapper.ToDto(offre);
+        return AppMapper.ToDto(offre);
     }
 }

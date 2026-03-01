@@ -14,10 +14,14 @@ public class OffreRepository : IOffreRepository
     }
 
     public async Task<Offre?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        => await _context.Propositions.OfType<Offre>().FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
+        => await _context.Propositions.OfType<Offre>()
+            .Include(o => o.DemandesCouplees)
+            .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
 
     public async Task<IReadOnlyList<Offre>> GetAllAsync(CancellationToken cancellationToken = default)
-        => await _context.Propositions.OfType<Offre>().ToListAsync(cancellationToken);
+        => await _context.Propositions.OfType<Offre>()
+            .Include(o => o.DemandesCouplees)
+            .ToListAsync(cancellationToken);
 
     public async Task AddAsync(Offre offre, CancellationToken cancellationToken = default)
     {

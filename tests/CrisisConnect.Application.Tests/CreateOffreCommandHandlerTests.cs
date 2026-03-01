@@ -1,4 +1,3 @@
-using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Offres.CreateOffre;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
@@ -10,10 +9,10 @@ namespace CrisisConnect.Application.Tests;
 public class CreateOffreCommandHandlerTests
 {
     private readonly IOffreRepository _offreRepo = Substitute.For<IOffreRepository>();
-    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
+    private readonly IDemandeRepository _demandeRepo = Substitute.For<IDemandeRepository>();
 
     private CreateOffreCommandHandler CréerHandler() =>
-        new(_offreRepo, _mapper);
+        new(_offreRepo, _demandeRepo);
 
     [Fact]
     public async Task CreateOffre_SansLocalisation_CrééeEtRetournée()
@@ -46,5 +45,23 @@ public class CreateOffreCommandHandlerTests
         // Assert
         Assert.Equal(crePar, result.CreePar);
         Assert.True(result.LivraisonIncluse);
+    }
+
+    [Fact]
+    public async Task CreateOffre_AvecDemandesCouplées_IdsDansDto()
+    {
+        // Arrange
+        var demande = new Demande("Besoin transport", "Transport bétail", Guid.NewGuid());
+        _demandeRepo.GetByIdAsync(demande.Id, Arg.Any<CancellationToken>()).Returns(demande);
+
+        var command = new CreateOffreCommand("Hébergement bovins", "Prêt de hangar", Guid.NewGuid(),
+            DemandeIds: [demande.Id]);
+
+        // Act
+        var result = await CréerHandler().Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.Contains(demande.Id, result.DemandesCouplees);
+        await _demandeRepo.Received(1).GetByIdAsync(demande.Id, Arg.Any<CancellationToken>());
     }
 }

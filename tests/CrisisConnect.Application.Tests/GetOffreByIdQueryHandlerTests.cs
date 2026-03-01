@@ -1,5 +1,4 @@
-﻿using CrisisConnect.Application.Mappings;
-using CrisisConnect.Application.UseCases.Offres.GetOffreById;
+﻿using CrisisConnect.Application.UseCases.Offres.GetOffreById;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -10,9 +9,8 @@ namespace CrisisConnect.Application.Tests;
 public class GetOffreByIdQueryHandlerTests
 {
     private readonly IOffreRepository _offreRepo = Substitute.For<IOffreRepository>();
-    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
-    private GetOffreByIdQueryHandler CréerHandler() => new(_offreRepo, _mapper);
+    private GetOffreByIdQueryHandler CréerHandler() => new(_offreRepo);
 
     [Fact]
     public async Task GetOffreById_OffreExistante_RetourneDto()

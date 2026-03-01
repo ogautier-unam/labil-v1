@@ -1,4 +1,3 @@
-using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Offres.GetOffres;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -9,9 +8,8 @@ namespace CrisisConnect.Application.Tests;
 public class GetOffresQueryHandlerTests
 {
     private readonly IOffreRepository _offreRepo = Substitute.For<IOffreRepository>();
-    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
-    private GetOffresQueryHandler CréerHandler() => new(_offreRepo, _mapper);
+    private GetOffresQueryHandler CréerHandler() => new(_offreRepo);
 
     [Fact]
     public async Task GetOffres_DeuxOffres_RetourneDeuxDtos()

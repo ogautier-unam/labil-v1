@@ -9,4 +9,5 @@ public record CreateOffreCommand(
     Guid CreePar,
     bool LivraisonIncluse = false,
     double? Latitude = null,
-    double? Longitude = null) : IRequest<OffreDto>;
+    double? Longitude = null,
+    List<Guid>? DemandeIds = null) : IRequest<OffreDto>;

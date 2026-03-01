@@ -13,7 +13,10 @@ using CrisisConnect.Application.UseCases.Propositions.GetPropositionById;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositions;
 using CrisisConnect.Application.UseCases.Propositions.MarquerEnAttenteRelance;
 using CrisisConnect.Application.UseCases.Propositions.ReconfirmerProposition;
+using CrisisConnect.Application.UseCases.Propositions.CreatePropositionAvecValidation;
 using CrisisConnect.Application.UseCases.Propositions.RecyclerProposition;
+using CrisisConnect.Application.UseCases.Propositions.RefuserValidationProposition;
+using CrisisConnect.Application.UseCases.Propositions.ValiderProposition;
 using CrisisConnect.Domain.Enums;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -206,5 +209,42 @@ public class PropositionsController : ControllerBase
     {
         await _mediator.Send(new RecyclerPropositionCommand(id), cancellationToken);
         return NoContent();
+    }
+
+    // ── PropositionAvecValidation ─────────────────────────────────────────────
+
+    /// <summary>Crée une proposition nécessitant validation par un tiers de confiance (§5.1.3).</summary>
+    [HttpPost("avec-validation")]
+    [Authorize]
+    [ProducesResponseType<PropositionAvecValidationDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateAvecValidation(
+        [FromBody] CreatePropositionAvecValidationCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(command, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+    }
+
+    /// <summary>Valide une proposition en attente (entité reconnue → statut Active). Coordinateur ou Responsable.</summary>
+    [HttpPatch("{id:guid}/valider")]
+    [Authorize(Roles = "Coordinateur,Responsable")]
+    [ProducesResponseType<PropositionAvecValidationDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Valider(Guid id, [FromBody] ValiderPropositionCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(command with { Id = id }, cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>Refuse la validation d'une proposition en attente. Coordinateur ou Responsable.</summary>
+    [HttpPatch("{id:guid}/refuser-validation")]
+    [Authorize(Roles = "Coordinateur,Responsable")]
+    [ProducesResponseType<PropositionAvecValidationDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RefuserValidation(Guid id, [FromBody] RefuserValidationPropositionCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(command with { Id = id }, cancellationToken);
+        return Ok(result);
     }
 }

@@ -13,10 +13,23 @@ public partial class AppMapper
 {
     // Propositions
     public partial PropositionDto ToDto(Proposition proposition);
-    public partial OffreDto ToDto(Offre offre);
-    public partial List<OffreDto> ToDto(List<Offre> offres);
+    public partial PropositionAvecValidationDto ToDto(PropositionAvecValidation proposition);
+
+    // Offre — mapping manuel : DemandesCouplees (IReadOnlyCollection<Demande> → List<Guid>)
+    public static OffreDto ToDto(Offre offre) =>
+        new(offre.Id, offre.Titre, offre.Description, offre.Statut, offre.CreePar, offre.CreeLe,
+            offre.LivraisonIncluse, offre.DemandesCouplees.Select(d => d.Id).ToList());
+    public static List<OffreDto> ToDto(List<Offre> offres) => offres.ConvertAll(ToDto);
     public partial DemandeDto ToDto(Demande demande);
     public partial List<DemandeDto> ToDto(List<Demande> demandes);
+
+    // DemandeQuota + IntentionDon — mapping manuel (Intentions = IReadOnlyCollection → List<IntentionDonDto>)
+    public static IntentionDonDto ToDto(IntentionDon i) =>
+        new(i.Id, i.DemandeQuotaId, i.ActeurId, i.Quantite, i.Unite, i.Description, i.DateIntention, i.Statut);
+    public static DemandeQuotaDto ToDto(DemandeQuota dq) =>
+        new(dq.Id, dq.Titre, dq.Description, dq.Statut, dq.CreePar, dq.CreeLe,
+            dq.CapaciteMax, dq.UniteCapacite, dq.CapaciteUtilisee, dq.AdresseDepot, dq.DateLimit,
+            dq.Intentions.Select(ToDto).ToList());
 
     // Transactions
     public partial TransactionDto ToDto(Transaction transaction);
@@ -55,16 +68,25 @@ public partial class AppMapper
     public partial EntiteDto ToDto(Entite entite);
     public partial List<EntiteDto> ToDto(List<Entite> entites);
 
+    // Acteurs — mapping manuel : PersonneDto inclut NiveauBadge calculé + Adresse aplatie
+    public static PersonneDto ToDto(Personne src) =>
+        new(src.Id, src.Email, src.Role, src.Prenom, src.Nom, src.NomComplet,
+            src.Telephone, src.UrlPhoto, src.LanguePreferee, src.MoyensContact,
+            src.Adresse?.Rue, src.Adresse?.Ville, src.Adresse?.CodePostal, src.Adresse?.Pays,
+            src.GetNiveauBadge());
+
     // Méthodes d'identification — mapping manuel : TypeMethode = nom du type runtime (TPH)
-    public MethodeIdentificationDto ToDto(MethodeIdentification src) =>
+    public static MethodeIdentificationDto ToDto(MethodeIdentification src) =>
         new(src.Id, src.PersonneId, src.GetType().Name,
             src.NiveauFiabilite.ToString(), src.EstVerifiee, src.DateVerification);
 
-    public List<MethodeIdentificationDto> ToDto(List<MethodeIdentification> list) =>
+    public static List<MethodeIdentificationDto> ToDto(List<MethodeIdentification> list) =>
         list.ConvertAll(ToDto);
 
     // Surcharges IReadOnlyList<T> → délèguent vers List<T> pour compatibilité repositories
-    public List<OffreDto> ToDto(IReadOnlyList<Offre> items) => ToDto(items as List<Offre> ?? items.ToList());
+    // S2325 supprimé : les délégations vers les méthodes partial générées par Mapperly sont implicitement d'instance
+#pragma warning disable S2325
+    public static List<OffreDto> ToDto(IReadOnlyList<Offre> items) => ToDto(items as List<Offre> ?? items.ToList());
     public List<DemandeDto> ToDto(IReadOnlyList<Demande> items) => ToDto(items as List<Demande> ?? items.ToList());
     public List<TransactionDto> ToDto(IReadOnlyList<Transaction> items) => ToDto(items as List<Transaction> ?? items.ToList());
     public List<NotificationDto> ToDto(IReadOnlyList<Notification> items) => ToDto(items as List<Notification> ?? items.ToList());
@@ -76,4 +98,5 @@ public partial class AppMapper
     public List<EntiteDto> ToDto(IReadOnlyList<Entite> items) => ToDto(items as List<Entite> ?? items.ToList());
     public List<MethodeIdentificationDto> ToDto(IReadOnlyList<MethodeIdentification> items) => ToDto(items as List<MethodeIdentification> ?? items.ToList());
     public List<PropositionDto> ToDto(IReadOnlyList<Proposition> items) => items.Select(ToDto).ToList();
+#pragma warning restore S2325
 }

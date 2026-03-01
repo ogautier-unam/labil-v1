@@ -41,9 +41,10 @@ public static class DependencyInjection
         services.AddScoped<IConfigCatastropheRepository, ConfigCatastropheRepository>();
         services.AddScoped<ICategorieTaxonomieRepository, CategorieTaxonomieRepository>();
 
-        // Repositories — P2 & P6
+        // Repositories — P2, P4 & P6
         services.AddScoped<IMethodeIdentificationRepository, MethodeIdentificationRepository>();
         services.AddScoped<ISuggestionAppariementRepository, SuggestionAppariementRepository>();
+        services.AddScoped<IDemandeQuotaRepository, DemandeQuotaRepository>();
 
         // Services d'authentification
         services.AddScoped<IJwtService, JwtService>();

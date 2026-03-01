@@ -856,6 +856,25 @@ namespace CrisisConnect.Infrastructure.Migrations
                     b.ToTable("transactions", (string)null);
                 });
 
+            modelBuilder.Entity("offre_demandes_couplees", b =>
+                {
+                    b.Property<Guid>("DemandesCoupleesId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("demandes_couplees_id");
+
+                    b.Property<Guid>("OffreId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("offre_id");
+
+                    b.HasKey("DemandesCoupleesId", "OffreId")
+                        .HasName("pk_offre_demandes_couplees");
+
+                    b.HasIndex("OffreId")
+                        .HasDatabaseName("ix_offre_demandes_couplees_offre_id");
+
+                    b.ToTable("offre_demandes_couplees", (string)null);
+                });
+
             modelBuilder.Entity("paniers_offres", b =>
                 {
                     b.Property<Guid>("OffresId")
@@ -1310,7 +1329,7 @@ namespace CrisisConnect.Infrastructure.Migrations
             modelBuilder.Entity("CrisisConnect.Domain.Entities.MethodeIdentification", b =>
                 {
                     b.HasOne("CrisisConnect.Domain.Entities.Personne", null)
-                        .WithMany()
+                        .WithMany("MethodesIdentification")
                         .HasForeignKey("PersonneId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
@@ -1360,6 +1379,23 @@ namespace CrisisConnect.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_suggestions_appariement_propositions_offre_id");
+                });
+
+            modelBuilder.Entity("offre_demandes_couplees", b =>
+                {
+                    b.HasOne("CrisisConnect.Domain.Entities.Demande", null)
+                        .WithMany()
+                        .HasForeignKey("DemandesCoupleesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_offre_demandes_couplees_propositions_demandes_couplees_id");
+
+                    b.HasOne("CrisisConnect.Domain.Entities.Offre", null)
+                        .WithMany()
+                        .HasForeignKey("OffreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_offre_demandes_couplees_propositions_offre_id");
                 });
 
             modelBuilder.Entity("paniers_offres", b =>
@@ -1451,6 +1487,11 @@ namespace CrisisConnect.Infrastructure.Migrations
                 {
                     b.Navigation("Discussion")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("CrisisConnect.Domain.Entities.Personne", b =>
+                {
+                    b.Navigation("MethodesIdentification");
                 });
 
             modelBuilder.Entity("CrisisConnect.Domain.Entities.Demande", b =>

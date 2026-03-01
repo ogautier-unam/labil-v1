@@ -1,4 +1,3 @@
-using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Offres.UpdateOffre;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
@@ -10,9 +9,8 @@ namespace CrisisConnect.Application.Tests;
 public class UpdateOffreCommandHandlerTests
 {
     private readonly IOffreRepository _offreRepo = Substitute.For<IOffreRepository>();
-    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
-    private UpdateOffreCommandHandler CréerHandler() => new(_offreRepo, _mapper);
+    private UpdateOffreCommandHandler CréerHandler() => new(_offreRepo);
 
     [Fact]
     public async Task UpdateOffre_OffreActive_MiseAJourEtRetournée()

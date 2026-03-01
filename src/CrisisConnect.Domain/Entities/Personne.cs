@@ -29,6 +29,19 @@ public class Personne : Acteur
 
     public string NomComplet => $"{Prenom} {Nom}";
 
+    public void ModifierProfil(string prenom, string nom, string? telephone,
+        string? urlPhoto, string? languePreferee, string? moyensContact, Adresse? adresse)
+    {
+        Prenom = prenom;
+        Nom = nom;
+        Telephone = telephone;
+        UrlPhoto = urlPhoto;
+        LanguePreferee = languePreferee;
+        MoyensContact = moyensContact;
+        Adresse = adresse;
+        ModifieLe = DateTime.UtcNow;
+    }
+
     /// <summary>
     /// Badge basé sur la meilleure méthode d'identification vérifiée (§5 ex.14).
     /// TresHaute/Haute → Vert · Moyenne → Orange · Faible/ExplicitementFaible → Rouge.

@@ -9,4 +9,5 @@ public record OffreDto(
     StatutProposition Statut,
     Guid CreePar,
     DateTime CreeLe,
-    bool LivraisonIncluse);
+    bool LivraisonIncluse,
+    List<Guid> DemandesCouplees);
