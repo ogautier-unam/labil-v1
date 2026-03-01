@@ -987,3 +987,19 @@ packages/
 ✅ Fix Sonar S2325 : helpers userId refactorisés en static GetUserId(ClaimsPrincipal)
 ✅ Fix Sonar S1192 : constantes KeySuccess, KeyError, LoginPage, ErrApi dans chaque PageModel
 ✅ Build : 0 erreur, 0 warning — commits 63094bb, ddb24c8, 760d14d, f1ae6a6, 676c4f0, 7adff53, 628cba9
+
+#### Session 16 — 2026-03-01 — Validators manquants + lifecycle complet + fixes production
+✅ 5 validators manquants créés : UpdateConfigCatastropheValidator, AttribuerRoleValidator, CreerMandatValidator, CreateCategorieValidator, CreateEntiteValidator
+✅ Fix critique API : JsonStringEnumConverter ajouté dans AddControllers().AddJsonOptions() — tous les enums sérialisés en string ("Active" au lieu de 0)
+✅ ApiClient : ReconfirmerPropositionAsync ajouté (manquait parmi les 4 lifecycle propositions)
+✅ Offres.cshtml.cs : OnPostRelancerAsync + OnPostReconfirmerAsync ajoutés
+✅ Demandes.cshtml.cs : OnPostReconfirmerAsync ajouté
+✅ Offres.cshtml : bouton Relancer (Active→EnAttenteRelance) + Reconfirmer (EnAttenteRelance→Active) ajoutés
+✅ Demandes.cshtml : bouton Reconfirmer ajouté
+✅ Discussion.cshtml.cs : méthode privée UserId() morte supprimée, remplacée par static GetUserId(ClaimsPrincipal)
+✅ Notifications/Index.cshtml.cs + Journal/Index.cshtml.cs : UserId() instance → static GetUserId(ClaimsPrincipal) (S2325)
+✅ MethodesIdentification/Index.cshtml : badge NiveauFiabilite (TresHaute→success, ExplicitementFaible→danger) corrigé
+✅ MethodesIdentification/Index.cshtml : DateVerification affichée uniquement si EstVerifiee=true
+✅ ApiClient.CreerMandatAsync : refactorisé avec CreerMandatRequest record (S107 — 8→2 paramètres) + CancellationToken propagé
+✅ Models/CreerMandatRequest.cs : nouveau record Web layer
+✅ Build : 0 erreur, 0 warning — commits da62fd1, 56b2f67, c956c75, 205188b
