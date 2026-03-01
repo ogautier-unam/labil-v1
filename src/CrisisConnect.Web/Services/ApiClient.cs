@@ -266,22 +266,20 @@ public class ApiClient
     public Task<IReadOnlyList<MandatModel>?> GetMandatsAsync(Guid mandantId, CancellationToken ct = default)
         => _http.GetFromJsonAsync<IReadOnlyList<MandatModel>>($"api/mandats/mandant/{mandantId}", ct);
 
-    public async Task<MandatModel?> CreerMandatAsync(
-        Guid mandantId, Guid mandataireId, string portee, string description,
-        bool estPublic, DateTime dateDebut, DateTime? dateFin = null)
+    public async Task<MandatModel?> CreerMandatAsync(CreerMandatRequest req, CancellationToken ct = default)
     {
         var response = await _http.PostAsJsonAsync("api/mandats", new
         {
-            MandantId = mandantId,
-            MandataireId = mandataireId,
-            Portee = portee,
-            Description = description,
-            EstPublic = estPublic,
-            DateDebut = dateDebut,
-            DateFin = dateFin
-        });
+            req.MandantId,
+            req.MandataireId,
+            req.Portee,
+            req.Description,
+            req.EstPublic,
+            req.DateDebut,
+            req.DateFin
+        }, ct);
         if (!response.IsSuccessStatusCode) return null;
-        return await response.Content.ReadFromJsonAsync<MandatModel>();
+        return await response.Content.ReadFromJsonAsync<MandatModel>(cancellationToken: ct);
     }
 
     public async Task<bool> RevoquerMandatAsync(Guid id, CancellationToken ct = default)

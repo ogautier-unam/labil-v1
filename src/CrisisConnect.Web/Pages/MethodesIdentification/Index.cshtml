@@ -80,9 +80,17 @@
                                 <tr>
                                     <td><strong>@m.TypeMethode</strong></td>
                                     <td>
-                                        <span class="badge bg-@(m.NiveauFiabilite == "Haute" ? "success" : m.NiveauFiabilite == "Moyenne" ? "warning" : "secondary")">
-                                            @m.NiveauFiabilite
-                                        </span>
+                                        @{
+                                            var fiabiliteCss = m.NiveauFiabilite switch
+                                            {
+                                                "TresHaute"          => "success",
+                                                "Haute"              => "success",
+                                                "Moyenne"            => "warning text-dark",
+                                                "ExplicitementFaible" => "danger",
+                                                _                    => "secondary"
+                                            };
+                                        }
+                                        <span class="badge bg-@fiabiliteCss">@m.NiveauFiabilite</span>
                                     </td>
                                     <td>
                                         @if (m.EstVerifiee)
@@ -94,7 +102,7 @@
                                             <span class="badge bg-secondary">Non vérifiée</span>
                                         }
                                     </td>
-                                    <td>@(m.DateVerification?.ToString("dd/MM/yyyy HH:mm") ?? "—")</td>
+                                    <td>@(m.EstVerifiee ? m.DateVerification?.ToString("dd/MM/yyyy HH:mm") ?? "—" : "—")</td>
                                     @if (canVerify)
                                     {
                                         <td>

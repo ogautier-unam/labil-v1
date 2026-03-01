@@ -60,8 +60,8 @@ public class MandatsModel : PageModel
         try
         {
             var result = await _api.CreerMandatAsync(
-                CreerMandantId, CreerMandataireId, CreerPortee,
-                CreerDescription, CreerEstPublic, CreerDateDebut, CreerDateFin);
+                new(CreerMandantId, CreerMandataireId, CreerPortee,
+                    CreerDescription, CreerEstPublic, CreerDateDebut, CreerDateFin), ct);
 
             TempData[KeySuccess] = result is not null
                 ? "Mandat créé avec succès."
