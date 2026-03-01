@@ -1,0 +1,146 @@
+@page
+@model CrisisConnect.Web.Pages.Admin.MandatsModel
+@{
+    ViewData["Title"] = "Mandats";
+}
+
+<h1 class="mb-4">Mandats de délégation</h1>
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ok <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @err <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Recherche + création -->
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">Mandats d'un acteur (mandant)</div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="mb-3">
+                        <label class="form-label">ID du mandant</label>
+                        <input name="MandantId" type="text" class="form-control"
+                               value="@Model.MandantId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">Créer un mandat</div>
+            <div class="card-body">
+                <form method="post" asp-page-handler="Creer">
+                    <div class="mb-3">
+                        <label class="form-label">ID du mandant</label>
+                        <input asp-for="CreerMandantId" type="text" class="form-control"
+                               value="@Model.MandantId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ID du mandataire</label>
+                        <input asp-for="CreerMandataireId" type="text" class="form-control"
+                               placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Portée</label>
+                        <select asp-for="CreerPortee" class="form-select" required>
+                            <option value="">-- Choisir --</option>
+                            <option value="ToutesOperations">ToutesOperations</option>
+                            <option value="LectureSeule">LectureSeule</option>
+                            <option value="CategorieSpecifique">CategorieSpecifique</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea asp-for="CreerDescription" class="form-control" rows="2" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date de début</label>
+                        <input asp-for="CreerDateDebut" type="date" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date de fin (optionnel)</label>
+                        <input asp-for="CreerDateFin" type="date" class="form-control" />
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input asp-for="CreerEstPublic" type="checkbox" class="form-check-input" />
+                        <label class="form-check-label" asp-for="CreerEstPublic">Public</label>
+                    </div>
+                    <button type="submit" class="btn btn-success">Créer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des mandats -->
+    <div class="col-md-7">
+        @if (Model.MandantId.HasValue)
+        {
+            <h5>Mandats émis par <code>@Model.MandantId</code></h5>
+            @if (Model.Mandats.Count == 0)
+            {
+                <div class="alert alert-info">Aucun mandat trouvé.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Mandataire</th>
+                                <th>Portée</th>
+                                <th>Statut</th>
+                                <th>Début</th>
+                                <th>Fin</th>
+                                @if (User.IsInRole("Responsable")) { <th></th> }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in Model.Mandats)
+                            {
+                                <tr>
+                                    <td><code>@m.MandataireId.ToString()[..8]…</code></td>
+                                    <td>@m.Portee</td>
+                                    <td>
+                                        <span class="badge bg-@(m.EstActif ? "success" : "secondary")">
+                                            @(m.EstActif ? "Actif" : "Révoqué")
+                                        </span>
+                                    </td>
+                                    <td>@m.DateDebut.ToString("dd/MM/yyyy")</td>
+                                    <td>@(m.DateFin?.ToString("dd/MM/yyyy") ?? "—")</td>
+                                    @if (User.IsInRole("Responsable"))
+                                    {
+                                        <td>
+                                            @if (m.EstActif)
+                                            {
+                                                <form method="post" asp-page-handler="Revoquer"
+                                                      onsubmit="return confirm('Révoquer ce mandat ?');">
+                                                    <input type="hidden" name="mandatId" value="@m.Id" />
+                                                    <input type="hidden" name="mandantId" value="@m.MandantId" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Révoquer</button>
+                                                </form>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-muted">Entrez un ID de mandant pour afficher ses mandats.</div>
+        }
+    </div>
+</div>

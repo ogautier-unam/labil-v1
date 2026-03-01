@@ -1,0 +1,138 @@
+@page
+@model CrisisConnect.Web.Pages.Admin.RolesModel
+@{
+    ViewData["Title"] = "Gestion des rôles";
+}
+
+<h1 class="mb-4">Gestion des rôles</h1>
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ok <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @err <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <!-- Recherche par acteur -->
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">Consulter les rôles d'un acteur</div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="mb-3">
+                        <label class="form-label">ID de l'acteur</label>
+                        <input name="ActeurId" type="text" class="form-control"
+                               value="@Model.ActeurId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </form>
+            </div>
+        </div>
+
+        @if (User.IsInRole("Coordinateur") || User.IsInRole("Responsable"))
+        {
+            <div class="card mt-3">
+                <div class="card-header">Attribuer un rôle</div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="Attribuer">
+                        <div class="mb-3">
+                            <label class="form-label">ID de l'acteur</label>
+                            <input asp-for="AttribuerActeurId" type="text" class="form-control"
+                                   value="@Model.ActeurId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rôle</label>
+                            <select asp-for="AttribuerTypeRole" class="form-select" required>
+                                <option value="">-- Choisir --</option>
+                                <option value="Contributeur">Contributeur</option>
+                                <option value="Utilisateur">Utilisateur</option>
+                                <option value="AdminInstalleur">AdminInstalleur</option>
+                                <option value="AdminCatastrophe">AdminCatastrophe</option>
+                                <option value="AdminSysteme">AdminSysteme</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date de début</label>
+                            <input asp-for="AttribuerDateDebut" type="date" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date de fin (optionnel)</label>
+                            <input asp-for="AttribuerDateFin" type="date" class="form-control" />
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input asp-for="AttribuerReconductible" type="checkbox" class="form-check-input" />
+                            <label class="form-check-label" asp-for="AttribuerReconductible">Reconductible</label>
+                        </div>
+                        <button type="submit" class="btn btn-success">Attribuer</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Liste des rôles -->
+    <div class="col-md-7">
+        @if (Model.ActeurId.HasValue)
+        {
+            <h5>Rôles de l'acteur <code>@Model.ActeurId</code></h5>
+            @if (Model.Roles.Count == 0)
+            {
+                <div class="alert alert-info">Aucun rôle trouvé.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Rôle</th>
+                                <th>Statut</th>
+                                <th>Début</th>
+                                <th>Fin</th>
+                                <th>Recon.</th>
+                                @if (User.IsInRole("Responsable")) { <th></th> }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var role in Model.Roles)
+                            {
+                                <tr>
+                                    <td><strong>@role.TypeRole</strong></td>
+                                    <td><span class="badge bg-@RolesModel.StatutBadge(role)">@role.Statut</span></td>
+                                    <td>@role.DateDebut.ToString("dd/MM/yyyy")</td>
+                                    <td>@(role.DateFin?.ToString("dd/MM/yyyy") ?? "—")</td>
+                                    <td>@(role.Reconductible ? "✓" : "—")</td>
+                                    @if (User.IsInRole("Responsable"))
+                                    {
+                                        <td>
+                                            @if (role.Statut != "Expire")
+                                            {
+                                                <form method="post" asp-page-handler="Revoquer"
+                                                      onsubmit="return confirm('Révoquer ce rôle ?');">
+                                                    <input type="hidden" name="roleId" value="@role.Id" />
+                                                    <input type="hidden" name="acteurId" value="@role.ActeurId" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Révoquer</button>
+                                                </form>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-muted">Entrez un ID d'acteur pour afficher ses rôles.</div>
+        }
+    </div>
+</div>

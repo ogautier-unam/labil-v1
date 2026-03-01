@@ -228,6 +228,62 @@ public class ApiClient
         return await response.Content.ReadFromJsonAsync<IReadOnlyList<SuggestionAppariementModel>>(ct);
     }
 
+    // ── Rôles ─────────────────────────────────────────────────────────────────
+
+    public Task<IReadOnlyList<AttributionRoleModel>?> GetRolesActeurAsync(Guid acteurId, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<AttributionRoleModel>>($"api/roles/acteur/{acteurId}", ct);
+
+    public async Task<AttributionRoleModel?> AttribuerRoleAsync(
+        Guid acteurId, string typeRole, DateTime dateDebut, DateTime? dateFin = null,
+        bool reconductible = false, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("api/roles", new
+        {
+            ActeurId = acteurId,
+            TypeRole = typeRole,
+            DateDebut = dateDebut,
+            DateFin = dateFin,
+            Reconductible = reconductible
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<AttributionRoleModel>(ct);
+    }
+
+    public async Task<bool> RevoquerRoleAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/roles/{id}/revoquer", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    // ── Mandats ───────────────────────────────────────────────────────────────
+
+    public Task<IReadOnlyList<MandatModel>?> GetMandatsAsync(Guid mandantId, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<MandatModel>>($"api/mandats/mandant/{mandantId}", ct);
+
+    public async Task<MandatModel?> CreerMandatAsync(
+        Guid mandantId, Guid mandataireId, string portee, string description,
+        bool estPublic, DateTime dateDebut, DateTime? dateFin = null)
+    {
+        var response = await _http.PostAsJsonAsync("api/mandats", new
+        {
+            MandantId = mandantId,
+            MandataireId = mandataireId,
+            Portee = portee,
+            Description = description,
+            EstPublic = estPublic,
+            DateDebut = dateDebut,
+            DateFin = dateFin
+        });
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<MandatModel>();
+    }
+
+    public async Task<bool> RevoquerMandatAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/mandats/{id}/revoquer", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
     // ── Discussion ────────────────────────────────────────────────────────────
 
     public Task<DiscussionData?> GetDiscussionAsync(Guid transactionId, CancellationToken ct = default)

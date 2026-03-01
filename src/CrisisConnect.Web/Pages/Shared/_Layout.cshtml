@@ -57,6 +57,19 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-page="/Suggestions/Index">Suggestions</a>
                             </li>
+                            @if (User.IsInRole("Coordinateur") || User.IsInRole("Responsable"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <button class="nav-link dropdown-toggle btn btn-link"
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        Administration
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-page="/Admin/Roles">Rôles</a></li>
+                                        <li><a class="dropdown-item" asp-page="/Admin/Mandats">Mandats</a></li>
+                                    </ul>
+                                </li>
+                            }
                         }
                     </ul>
                     <ul class="navbar-nav">
