@@ -1055,3 +1055,15 @@ packages/
 ✅ 2 tests behaviours : ordre des paramètres corrigé
 ✅ Total : 399 tests, 0 échec (Domain 117, Application 222, Infrastructure 60)
 ✅ Build : 0 erreur, 0 warning — commit 8ae3f33
+
+#### Session 22 — 2026-03-01 — remains.md items H1/H2/H3/H6/M1/M7 + fix EF Core nav conflict
+✅ H3 NiveauBadge : abstract GetNiveauBadge() ajouté sur Acteur ; Personne (badge par meilleure méthode d'identification vérifiée : TresHaute/Haute→Vert, Moyenne→Orange, else→Rouge) ; Entite (Vert si EstActive, sinon Rouge)
+✅ H6 Recyclage : Proposition.Recycler() (Archivee→Active) ; RecyclerPropositionCommand + Handler + Validator ; endpoint PATCH /api/propositions/{id}/recycler [Coordinateur,Responsable] ; AuditBehaviour : RecyclerPropositionCommand→TypeOperation.RecyclageProposition + fix ReconfirmerPropositionCommand→ModificationProposition (était erronément RecyclageProposition)
+✅ H2 Traduction auto : Discussion.AjouterMessage() accepte issueTraductionAuto + texteOriginal ; EnvoyerMessageCommandHandler injecte IServiceTraduction et traduit vers "fr" si langue source ≠ "fr"
+✅ H1 Notifications automatiques : TypeNotification.TransactionInitiee + TransactionConfirmee ajoutés ; InitierTransactionCommandHandler notifie proposition.CreePar ; ConfirmerTransactionCommandHandler notifie initiateur + propriétaire ; AnnulerPanierCommandHandler notifie les propriétaires d'offres libérées (dedup par HashSet<Guid>)
+✅ M1 Logique OU : Demande.ClorerAlternativesOu(sousDemandeSatisfaiteId) clore les sœurs d'un parent OU ; ClorePropositionCommandHandler injecte IDemandeRepository et applique la propagation OU
+✅ M7 Fix Authorize BasculerVisibiliteDiscussion : [Authorize(Roles = "Coordinateur,Responsable")] → [Authorize] (accès à tout utilisateur connecté)
+✅ Fix EF Core nav conflict : WithMany("_methodesIdentification") → WithMany(p => p.MethodesIdentification) dans MethodeIdentificationConfiguration (évite InvalidOperationException "field already used by property")
+✅ Tests : 5 fichiers de tests mis à jour pour les nouvelles signatures de constructeurs (INotificationRepository, INotificationService, IDemandeRepository, IServiceTraduction)
+✅ Total : 399 tests, 0 échec (Domain 117, Application 222, Infrastructure 60)
+✅ Build : 0 erreur, 0 warning — commit b1e2de9
