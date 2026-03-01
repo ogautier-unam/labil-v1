@@ -63,6 +63,9 @@ public static class DependencyInjection
         services.AddHttpClient<AdaptateurDeepL>();
         services.AddHttpClient<AdaptateurLibreTranslate>();
 
+        // Background service — archivage automatique des propositions inactives (§5.1 ex.1)
+        services.AddHostedService<ArchivageAutomatiqueService>();
+
         return services;
     }
 }

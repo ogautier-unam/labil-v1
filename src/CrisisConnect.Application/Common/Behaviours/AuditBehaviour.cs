@@ -25,6 +25,8 @@ public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         ["RegisterActeurCommand"]           = TypeOperation.CreationCompte,
         ["CreateOffreCommand"]              = TypeOperation.DepotProposition,
         ["CreateDemandeCommand"]            = TypeOperation.DepotProposition,
+        ["UpdateOffreCommand"]              = TypeOperation.ModificationProposition,
+        ["UpdateDemandeCommand"]            = TypeOperation.ModificationProposition,
         ["InitierTransactionCommand"]       = TypeOperation.DebutTransaction,
         ["ConfirmerTransactionCommand"]     = TypeOperation.ConfirmationTransaction,
         ["AnnulerTransactionCommand"]       = TypeOperation.AnnulationTransaction,

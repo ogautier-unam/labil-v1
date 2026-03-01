@@ -2,9 +2,11 @@ using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Demandes.CreateDemande;
 using CrisisConnect.Application.UseCases.Demandes.GetDemandeById;
 using CrisisConnect.Application.UseCases.Demandes.GetDemandes;
+using CrisisConnect.Application.UseCases.Demandes.UpdateDemande;
 using CrisisConnect.Application.UseCases.Offres.CreateOffre;
 using CrisisConnect.Application.UseCases.Offres.GetOffreById;
 using CrisisConnect.Application.UseCases.Offres.GetOffres;
+using CrisisConnect.Application.UseCases.Offres.UpdateOffre;
 using CrisisConnect.Application.UseCases.Propositions.ArchiverProposition;
 using CrisisConnect.Application.UseCases.Propositions.CloreProposition;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositionById;
@@ -72,6 +74,18 @@ public class PropositionsController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>Modifie une offre existante (interdit si en transaction ou clôturée).</summary>
+    [HttpPatch("offres/{id:guid}")]
+    [Authorize]
+    [ProducesResponseType<OffreDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateOffre(Guid id, [FromBody] UpdateOffreCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(command with { Id = id }, cancellationToken);
+        return Ok(result);
+    }
+
     /// <summary>Crée une nouvelle offre.</summary>
     [HttpPost("offres")]
     [Authorize]
@@ -105,6 +119,18 @@ public class PropositionsController : ControllerBase
     public async Task<IActionResult> GetDemandeById(Guid id, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetDemandeByIdQuery(id), cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>Modifie une demande existante (interdit si en transaction ou clôturée).</summary>
+    [HttpPatch("demandes/{id:guid}")]
+    [Authorize]
+    [ProducesResponseType<DemandeDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateDemande(Guid id, [FromBody] UpdateDemandeCommand command, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(command with { Id = id }, cancellationToken);
         return Ok(result);
     }
 

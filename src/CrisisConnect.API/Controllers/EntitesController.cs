@@ -1,6 +1,7 @@
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Entites.CreateEntite;
 using CrisisConnect.Application.UseCases.Entites.DesactiverEntite;
+using CrisisConnect.Application.UseCases.Entites.GetEntiteById;
 using CrisisConnect.Application.UseCases.Entites.GetEntites;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -17,6 +18,16 @@ public class EntitesController : ControllerBase
     public EntitesController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    /// <summary>Retourne une entité par son identifiant.</summary>
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType<EntiteDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetEntiteByIdQuery(id), cancellationToken);
+        return Ok(result);
     }
 
     /// <summary>Liste toutes les entités (organisations).</summary>

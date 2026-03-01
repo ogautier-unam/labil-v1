@@ -71,6 +71,22 @@ public abstract class Proposition
         ModifieLe = DateTime.UtcNow;
     }
 
+    /// <summary>
+    /// Modifie le contenu d'une proposition (§5.1 ex.4).
+    /// Interdit si engagée dans une transaction ou clôturée.
+    /// </summary>
+    protected void ModifierContenu(string titre, string description, Localisation? localisation)
+    {
+        if (Statut == StatutProposition.EnTransaction)
+            throw new DomainException("Impossible de modifier une proposition engagée dans une transaction.");
+        if (Statut == StatutProposition.Cloturee)
+            throw new DomainException("Impossible de modifier une proposition clôturée.");
+        Titre = titre;
+        Description = description;
+        Localisation = localisation;
+        ModifieLe = DateTime.UtcNow;
+    }
+
     /// <summary>Recycle une proposition archivée vers Active sans limite de temps (§5.1 ex.1).</summary>
     public void Recycler()
     {

@@ -31,6 +31,13 @@ public class Demande : Proposition
         RegionSeverite = regionSeverite;
     }
 
+    public void Modifier(string titre, string description, NiveauUrgence urgence, string? regionSeverite, Localisation? localisation)
+    {
+        ModifierContenu(titre, description, localisation);
+        Urgence = urgence;
+        RegionSeverite = regionSeverite;
+    }
+
     public override void Clore()
     {
         if (Statut == StatutProposition.Cloturee)

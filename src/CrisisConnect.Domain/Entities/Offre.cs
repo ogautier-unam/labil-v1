@@ -19,6 +19,12 @@ public class Offre : Proposition
         Localisation = localisation;
     }
 
+    public void Modifier(string titre, string description, bool livraisonIncluse, Localisation? localisation)
+    {
+        ModifierContenu(titre, description, localisation);
+        LivraisonIncluse = livraisonIncluse;
+    }
+
     public override void Clore()
     {
         if (Statut == StatutProposition.Cloturee)
