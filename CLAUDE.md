@@ -1029,3 +1029,12 @@ packages/
 ✅ GetEntitesQueryHandlerTests (2 tests : liste avec 2 entités, liste vide)
 ✅ Total : 354 tests, 0 échec (Domain 117, Application 185, Infrastructure 52)
 ✅ Build : 0 erreur, 0 warning — commit 1b1f2b9
+
+#### Session 20 — 2026-03-01 — Couverture tests 100% (handlers + validators + repos)
+✅ AttributionRoleRepositoryTests (4 tests : Add+GetById, GetByActeur, GetByTypeRole actif seulement, Update Expirer)
+✅ MandatRepositoryTests (4 tests : Add+GetById, GetByMandant, GetByMandataire, Update Revoquer)
+✅ 17 validators tests : Logout, DesactiverEntite, RevoquerMandat, VerifierMethode, AnnulerPanier, ConfirmerPanier, RevoquerRole, GenererSuggestions, DesactiverCategorie, Archiver/Clore/MarquerRelance/ReconfirmerProposition, AnnulerTransaction, ConfirmerTransaction, BasculerVisibiliteDiscussion
+✅ EnvoyerMessageValidatorTests (5 tests : valide, TransactionId vide, ExpediteurId vide, Contenu vide, Contenu > 2000 chars)
+✅ Total : 399 tests, 0 échec (Domain 117, Application 222, Infrastructure 60)
+✅ Couverture : handlers 100% (71/71), validators 100% (33/33), repositories 100% (16/16)
+✅ Build : 0 erreur, 0 warning — commit 3c6a728
