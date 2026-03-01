@@ -52,6 +52,26 @@ public class ApiClient
     public Task<IReadOnlyList<PropositionModel>?> GetPropositionsAsync(CancellationToken ct = default)
         => _http.GetFromJsonAsync<IReadOnlyList<PropositionModel>>("api/propositions", ct);
 
+    // ── Propositions lifecycle ────────────────────────────────────────────────
+
+    public async Task<bool> ArchiverPropositionAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/propositions/{id}/archiver", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> ClorePropositionAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/propositions/{id}/clore", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> RelancerPropositionAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/propositions/{id}/relance", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
     // ── Offres (création) ─────────────────────────────────────────────────────
 
     public async Task<OffreModel?> CreateOffreAsync(
@@ -162,6 +182,20 @@ public class ApiClient
             EtatReferent = etatReferent,
             DelaiArchivageJours = delaiArchivageJours,
             DelaiRappelAvantArchivage = delaiRappelAvantArchivage
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<ConfigCatastropheModel>(ct);
+    }
+
+    public async Task<ConfigCatastropheModel?> UpdateConfigCatastropheAsync(
+        Guid id, int delaiArchivageJours, int delaiRappelAvantArchivage, bool estActive,
+        CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsJsonAsync($"api/config-catastrophe/{id}", new
+        {
+            DelaiArchivageJours = delaiArchivageJours,
+            DelaiRappelAvantArchivage = delaiRappelAvantArchivage,
+            EstActive = estActive
         }, ct);
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadFromJsonAsync<ConfigCatastropheModel>(ct);

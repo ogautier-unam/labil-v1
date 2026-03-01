@@ -63,6 +63,43 @@ else
     <div class="alert alert-warning">Aucune configuration de crise active pour le moment.</div>
 }
 
+@if (isResponsable && Model.Config is { } cfgEdit)
+{
+    <div class="card mb-3">
+        <div class="card-header">
+            <button class="btn btn-link p-0 text-decoration-none fw-semibold"
+                    type="button" data-bs-toggle="collapse" data-bs-target="#formModifier">
+                ✏ Modifier la configuration active
+            </button>
+        </div>
+        <div id="formModifier" class="collapse">
+            <div class="card-body">
+                <form method="post" asp-page-handler="Modifier">
+                    <input type="hidden" name="ConfigId" value="@cfgEdit.Id" />
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="modDelaiArchive">Délai archivage (jours)</label>
+                            <input id="modDelaiArchive" type="number" class="form-control"
+                                   name="DelaiArchivageJours" value="@cfgEdit.DelaiArchivageJours" min="1" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="modDelaiRappel">Rappel avant archivage (jours)</label>
+                            <input id="modDelaiRappel" type="number" class="form-control"
+                                   name="DelaiRappelAvantArchivage" value="@cfgEdit.DelaiRappelAvantArchivage" min="1" />
+                        </div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="EstActive" value="true"
+                               id="modEstActive" @(cfgEdit.EstActive ? "checked" : "") />
+                        <label class="form-check-label" for="modEstActive">Configuration active</label>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Mettre à jour</button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
 @if (isResponsable)
 {
     <div class="card">

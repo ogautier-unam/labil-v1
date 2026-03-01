@@ -83,6 +83,7 @@ else
                     <th>Région</th>
                     <th>Statut</th>
                     <th>Créé le</th>
+                    @if (User.IsInRole("Coordinateur") || User.IsInRole("Responsable")) { <th>Actions</th> }
                 </tr>
             </thead>
             <tbody>
@@ -104,6 +105,34 @@ else
                         <td>@(d.RegionSeverite ?? "—")</td>
                         <td><span class="badge bg-secondary">@d.Statut</span></td>
                         <td>@d.CreeLe.ToString("dd/MM/yyyy")</td>
+                        @if (User.IsInRole("Coordinateur") || User.IsInRole("Responsable"))
+                        {
+                            <td>
+                                <div class="d-flex gap-1 flex-wrap">
+                                    @if (d.Statut is "Active" or "EnAttenteRelance")
+                                    {
+                                        <form method="post" asp-page-handler="Archiver">
+                                            <input type="hidden" name="demandeId" value="@d.Id" />
+                                            <button class="btn btn-outline-warning btn-sm"
+                                                    onclick="return confirm('Archiver cette demande ?')">Archiver</button>
+                                        </form>
+                                        <form method="post" asp-page-handler="Clore">
+                                            <input type="hidden" name="demandeId" value="@d.Id" />
+                                            <button class="btn btn-outline-danger btn-sm"
+                                                    onclick="return confirm('Clôturer cette demande ?')">Clôturer</button>
+                                        </form>
+                                    }
+                                    @if (d.Statut == "Active")
+                                    {
+                                        <form method="post" asp-page-handler="Relancer">
+                                            <input type="hidden" name="demandeId" value="@d.Id" />
+                                            <button class="btn btn-outline-secondary btn-sm"
+                                                    onclick="return confirm('Marquer en attente de relance ?')">Relancer</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        }
                     </tr>
                 }
             </tbody>

@@ -81,15 +81,27 @@ else
                     </div>
                     <div class="card-footer d-flex justify-content-between align-items-center">
                         <span class="badge bg-secondary">@offre.Statut</span>
-                        <div class="d-flex gap-2 align-items-center">
+                        <div class="d-flex gap-2 align-items-center flex-wrap">
                             <small class="text-muted">@offre.CreeLe.ToString("dd/MM/yyyy")</small>
                             @if (isAuth && offre.Statut == "Active")
                             {
                                 <form method="post" asp-page-handler="AjouterAuPanier">
                                     <input type="hidden" name="offreId" value="@offre.Id" />
-                                    <button type="submit" class="btn btn-outline-primary btn-sm">
-                                        + Panier
-                                    </button>
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">+ Panier</button>
+                                </form>
+                            }
+                            @if ((User.IsInRole("Coordinateur") || User.IsInRole("Responsable"))
+                                 && offre.Statut is "Active" or "EnAttenteRelance")
+                            {
+                                <form method="post" asp-page-handler="Archiver">
+                                    <input type="hidden" name="offreId" value="@offre.Id" />
+                                    <button type="submit" class="btn btn-outline-warning btn-sm"
+                                            onclick="return confirm('Archiver cette offre ?')">Archiver</button>
+                                </form>
+                                <form method="post" asp-page-handler="Clore">
+                                    <input type="hidden" name="offreId" value="@offre.Id" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('Clôturer cette offre ?')">Clôturer</button>
                                 </form>
                             }
                         </div>

@@ -8,6 +8,11 @@ namespace CrisisConnect.Web.Pages.Propositions;
 
 public class OffresModel : PageModel
 {
+    private const string KeySuccess = "Success";
+    private const string KeyError = "Error";
+    private const string LoginPage = "/Auth/Login";
+    private const string ErrApi = "Impossible de contacter l'API.";
+
     private readonly ApiClient _api;
 
     public OffresModel(ApiClient api) => _api = api;
@@ -19,9 +24,9 @@ public class OffresModel : PageModel
     [BindProperty] public string Description { get; set; } = string.Empty;
     [BindProperty] public bool LivraisonIncluse { get; set; }
 
-    private Guid? CurrentUserId()
+    private static Guid? GetUserId(ClaimsPrincipal user)
     {
-        var val = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var val = user.FindFirstValue(ClaimTypes.NameIdentifier);
         return val is not null ? Guid.Parse(val) : null;
     }
 
@@ -39,48 +44,63 @@ public class OffresModel : PageModel
 
     public async Task<IActionResult> OnPostPublierAsync(CancellationToken ct)
     {
-        var userId = CurrentUserId();
-        if (userId is null) return RedirectToPage("/Auth/Login");
+        if (GetUserId(User) is not { } userId) return RedirectToPage(LoginPage);
 
         try
         {
-            var offre = await _api.CreateOffreAsync(Titre, Description, userId.Value, LivraisonIncluse, ct);
-            TempData["Success"] = offre is not null
+            var offre = await _api.CreateOffreAsync(Titre, Description, userId, LivraisonIncluse, ct);
+            TempData[offre is not null ? KeySuccess : KeyError] = offre is not null
                 ? $"Offre « {offre.Titre} » publiée avec succès."
                 : "Impossible de créer l'offre.";
         }
-        catch (HttpRequestException)
-        {
-            TempData["Error"] = "Impossible de contacter l'API.";
-        }
+        catch (HttpRequestException) { TempData[KeyError] = ErrApi; }
 
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostArchiverAsync(Guid offreId, CancellationToken ct)
+    {
+        if (GetUserId(User) is null) return RedirectToPage(LoginPage);
+        try
+        {
+            var ok = await _api.ArchiverPropositionAsync(offreId, ct);
+            TempData[ok ? KeySuccess : KeyError] = ok ? "Offre archivée." : "Impossible d'archiver cette offre.";
+        }
+        catch (HttpRequestException) { TempData[KeyError] = ErrApi; }
+        return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostCloreAsync(Guid offreId, CancellationToken ct)
+    {
+        if (GetUserId(User) is null) return RedirectToPage(LoginPage);
+        try
+        {
+            var ok = await _api.ClorePropositionAsync(offreId, ct);
+            TempData[ok ? KeySuccess : KeyError] = ok ? "Offre clôturée." : "Impossible de clôturer cette offre.";
+        }
+        catch (HttpRequestException) { TempData[KeyError] = ErrApi; }
         return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostAjouterAuPanierAsync(Guid offreId, CancellationToken ct)
     {
-        var userId = CurrentUserId();
-        if (userId is null) return RedirectToPage("/Auth/Login");
+        if (GetUserId(User) is not { } userId) return RedirectToPage(LoginPage);
 
         try
         {
-            // Récupérer ou créer le panier
-            var panier = await _api.GetPanierAsync(userId.Value, ct);
-            panier ??= await _api.CreatePanierAsync(userId.Value, ct);
+            var panier = await _api.GetPanierAsync(userId, ct);
+            panier ??= await _api.CreatePanierAsync(userId, ct);
 
             if (panier is null)
             {
-                TempData["Error"] = "Impossible d'obtenir votre panier.";
+                TempData[KeyError] = "Impossible d'obtenir votre panier.";
                 return RedirectToPage();
             }
 
             await _api.AjouterOffreAuPanierAsync(panier.Id, offreId, ct);
-            TempData["Success"] = "Offre ajoutée au panier.";
+            TempData[KeySuccess] = "Offre ajoutée au panier.";
         }
-        catch (HttpRequestException)
-        {
-            TempData["Error"] = "Impossible de contacter l'API.";
-        }
+        catch (HttpRequestException) { TempData[KeyError] = ErrApi; }
 
         return RedirectToPage();
     }
