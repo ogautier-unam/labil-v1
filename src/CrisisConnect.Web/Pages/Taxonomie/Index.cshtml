@@ -1,0 +1,130 @@
+@page
+@model CrisisConnect.Web.Pages.Taxonomie.TaxonomieIndexModel
+@{
+    ViewData["Title"] = "Taxonomie";
+    var isAdmin = User.IsInRole("Coordinateur") || User.IsInRole("Responsable");
+}
+
+<h1 class="mb-4">Taxonomie des catégories</h1>
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ok <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @err <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Filtrer par configuration</div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="mb-3">
+                        <label class="form-label">ID de configuration</label>
+                        <input name="ConfigId" type="text" class="form-control"
+                               value="@Model.ConfigId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </form>
+            </div>
+        </div>
+
+        @if (isAdmin && Model.ConfigId.HasValue)
+        {
+            <div class="card mt-3">
+                <div class="card-header">Nouvelle catégorie</div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="Creer">
+                        <input type="hidden" asp-for="CreerConfigId" value="@Model.ConfigId" />
+                        <div class="mb-3">
+                            <label class="form-label">Code</label>
+                            <input asp-for="CreerCode" class="form-control" placeholder="ex: LOGISTIQUE" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nom (fr)</label>
+                            <input asp-for="CreerNom" class="form-control" placeholder="ex: Logistique" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Catégorie parente (optionnel)</label>
+                            <select asp-for="CreerParentId" class="form-select">
+                                <option value="">— Racine —</option>
+                                @foreach (var cat in Model.Categories.Where(c => c.EstActive))
+                                {
+                                    <option value="@cat.Id">@cat.Code</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success">Créer</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-8">
+        @if (Model.ConfigId.HasValue)
+        {
+            <h5>Catégories de la configuration <code>@Model.ConfigId</code></h5>
+            @if (Model.Categories.Count == 0)
+            {
+                <div class="alert alert-info">Aucune catégorie trouvée.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Code</th>
+                                <th>Nom (JSON)</th>
+                                <th>Parent</th>
+                                <th>Statut</th>
+                                @if (isAdmin) { <th></th> }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cat in Model.Categories)
+                            {
+                                <tr class="@(cat.EstActive ? "" : "table-secondary text-muted")">
+                                    <td><strong>@cat.Code</strong></td>
+                                    <td><small>@cat.NomJson</small></td>
+                                    <td>@(cat.ParentId.HasValue ? cat.ParentId.Value.ToString()[..8] + "…" : "—")</td>
+                                    <td>
+                                        <span class="badge bg-@(cat.EstActive ? "success" : "secondary")">
+                                            @(cat.EstActive ? "Active" : "Inactive")
+                                        </span>
+                                    </td>
+                                    @if (isAdmin)
+                                    {
+                                        <td>
+                                            @if (cat.EstActive)
+                                            {
+                                                <form method="post" asp-page-handler="Desactiver"
+                                                      onsubmit="return confirm('Désactiver cette catégorie ?');">
+                                                    <input type="hidden" name="categorieId" value="@cat.Id" />
+                                                    <input type="hidden" name="configId" value="@cat.ConfigId" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-warning">Désactiver</button>
+                                                </form>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-muted">Entrez un ID de configuration pour afficher les catégories.</div>
+        }
+    </div>
+</div>

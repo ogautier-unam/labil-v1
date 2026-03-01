@@ -1,0 +1,115 @@
+@page
+@model CrisisConnect.Web.Pages.Entites.EntitesIndexModel
+@{
+    ViewData["Title"] = "Organisations";
+    var isResponsable = User.IsInRole("Responsable");
+}
+
+<h1 class="mb-4">Organisations (Entités)</h1>
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ok <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @err <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (isResponsable)
+{
+    <div class="mb-3">
+        <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#formCreer">
+            + Nouvelle organisation
+        </button>
+    </div>
+    <div class="collapse mb-4" id="formCreer">
+        <div class="card card-body">
+            <form method="post" asp-page-handler="Creer">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nom</label>
+                        <input asp-for="CreerNom" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input asp-for="CreerEmail" type="email" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Mot de passe</label>
+                        <input asp-for="CreerMotDePasse" type="password" class="form-control" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Moyens de contact</label>
+                        <input asp-for="CreerMoyensContact" class="form-control" placeholder="ex: Tél. 01 23 45 67 89" required />
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea asp-for="CreerDescription" class="form-control" rows="2" required></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">ID responsable (laisser vide = vous)</label>
+                        <input asp-for="CreerResponsableId" type="text" class="form-control"
+                               placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success">Créer</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+@if (Model.Entites.Count == 0)
+{
+    <div class="alert alert-info">Aucune organisation enregistrée.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Moyens de contact</th>
+                    <th>Statut</th>
+                    @if (isResponsable) { <th></th> }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var entite in Model.Entites)
+                {
+                    <tr class="@(entite.EstActive ? "" : "table-secondary text-muted")">
+                        <td><strong>@entite.Nom</strong></td>
+                        <td>@entite.Email</td>
+                        <td>@entite.MoyensContact</td>
+                        <td>
+                            <span class="badge bg-@(entite.EstActive ? "success" : "secondary")">
+                                @(entite.EstActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        @if (isResponsable)
+                        {
+                            <td>
+                                @if (entite.EstActive)
+                                {
+                                    <form method="post" asp-page-handler="Desactiver"
+                                          onsubmit="return confirm('Désactiver cette organisation ?');">
+                                        <input type="hidden" name="entiteId" value="@entite.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-warning">Désactiver</button>
+                                    </form>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

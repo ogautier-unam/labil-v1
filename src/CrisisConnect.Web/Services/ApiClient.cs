@@ -284,6 +284,72 @@ public class ApiClient
         return response.IsSuccessStatusCode;
     }
 
+    // ── Taxonomie ─────────────────────────────────────────────────────────────
+
+    public Task<IReadOnlyList<CategorieTaxonomieModel>?> GetCategoriesAsync(Guid configId, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<CategorieTaxonomieModel>>($"api/taxonomie/config/{configId}", ct);
+
+    public async Task<CategorieTaxonomieModel?> CreateCategorieAsync(
+        string code, string nomJson, Guid configId, Guid? parentId = null,
+        CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("api/taxonomie", new
+        {
+            Code = code,
+            NomJson = nomJson,
+            ConfigId = configId,
+            ParentId = parentId,
+            DescriptionJson = "{}"
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<CategorieTaxonomieModel>(ct);
+    }
+
+    public async Task<bool> DesactiverCategorieAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/taxonomie/{id}/desactiver", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    // ── Entités ───────────────────────────────────────────────────────────────
+
+    public Task<IReadOnlyList<EntiteModel>?> GetEntitesAsync(CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<EntiteModel>>("api/entites", ct);
+
+    public async Task<EntiteModel?> CreateEntiteAsync(
+        string email, string motDePasse, string nom, string description,
+        string moyensContact, Guid responsableId, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("api/entites", new
+        {
+            Email = email,
+            MotDePasse = motDePasse,
+            Nom = nom,
+            Description = description,
+            MoyensContact = moyensContact,
+            ResponsableId = responsableId
+        }, ct);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<EntiteModel>(ct);
+    }
+
+    public async Task<bool> DesactiverEntiteAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/entites/{id}/desactiver", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    // ── Méthodes d'identification ─────────────────────────────────────────────
+
+    public Task<IReadOnlyList<MethodeIdentificationModel>?> GetMethodesAsync(Guid personneId, CancellationToken ct = default)
+        => _http.GetFromJsonAsync<IReadOnlyList<MethodeIdentificationModel>>($"api/methodes-identification/personne/{personneId}", ct);
+
+    public async Task<bool> VerifierMethodeAsync(Guid id, CancellationToken ct = default)
+    {
+        var response = await _http.PatchAsync($"api/methodes-identification/{id}/verifier", null, ct);
+        return response.IsSuccessStatusCode;
+    }
+
     // ── Discussion ────────────────────────────────────────────────────────────
 
     public Task<DiscussionData?> GetDiscussionAsync(Guid transactionId, CancellationToken ct = default)

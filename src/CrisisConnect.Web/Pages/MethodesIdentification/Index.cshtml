@@ -1,0 +1,123 @@
+@page
+@model CrisisConnect.Web.Pages.MethodesIdentification.MethodesIdentificationIndexModel
+@{
+    ViewData["Title"] = "Méthodes d'identification";
+    var canVerify = User.IsInRole("Coordinateur") || User.IsInRole("Responsable");
+}
+
+<h1 class="mb-4">Méthodes d'identification</h1>
+
+@if (TempData["Success"] is string ok)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @ok <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] is string err)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @err <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Rechercher par personne</div>
+            <div class="card-body">
+                <form method="get">
+                    <div class="mb-3">
+                        <label class="form-label">ID de la personne</label>
+                        <input name="PersonneId" type="text" class="form-control"
+                               value="@Model.PersonneId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3 border-info">
+            <div class="card-body text-info small">
+                <strong>Types disponibles :</strong>
+                <ul class="mb-0 mt-1">
+                    <li>LoginPassword</li>
+                    <li>CarteIdentiteElectronique</li>
+                    <li>VerificationSMS</li>
+                    <li>VerificationBancaire</li>
+                    <li>VerificationFacture</li>
+                    <li>VerificationPhoto</li>
+                    <li>Parrainage</li>
+                    <li>Delegation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        @if (Model.PersonneId.HasValue)
+        {
+            <h5>Méthodes de <code>@Model.PersonneId</code></h5>
+            @if (Model.Methodes.Count == 0)
+            {
+                <div class="alert alert-info">Aucune méthode d'identification trouvée.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Type</th>
+                                <th>Fiabilité</th>
+                                <th>Vérifiée</th>
+                                <th>Date vérification</th>
+                                @if (canVerify) { <th></th> }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in Model.Methodes)
+                            {
+                                <tr>
+                                    <td><strong>@m.TypeMethode</strong></td>
+                                    <td>
+                                        <span class="badge bg-@(m.NiveauFiabilite == "Haute" ? "success" : m.NiveauFiabilite == "Moyenne" ? "warning" : "secondary")">
+                                            @m.NiveauFiabilite
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (m.EstVerifiee)
+                                        {
+                                            <span class="badge bg-success">✓ Vérifiée</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Non vérifiée</span>
+                                        }
+                                    </td>
+                                    <td>@(m.DateVerification?.ToString("dd/MM/yyyy HH:mm") ?? "—")</td>
+                                    @if (canVerify)
+                                    {
+                                        <td>
+                                            @if (!m.EstVerifiee)
+                                            {
+                                                <form method="post" asp-page-handler="Verifier">
+                                                    <input type="hidden" name="methodeId" value="@m.Id" />
+                                                    <input type="hidden" name="personneId" value="@m.PersonneId" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-success">Vérifier</button>
+                                                </form>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="text-muted">Entrez un ID de personne pour afficher ses méthodes d'identification.</div>
+        }
+    </div>
+</div>
