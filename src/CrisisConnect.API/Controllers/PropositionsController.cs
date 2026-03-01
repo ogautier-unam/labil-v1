@@ -7,6 +7,7 @@ using CrisisConnect.Application.UseCases.Offres.GetOffreById;
 using CrisisConnect.Application.UseCases.Offres.GetOffres;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositionById;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositions;
+using CrisisConnect.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,12 +46,14 @@ public class PropositionsController : ControllerBase
 
     // ── Offres ──────────────────────────────────────────────────────────────
 
-    /// <summary>Liste toutes les offres.</summary>
+    /// <summary>Liste toutes les offres, avec filtre optionnel par statut.</summary>
     [HttpGet("offres")]
     [ProducesResponseType<IReadOnlyList<OffreDto>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllOffres(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllOffres(
+        [FromQuery] StatutProposition? statut,
+        CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetOffresQuery(), cancellationToken);
+        var result = await _mediator.Send(new GetOffresQuery(statut), cancellationToken);
         return Ok(result);
     }
 
@@ -78,12 +81,15 @@ public class PropositionsController : ControllerBase
 
     // ── Demandes ─────────────────────────────────────────────────────────────
 
-    /// <summary>Liste toutes les demandes.</summary>
+    /// <summary>Liste toutes les demandes, avec filtres optionnels par statut et urgence.</summary>
     [HttpGet("demandes")]
     [ProducesResponseType<IReadOnlyList<DemandeDto>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAllDemandes(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllDemandes(
+        [FromQuery] StatutProposition? statut,
+        [FromQuery] NiveauUrgence? urgence,
+        CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetDemandesQuery(), cancellationToken);
+        var result = await _mediator.Send(new GetDemandesQuery(statut, urgence), cancellationToken);
         return Ok(result);
     }
 

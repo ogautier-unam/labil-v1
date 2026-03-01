@@ -19,6 +19,10 @@ public class GetOffresQueryHandler : IRequestHandler<GetOffresQuery, IReadOnlyLi
     public async Task<IReadOnlyList<OffreDto>> Handle(GetOffresQuery request, CancellationToken cancellationToken)
     {
         var offres = await _repository.GetAllAsync(cancellationToken);
+
+        if (request.Statut.HasValue)
+            offres = offres.Where(o => o.Statut == request.Statut.Value).ToList();
+
         return _mapper.Map<IReadOnlyList<OffreDto>>(offres);
     }
 }

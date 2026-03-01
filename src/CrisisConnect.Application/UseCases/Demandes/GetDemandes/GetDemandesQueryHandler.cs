@@ -19,6 +19,13 @@ public class GetDemandesQueryHandler : IRequestHandler<GetDemandesQuery, IReadOn
     public async Task<IReadOnlyList<DemandeDto>> Handle(GetDemandesQuery request, CancellationToken cancellationToken)
     {
         var demandes = await _repository.GetAllAsync(cancellationToken);
+
+        if (request.Statut.HasValue)
+            demandes = demandes.Where(d => d.Statut == request.Statut.Value).ToList();
+
+        if (request.Urgence.HasValue)
+            demandes = demandes.Where(d => d.Urgence == request.Urgence.Value).ToList();
+
         return _mapper.Map<IReadOnlyList<DemandeDto>>(demandes);
     }
 }

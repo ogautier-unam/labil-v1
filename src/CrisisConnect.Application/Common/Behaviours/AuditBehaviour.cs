@@ -33,8 +33,10 @@ public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         ["AnnulerPanierCommand"]            = TypeOperation.AnnulationPanier,
         ["AjouterOffreAuPanierCommand"]     = TypeOperation.ModificationProposition,
         ["CreateConfigCatastropheCommand"]  = TypeOperation.ModificationConfigCatastrophe,
-        ["MarkNotificationAsReadCommand"]   = TypeOperation.RetablissementConfiance,
-        ["RefreshTokenCommand"]             = TypeOperation.RetablissementConfiance,
+        ["MarkNotificationAsReadCommand"]    = TypeOperation.RetablissementConfiance,
+        ["RefreshTokenCommand"]              = TypeOperation.RetablissementConfiance,
+        ["AcknowledgeSuggestionCommand"]    = TypeOperation.AcquittementSuggestion,
+        ["GenererSuggestionsCommand"]        = TypeOperation.GenerationSuggestion,
     };
 
     public AuditBehaviour(

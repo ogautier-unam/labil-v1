@@ -817,3 +817,17 @@ packages/
 ✅ Tests : LogoutCommandHandlerTests (2), AuditBehaviourTests (4), CreatePanierValidatorTests (2), RefreshTokenValidatorTests (3), AjouterOffreAuPanierValidatorTests (3), MarkNotificationAsReadValidatorTests (2)
 ✅ Fix : NullLogger<T> utilisé dans AuditBehaviourTests (ILogger<T> interne incompatible NSubstitute/CastleDynamicProxy)
 ✅ Total : 279 tests (117 Domain + 110 Application + 52 Infrastructure), 0 échec
+
+#### Session 14 — 2026-03-01 — Production : génération suggestions + filtres + CORS + health check
+✅ Pages Web Journal/Suggestions créées (suite session précédente)
+✅ TypeOperation : 2 nouvelles valeurs → GenerationSuggestion, AcquittementSuggestion (total 26 valeurs, aligné CLAUDE.md)
+✅ AuditBehaviour._commandMap : ajout AcknowledgeSuggestionCommand + GenererSuggestionsCommand (total 17 entrées)
+✅ GenererSuggestions use case : GenererSuggestionsCommand + Handler (score Jaccard + bonus urgence/livraison) + Validator
+✅ SuggestionsController : POST /api/suggestions/demande/{id}/generer [Coordinateur,Responsable]
+✅ Filtres GetOffres : paramètre statut optionnel (query string ?statut=Active)
+✅ Filtres GetDemandes : paramètres statut + urgence optionnels (query string ?statut=Active&urgence=Critique)
+✅ PropositionsController : GetAllOffres/GetAllDemandes acceptent [FromQuery] StatutProposition? + NiveauUrgence?
+✅ CORS : AddCors() + UseCors() — origins configurables via AllowedOrigins (config) ou défaut localhost:8081
+✅ Health check : AddHealthChecks() + MapHealthChecks("/health") — endpoint Docker/k8s ready
+✅ Fix Razor : Suggestions/Index.cshtml ligne 40 — format score @((score*100).ToString("0"))% (syntaxe :0 invalide)
+✅ Build : 0 erreur, 0 warning

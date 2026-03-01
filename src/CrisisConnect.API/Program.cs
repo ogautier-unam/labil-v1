@@ -51,6 +51,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+// CORS — autorise l'application Web (port 8081 en dev, configurable via AllowedOrigins)
+var allowedOrigins = builder.Configuration["AllowedOrigins"]
+    ?.Split(';', StringSplitOptions.RemoveEmptyEntries)
+    ?? ["http://localhost:8081", "http://localhost:5248"];
+
+builder.Services.AddCors(options =>
+    options.AddDefaultPolicy(policy =>
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials()));
+
+// Health check (utilisé par Docker/k8s pour vérifier la disponibilité)
+builder.Services.AddHealthChecks();
+
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddEndpointsApiExplorer();
@@ -84,8 +99,10 @@ app.UseMiddleware<CrisisConnect.API.Middleware.ExceptionMiddleware>();
 app.UseSerilogRequestLogging();
 if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();

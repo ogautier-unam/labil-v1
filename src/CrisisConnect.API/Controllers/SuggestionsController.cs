@@ -1,5 +1,6 @@
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Suggestions.AcknowledgeSuggestion;
+using CrisisConnect.Application.UseCases.Suggestions.GenererSuggestions;
 using CrisisConnect.Application.UseCases.Suggestions.GetNonAcknowledgedSuggestions;
 using CrisisConnect.Application.UseCases.Suggestions.GetSuggestionsByDemande;
 using MediatR;
@@ -36,6 +37,20 @@ public class SuggestionsController : ControllerBase
     public async Task<IActionResult> GetPending(CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(new GetNonAcknowledgedSuggestionsQuery(), cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Génère automatiquement des suggestions d'appariement pour une demande active.
+    /// Seul le Coordinateur ou le Responsable peut déclencher la génération.
+    /// </summary>
+    [HttpPost("demande/{demandeId:guid}/generer")]
+    [Authorize(Roles = "Coordinateur,Responsable")]
+    [ProducesResponseType<IReadOnlyList<SuggestionAppariementDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Generer(Guid demandeId, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GenererSuggestionsCommand(demandeId), cancellationToken);
         return Ok(result);
     }
 

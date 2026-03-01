@@ -31,5 +31,8 @@ public enum TypeOperation
     EntiteAjoutee,
     EntiteSupprimee,
     ModificationTaxonomie,
-    ModificationConfigCatastrophe
+    ModificationConfigCatastrophe,
+    // Suggestions d'appariement
+    GenerationSuggestion,
+    AcquittementSuggestion
 }
