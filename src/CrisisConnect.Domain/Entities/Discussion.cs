@@ -20,9 +20,10 @@ public class Discussion
         Visibilite = nouvelleVisibilite;
     }
 
-    public Message AjouterMessage(Guid expediteurId, string contenu, string langue = "fr")
+    public Message AjouterMessage(Guid expediteurId, string contenu, string langue = "fr",
+        bool issueTraductionAuto = false, string? texteOriginal = null)
     {
-        var message = new Message(Id, expediteurId, contenu, langue);
+        var message = new Message(Id, expediteurId, contenu, langue, issueTraductionAuto, texteOriginal);
         _messages.Add(message);
         return message;
     }

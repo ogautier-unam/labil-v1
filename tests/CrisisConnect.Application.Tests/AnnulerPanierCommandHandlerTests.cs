@@ -2,6 +2,7 @@
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
+using CrisisConnect.Domain.Interfaces.Services;
 using NSubstitute;
 
 namespace CrisisConnect.Application.Tests;
@@ -9,8 +10,10 @@ namespace CrisisConnect.Application.Tests;
 public class AnnulerPanierCommandHandlerTests
 {
     private readonly IPanierRepository _panierRepo = Substitute.For<IPanierRepository>();
+    private readonly INotificationRepository _notificationRepo = Substitute.For<INotificationRepository>();
+    private readonly INotificationService _notificationService = Substitute.For<INotificationService>();
 
-    private AnnulerPanierCommandHandler CréerHandler() => new(_panierRepo);
+    private AnnulerPanierCommandHandler CréerHandler() => new(_panierRepo, _notificationRepo, _notificationService);
 
     [Fact]
     public async Task AnnulerPanier_PanierExiste_AnnuléEtPersisté()

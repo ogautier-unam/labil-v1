@@ -1,3 +1,5 @@
+using CrisisConnect.Domain.Enums;
+
 namespace CrisisConnect.Domain.Entities;
 
 public class Entite : Acteur
@@ -35,4 +37,7 @@ public class Entite : Acteur
         EstActive = true;
         ModifieLe = DateTime.UtcNow;
     }
+
+    /// <summary>Une entité active est considérée comme vérifiée (organisation officiellement enregistrée).</summary>
+    public override NiveauBadge GetNiveauBadge() => EstActive ? NiveauBadge.Vert : NiveauBadge.Rouge;
 }

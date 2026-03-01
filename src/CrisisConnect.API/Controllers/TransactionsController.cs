@@ -104,7 +104,7 @@ public class TransactionsController : ControllerBase
 
     /// <summary>Bascule la visibilité de la discussion (Publique/Privee).</summary>
     [HttpPatch("{id:guid}/discussion/visibilite")]
-    [Authorize(Roles = "Coordinateur,Responsable")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> BasculerVisibilite(

@@ -11,6 +11,7 @@ using CrisisConnect.Application.UseCases.Propositions.GetPropositionById;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositions;
 using CrisisConnect.Application.UseCases.Propositions.MarquerEnAttenteRelance;
 using CrisisConnect.Application.UseCases.Propositions.ReconfirmerProposition;
+using CrisisConnect.Application.UseCases.Propositions.RecyclerProposition;
 using CrisisConnect.Domain.Enums;
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
@@ -166,6 +167,18 @@ public class PropositionsController : ControllerBase
     public async Task<IActionResult> Reconfirmer(Guid id, CancellationToken cancellationToken)
     {
         await _mediator.Send(new ReconfirmerPropositionCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>Recycle une proposition archivée (statut Archivée → Active, sans limite de temps).</summary>
+    [HttpPatch("{id:guid}/recycler")]
+    [Authorize(Roles = "Coordinateur,Responsable")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Recycler(Guid id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new RecyclerPropositionCommand(id), cancellationToken);
         return NoContent();
     }
 }

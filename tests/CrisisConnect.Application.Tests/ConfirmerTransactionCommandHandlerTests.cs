@@ -2,6 +2,7 @@
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
+using CrisisConnect.Domain.Interfaces.Services;
 using NSubstitute;
 
 namespace CrisisConnect.Application.Tests;
@@ -10,9 +11,11 @@ public class ConfirmerTransactionCommandHandlerTests
 {
     private readonly ITransactionRepository _transactionRepo = Substitute.For<ITransactionRepository>();
     private readonly IPropositionRepository _propositionRepo = Substitute.For<IPropositionRepository>();
+    private readonly INotificationRepository _notificationRepo = Substitute.For<INotificationRepository>();
+    private readonly INotificationService _notificationService = Substitute.For<INotificationService>();
 
     private ConfirmerTransactionCommandHandler CréerHandler() =>
-        new(_transactionRepo, _propositionRepo);
+        new(_transactionRepo, _propositionRepo, _notificationRepo, _notificationService);
 
     [Fact]
     public async Task ConfirmerTransaction_EnCours_ConfirméeEtPropositionClôturée()

@@ -70,4 +70,14 @@ public abstract class Proposition
         Statut = StatutProposition.Active;
         ModifieLe = DateTime.UtcNow;
     }
+
+    /// <summary>Recycle une proposition archivée vers Active sans limite de temps (§5.1 ex.1).</summary>
+    public void Recycler()
+    {
+        if (Statut != StatutProposition.Archivee)
+            throw new DomainException("Seule une proposition archivée peut être recyclée.");
+        Statut = StatutProposition.Active;
+        DateArchivage = null;
+        ModifieLe = DateTime.UtcNow;
+    }
 }

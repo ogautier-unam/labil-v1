@@ -38,9 +38,23 @@ public class Demande : Proposition
         Statut = StatutProposition.Cloturee;
         DateCloture = DateTime.UtcNow;
         ModifieLe = DateTime.UtcNow;
-        // Clôture récursive (Pattern Composite)
+        // Clôture récursive (Pattern Composite) — même comportement ET et OU depuis le parent
         foreach (var sousDemande in _sousDemandes)
             if (sousDemande.Statut != StatutProposition.Cloturee)
                 sousDemande.Clore();
+    }
+
+    /// <summary>
+    /// Propagation OU ascendante : quand une sous-demande est satisfaite dans un groupe OU,
+    /// ferme toutes les alternatives sœurs non encore clôturées (§5.1.2 ex.3).
+    /// À appeler sur le PARENT après avoir clôturé une de ses sous-demandes.
+    /// </summary>
+    public void ClorerAlternativesOu(Guid sousDemandeSatisfaiteId)
+    {
+        if (OperateurLogique != OperateurLogique.Ou)
+            return;
+        foreach (var soeur in _sousDemandes)
+            if (soeur.Id != sousDemandeSatisfaiteId && soeur.Statut != StatutProposition.Cloturee)
+                soeur.Clore();
     }
 }

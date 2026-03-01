@@ -12,6 +12,7 @@ namespace CrisisConnect.Application.Tests;
 public class PropositionLifecycleCommandHandlerTests
 {
     private readonly IPropositionRepository _propositionRepo = Substitute.For<IPropositionRepository>();
+    private readonly IDemandeRepository _demandeRepo = Substitute.For<IDemandeRepository>();
 
     private static Offre CréerOffre() => new("Titre", "Description", Guid.NewGuid());
 
@@ -49,7 +50,7 @@ public class PropositionLifecycleCommandHandlerTests
         var offre = CréerOffre();
         _propositionRepo.GetByIdAsync(offre.Id, Arg.Any<CancellationToken>()).Returns(offre);
 
-        await new ClorePropositionCommandHandler(_propositionRepo)
+        await new ClorePropositionCommandHandler(_propositionRepo, _demandeRepo)
             .Handle(new ClorePropositionCommand(offre.Id), CancellationToken.None);
 
         Assert.Equal(Domain.Enums.StatutProposition.Cloturee, offre.Statut);
@@ -63,7 +64,7 @@ public class PropositionLifecycleCommandHandlerTests
         _propositionRepo.GetByIdAsync(id, Arg.Any<CancellationToken>()).Returns((Proposition?)null);
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
-            new ClorePropositionCommandHandler(_propositionRepo)
+            new ClorePropositionCommandHandler(_propositionRepo, _demandeRepo)
                 .Handle(new ClorePropositionCommand(id), CancellationToken.None).AsTask());
     }
 

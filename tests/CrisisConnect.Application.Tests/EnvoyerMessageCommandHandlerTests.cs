@@ -3,6 +3,7 @@ using CrisisConnect.Application.UseCases.Transactions.EnvoyerMessage;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
+using CrisisConnect.Domain.Interfaces.Services;
 using NSubstitute;
 
 namespace CrisisConnect.Application.Tests;
@@ -10,9 +11,10 @@ namespace CrisisConnect.Application.Tests;
 public class EnvoyerMessageCommandHandlerTests
 {
     private readonly ITransactionRepository _transactionRepo = Substitute.For<ITransactionRepository>();
+    private readonly IServiceTraduction _serviceTraduction = Substitute.For<IServiceTraduction>();
     private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
-    private EnvoyerMessageCommandHandler CréerHandler() => new(_transactionRepo, _mapper);
+    private EnvoyerMessageCommandHandler CréerHandler() => new(_transactionRepo, _serviceTraduction, _mapper);
 
     [Fact]
     public async Task EnvoyerMessage_TransactionExistante_MessageAjoutéEtRetourné()

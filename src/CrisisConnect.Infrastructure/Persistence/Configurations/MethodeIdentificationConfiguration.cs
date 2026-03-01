@@ -25,7 +25,7 @@ public class MethodeIdentificationConfiguration : IEntityTypeConfiguration<Metho
         builder.Property(m => m.NiveauFiabilite).HasConversion<string>().IsRequired();
 
         builder.HasOne<Personne>()
-            .WithMany()
+            .WithMany(p => p.MethodesIdentification)
             .HasForeignKey(m => m.PersonneId)
             .OnDelete(DeleteBehavior.Cascade);
 

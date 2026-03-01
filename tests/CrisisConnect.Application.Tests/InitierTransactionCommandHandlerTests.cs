@@ -4,6 +4,7 @@ using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Enums;
 using CrisisConnect.Domain.Exceptions;
 using CrisisConnect.Domain.Interfaces.Repositories;
+using CrisisConnect.Domain.Interfaces.Services;
 using NSubstitute;
 
 namespace CrisisConnect.Application.Tests;
@@ -12,10 +13,12 @@ public class InitierTransactionCommandHandlerTests
 {
     private readonly IPropositionRepository _propositionRepo = Substitute.For<IPropositionRepository>();
     private readonly ITransactionRepository _transactionRepo = Substitute.For<ITransactionRepository>();
+    private readonly INotificationRepository _notificationRepo = Substitute.For<INotificationRepository>();
+    private readonly INotificationService _notificationService = Substitute.For<INotificationService>();
     private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
     private InitierTransactionCommandHandler CréerHandler() =>
-        new(_propositionRepo, _transactionRepo, _mapper);
+        new(_propositionRepo, _transactionRepo, _notificationRepo, _notificationService, _mapper);
 
     [Fact]
     public async Task InitierTransaction_OffreActive_TransactionCrééeEtRetournée()

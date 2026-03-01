@@ -9,5 +9,7 @@ public enum TypeNotification
     IntentionDonRefusee,
     IntentionDonConfirmationRequise,
     OffreSatisfaite75Pourcent,
-    SuggestionAppariementDisponible
+    SuggestionAppariementDisponible,
+    TransactionInitiee,
+    TransactionConfirmee
 }
