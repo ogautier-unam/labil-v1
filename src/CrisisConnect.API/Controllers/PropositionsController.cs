@@ -6,6 +6,7 @@ using CrisisConnect.Application.UseCases.Offres.CreateOffre;
 using CrisisConnect.Application.UseCases.Offres.GetOffreById;
 using CrisisConnect.Application.UseCases.Offres.GetOffres;
 using CrisisConnect.Application.UseCases.Propositions.ArchiverProposition;
+using CrisisConnect.Application.UseCases.Propositions.CloreProposition;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositionById;
 using CrisisConnect.Application.UseCases.Propositions.GetPropositions;
 using CrisisConnect.Application.UseCases.Propositions.MarquerEnAttenteRelance;
@@ -119,6 +120,18 @@ public class PropositionsController : ControllerBase
     }
 
     // ── Cycle de vie ──────────────────────────────────────────────────────────
+
+    /// <summary>Clôture une proposition (statut → Cloturée). Coordinateur ou Responsable.</summary>
+    [HttpPatch("{id:guid}/clore")]
+    [Authorize(Roles = "Coordinateur,Responsable")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Clore(Guid id, CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new ClorePropositionCommand(id), cancellationToken);
+        return NoContent();
+    }
 
     /// <summary>Archive une proposition (statut → Archivée). Coordinateur ou Responsable.</summary>
     [HttpPatch("{id:guid}/archiver")]

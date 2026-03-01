@@ -16,6 +16,7 @@ public class TransactionRepository : ITransactionRepository
     public async Task<Transaction?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         => await _context.Transactions
             .Include(t => t.Discussion)
+                .ThenInclude(d => d.Messages)
             .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
     public async Task<IReadOnlyList<Transaction>> GetAllAsync(CancellationToken cancellationToken = default)

@@ -40,6 +40,8 @@ public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         ["ArchiverPropositionCommand"]            = TypeOperation.ArchivageProposition,
         ["MarquerEnAttenteRelanceCommand"]        = TypeOperation.ModificationProposition,
         ["ReconfirmerPropositionCommand"]         = TypeOperation.RecyclageProposition,
+        ["ClorePropositionCommand"]               = TypeOperation.ClotureProposition,
+        ["EnvoyerMessageCommand"]                 = TypeOperation.EnvoiMessage,
     };
 
     public AuditBehaviour(

@@ -1,6 +1,8 @@
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Application.UseCases.Transactions.AnnulerTransaction;
 using CrisisConnect.Application.UseCases.Transactions.ConfirmerTransaction;
+using CrisisConnect.Application.UseCases.Transactions.EnvoyerMessage;
+using CrisisConnect.Application.UseCases.Transactions.GetDiscussion;
 using CrisisConnect.Application.UseCases.Transactions.GetTransactionById;
 using CrisisConnect.Application.UseCases.Transactions.GetTransactions;
 using CrisisConnect.Application.UseCases.Transactions.InitierTransaction;
@@ -70,5 +72,31 @@ public class TransactionsController : ControllerBase
     {
         await _mediator.Send(new AnnulerTransactionCommand(id), cancellationToken);
         return NoContent();
+    }
+
+    // ── Discussion ────────────────────────────────────────────────────────────
+
+    /// <summary>Retourne la discussion (avec ses messages) d'une transaction.</summary>
+    [HttpGet("{id:guid}/discussion")]
+    [ProducesResponseType<DiscussionDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetDiscussion(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetDiscussionQuery(id), cancellationToken);
+        return Ok(result);
+    }
+
+    /// <summary>Envoie un message dans la discussion d'une transaction.</summary>
+    [HttpPost("{id:guid}/messages")]
+    [ProducesResponseType<MessageDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> EnvoyerMessage(
+        Guid id, [FromBody] EnvoyerMessageCommand command, CancellationToken cancellationToken)
+    {
+        // L'id de route prime sur le body pour éviter les injections d'ID
+        var cmd = command with { TransactionId = id };
+        var result = await _mediator.Send(cmd, cancellationToken);
+        return CreatedAtAction(nameof(GetDiscussion), new { id }, result);
     }
 }

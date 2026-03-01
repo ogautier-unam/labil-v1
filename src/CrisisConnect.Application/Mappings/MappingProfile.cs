@@ -19,5 +19,6 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Offres, opt => opt.MapFrom(src => src.Offres));
         CreateMap<EntreeJournal, EntreeJournalDto>();
         CreateMap<SuggestionAppariement, SuggestionAppariementDto>();
+        CreateMap<Message, MessageDto>();
     }
 }
