@@ -1,3 +1,4 @@
 namespace CrisisConnect.Domain.ValueObjects;
 
-public record Localisation(double Latitude, double Longitude);
+/// <summary>Coordonnées géographiques avec libellé adresse optionnel (L9).</summary>
+public record Localisation(double Latitude, double Longitude, string? AdresseLibelle = null);

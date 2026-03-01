@@ -34,6 +34,7 @@ public class PropositionConfiguration : IEntityTypeConfiguration<Proposition>
         {
             l.Property(x => x.Latitude).HasColumnName("latitude");
             l.Property(x => x.Longitude).HasColumnName("longitude");
+            l.Property(x => x.AdresseLibelle).HasColumnName("adresse_libelle").HasMaxLength(500).IsRequired(false);
         });
 
         builder.ToTable("propositions");
