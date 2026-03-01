@@ -1117,4 +1117,14 @@ packages/
 ✅ Pages/Propositions/DemandesRepartitionGeo.cshtml + .cs : liste + créer (nb ressources + description mission)
 ✅ _Layout.cshtml : liens "Sur catalogue" + "Répartition géo" dans dropdown Propositions
 ✅ Total : 433 tests, 0 échec (Domain 117, Application 256, Infrastructure 60) — inchangé
-✅ Build : 0 erreur, 43 warnings RMG020 préexistants — commit à venir
+✅ Build : 0 erreur, 43 warnings RMG020 préexistants — commit 35cf553
+
+#### Session 27 — 2026-03-02 — M6 + L9 + L11 + NF-11 + NF-06 + NF-10 (tous les remains)
+✅ M6 Médias : IMediaRepository (Domain) ; MediaDto + AppMapper.ToDto(Media) ; AttacherMediaCommand + Handler + Validator ; GetMediasByPropositionQuery + Handler ; MediaRepository (Infrastructure) ; MediasController GET+POST /api/propositions/{id}/medias ; Web : MediaModel + ApiClient + Pages/Propositions/Medias.cshtml + lien _Layout — commit d3df3ed
+✅ L9 adresseLibelle : Localisation.AdresseLibelle? (optional, default null) ; PropositionConfiguration colonne adresse_libelle (max 500) ; migration AddLocalisationAdresseLibelle — commit b654bae
+✅ L11 Rappel expiration rôle : IAttributionRoleRepository.GetRappelsDusAsync() ; AttributionRoleRepository implémentation ; RappelExpirationRoleService (BackgroundService cycle 1h, TypeNotification.RappelRoleExpirationImminente) ; DI AddHostedService — commit fb86068
+✅ NF-11 Extensibilité : IStrategiePriorisation.Nom ajouté ; 4 implémentations (anciennete/urgence/region/type) + #pragma S2325 ; DI IEnumerable<IStrategiePriorisation> ; GetDemandesQuery.Strategie? ; handler sélection par Nom ; controller ?strategie= ; tests mis à jour — commit 04b38ac
+✅ NF-06 RGPD : Personne.Anonymiser() (efface email/nom/prénom/téléphone/adresse/photo) ; SupprimerActeurCommand + Handler + Validator ; DELETE /api/acteurs/{id} → 204 — commit 97788de
+✅ NF-10 Documentation : /doc/architecture.md + api-reference.md + setup.md (anglais) — commit e0acfe7
+✅ Total : 433 tests, 0 échec (Domain 117, Application 256, Infrastructure 60) — inchangé
+✅ Build : 0 erreur, 44 warnings RMG020
