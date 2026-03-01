@@ -63,9 +63,9 @@
 # rien
 
 # Application
-MediatR
+Mediator (martinothamar) + Mediator.Abstractions  # MIT — remplace MediatR (RPL-1.5)
 FluentValidation
-AutoMapper
+Riok.Mapperly                                     # Apache-2.0 — remplace AutoMapper (RPL-1.5)
 
 # Infrastructure
 Microsoft.EntityFrameworkCore
@@ -96,7 +96,7 @@ Serilog.AspNetCore                              # Logging structuré
 CrisisConnect.sln
 ├── src/
 │   ├── CrisisConnect.Domain/          ← Entités, Value Objects, Interfaces, Enums
-│   ├── CrisisConnect.Application/     ← Use Cases, DTOs, CQRS (MediatR), Validators
+│   ├── CrisisConnect.Application/     ← Use Cases, DTOs, CQRS (Mediator), Validators
 │   ├── CrisisConnect.Infrastructure/  ← EF Core, Repositories, Services externes
 │   ├── CrisisConnect.API/             ← Controllers, Middleware, DI, Swagger, Program.cs
 │   └── CrisisConnect.Web/             ← Razor Pages, ApiClient, Models, Bootstrap 5.3
@@ -194,7 +194,7 @@ CrisisConnect.Application/
 │                       CategorieTaxonomieDto, EntiteDto, MethodeIdentificationDto,
 │                       AuthDto (LoginResponse, RegisterResponse)
 ├── Mappings/
-│   └── MappingProfile.cs      # AutoMapper — toutes les entités → DTOs
+│   └── AppMapper.cs           # Riok.Mapperly — source-generated, [Mapper], partial ToDto()
 └── Common/
     ├── Behaviours/
     │   ├── ValidationBehaviour.cs   # FluentValidation pipeline
@@ -433,7 +433,7 @@ dotnet ef migrations remove \
 | Champs privés | `_camelCase` | `_repository`, `_logger` |
 
 ### Patterns obligatoires
-- **CQRS via MediatR** : toute opération = Command (écriture) ou Query (lecture)
+- **CQRS via Mediator** (martinothamar, MIT) : toute opération = Command (écriture) ou Query (lecture)
 - **Repository pattern** : jamais d'accès direct à `AppDbContext` hors Infrastructure
 - **Result pattern** ou exceptions domaine : pas de `null` return pour les erreurs
 - **Async/await partout** : toutes les méthodes I/O sont asynchrones (`Async` suffix)
@@ -734,9 +734,12 @@ packages/
 ### `[ERR] Failed executing DbCommand` lors de `database update`
 - C'est un comportement **normal** au premier `database update` : EF Core cherche la table `__EFMigrationsHistory` qui n'existe pas encore, échoue (loggé ERR), puis la crée et applique les migrations. `Done.` en fin de sortie = succès.
 
-### AutoMapper v16+ : API changée
-- Ne plus utiliser : `services.AddAutoMapper(typeof(MappingProfile).Assembly)`
-- Utiliser : `services.AddAutoMapper(cfg => cfg.AddMaps(typeof(MappingProfile).Assembly))`
+### Riok.Mapperly — mapper source-generated (remplace AutoMapper)
+- `[Mapper(EnumMappingStrategy = EnumMappingStrategy.ByName)]` sur `partial class AppMapper`
+- Méthodes `public partial DestDto ToDto(Source src)` — générées à la compilation
+- Collections : `partial List<Dto> ToDto(List<Entity>)` — ajouter surcharges `IReadOnlyList<T>` manuellement
+- Mapping manuel possible : méthode non-partial avec corps (ex. types TPH polymorphes)
+- Enregistrement DI : `builder.Services.AddSingleton<AppMapper>()`
 
 ### Serilog masque les messages de démarrage ASP.NET Core
 - Ajouter l'override `"Microsoft.Hosting.Lifetime": "Information"` dans `appsettings.json` pour voir "Now listening on: ..."
@@ -1038,3 +1041,17 @@ packages/
 ✅ Total : 399 tests, 0 échec (Domain 117, Application 222, Infrastructure 60)
 ✅ Couverture : handlers 100% (71/71), validators 100% (33/33), repositories 100% (16/16)
 ✅ Build : 0 erreur, 0 warning — commit 3c6a728
+
+#### Session 21 — 2026-03-01 — Migration MediatR→Mediator + AutoMapper→Mapperly (licences open-source)
+✅ MediatR 14 (RPL-1.5) remplacé par Mediator 3.0.1 martinothamar (MIT)
+✅ AutoMapper 16 (RPL-1.5) remplacé par Riok.Mapperly 4.1.1 (Apache-2.0)
+✅ MappingProfile.cs supprimé → AppMapper.cs ([Mapper] source-generated, méthodes partial ToDto)
+✅ Application.csproj : Mediator.Abstractions 3.0.1 + Mediator.SourceGenerator 3.0.1 (PrivateAssets=all) + Microsoft.Extensions.Logging.Abstractions 10.0.3 + Riok.Mapperly 4.1.1
+✅ 33 handlers : constructeur IMapper → AppMapper
+✅ 17 void handlers : ValueTask → ValueTask<Unit> + return Unit.Value
+✅ 3 behaviours : Handle(msg, ct, next) → Handle(msg, next, ct) (API Mediator v3)
+✅ AppMapper : surcharges IReadOnlyList<T> ajoutées pour compatibilité repositories
+✅ 27 fichiers de tests : .AsTask() sur les ValueTask dans Assert.ThrowsAsync
+✅ 2 tests behaviours : ordre des paramètres corrigé
+✅ Total : 399 tests, 0 échec (Domain 117, Application 222, Infrastructure 60)
+✅ Build : 0 erreur, 0 warning — commit 8ae3f33
