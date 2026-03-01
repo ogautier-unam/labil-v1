@@ -1067,3 +1067,11 @@ packages/
 ✅ Tests : 5 fichiers de tests mis à jour pour les nouvelles signatures de constructeurs (INotificationRepository, INotificationService, IDemandeRepository, IServiceTraduction)
 ✅ Total : 399 tests, 0 échec (Domain 117, Application 222, Infrastructure 60)
 ✅ Build : 0 erreur, 0 warning — commit b1e2de9
+
+#### Session 23 — 2026-03-01 — remains.md H4/H5/M8 : Update propositions + archivage auto + GetEntiteById
+✅ H4 Modification proposition (§5.1 ex.4) : Proposition.ModifierContenu() protected (bloque EnTransaction + Cloturee) ; Offre.Modifier() + Demande.Modifier() ; UpdateOffreCommand/Handler/Validator + UpdateDemandeCommand/Handler/Validator ; endpoints PATCH /api/propositions/offres/{id} et /demandes/{id} [Authorize] ; AuditBehaviour : +2 entrées ModificationProposition
+✅ H5 Archivage automatique planifié (§5.1 ex.1) : ArchivageAutomatiqueService (BackgroundService, cycle 1h) — lit ConfigCatastrophe active, marque en relance les propositions inactives > (DelaiArchivage−DelaiRappel) j, archive celles en attente > DelaiRappelAvantArchivage j ; enregistré via AddHostedService<>
+✅ M8 GET /api/entites/{id} : GetEntiteByIdQuery + Handler + endpoint [non restreint]
+✅ Tests : UpdateOffreCommandHandlerTests (3), UpdateDemandeCommandHandlerTests (2), GetEntiteByIdQueryHandlerTests (2) — 7 nouveaux tests
+✅ Total : 406 tests, 0 échec (Domain 117, Application 229, Infrastructure 60)
+✅ Build : 0 erreur, 0 warning — commit ffacbd9
