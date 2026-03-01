@@ -805,3 +805,15 @@ packages/
 ✅ Production fix : 4 validators manquants — CreatePanierValidator, AjouterOffreAuPanierValidator, RefreshTokenValidator, MarkNotificationAsReadValidator
 ✅ Tests : LogoutCommandHandlerTests (2), AuditBehaviourTests (4), CreatePanierValidatorTests (2), RefreshTokenValidatorTests (3)
 ✅ Total : 261 tests, 0 échec (Domain 117, Application 92, Infrastructure 52)
+
+#### Session 13 — 2026-03-01 — Use cases manquants : journal + suggestions + validators + tests
+✅ Production : GetEntreesJournalQuery + Handler + EntreeJournalDto + mapping + JournalController GET /api/journal/{acteurId} [Authorize]
+✅ Production : SuggestionAppariementDto + 3 use cases (GetSuggestionsByDemande, GetNonAcknowledgedSuggestions, AcknowledgeSuggestion)
+✅ Production : AcknowledgeSuggestionValidator + SuggestionsController (GET /suggestions/demande/{id}, GET /suggestions/pending [Coordinateur|Responsable], PATCH /suggestions/{id}/acknowledge)
+✅ Production : 4 validators manquants ajoutés (CreatePanier, AjouterOffreAuPanier, RefreshToken, MarkNotificationAsRead)
+✅ MappingProfile : EntreeJournal→EntreeJournalDto, SuggestionAppariement→SuggestionAppariementDto
+✅ Tests : ValidationBehaviourTests (5), GetEntreesJournalQueryHandlerTests (3)
+✅ Tests : GetSuggestionsByDemandeQueryHandlerTests (2), AcknowledgeSuggestionCommandHandlerTests (3)
+✅ Tests : LogoutCommandHandlerTests (2), AuditBehaviourTests (4), CreatePanierValidatorTests (2), RefreshTokenValidatorTests (3), AjouterOffreAuPanierValidatorTests (3), MarkNotificationAsReadValidatorTests (2)
+✅ Fix : NullLogger<T> utilisé dans AuditBehaviourTests (ILogger<T> interne incompatible NSubstitute/CastleDynamicProxy)
+✅ Total : 279 tests (117 Domain + 110 Application + 52 Infrastructure), 0 échec

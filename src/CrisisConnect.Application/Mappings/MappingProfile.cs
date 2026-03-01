@@ -18,5 +18,6 @@ public class MappingProfile : Profile
         CreateMap<Panier, PanierDto>()
             .ForMember(dest => dest.Offres, opt => opt.MapFrom(src => src.Offres));
         CreateMap<EntreeJournal, EntreeJournalDto>();
+        CreateMap<SuggestionAppariement, SuggestionAppariementDto>();
     }
 }
