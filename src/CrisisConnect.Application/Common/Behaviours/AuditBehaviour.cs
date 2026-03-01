@@ -48,6 +48,11 @@ public class AuditBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, T
         ["RevoquerRoleCommand"]                       = TypeOperation.RevocationRole,
         ["CreerMandatCommand"]                        = TypeOperation.MandatCree,
         ["RevoquerMandatCommand"]                     = TypeOperation.MandatRevoque,
+        ["CreateCategorieCommand"]                    = TypeOperation.ModificationTaxonomie,
+        ["DesactiverCategorieCommand"]                = TypeOperation.ModificationTaxonomie,
+        ["CreateEntiteCommand"]                       = TypeOperation.EntiteAjoutee,
+        ["DesactiverEntiteCommand"]                   = TypeOperation.EntiteSupprimee,
+        ["VerifierMethodeCommand"]                    = TypeOperation.RetablissementConfiance,
     };
 
     public AuditBehaviour(

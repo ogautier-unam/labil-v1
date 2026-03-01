@@ -26,5 +26,10 @@ public class MappingProfile : Profile
         CreateMap<Mandat, MandatDto>()
             .ForMember(dest => dest.Portee,   opt => opt.MapFrom(src => src.Portee.ToString()))
             .ForMember(dest => dest.EstActif, opt => opt.MapFrom(src => src.EstActif));
+        CreateMap<CategorieTaxonomie, CategorieTaxonomieDto>();
+        CreateMap<Entite, EntiteDto>();
+        CreateMap<MethodeIdentification, MethodeIdentificationDto>()
+            .ForMember(dest => dest.TypeMethode,     opt => opt.MapFrom(src => src.GetType().Name))
+            .ForMember(dest => dest.NiveauFiabilite, opt => opt.MapFrom(src => src.NiveauFiabilite.ToString()));
     }
 }
