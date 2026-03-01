@@ -67,8 +67,9 @@ public static class DependencyInjection
         services.AddHttpClient<AdaptateurDeepL>();
         services.AddHttpClient<AdaptateurLibreTranslate>();
 
-        // Background service — archivage automatique des propositions inactives (§5.1 ex.1)
-        services.AddHostedService<ArchivageAutomatiqueService>();
+        // Background services
+        services.AddHostedService<ArchivageAutomatiqueService>();     // §5.1 ex.1 — archivage automatique
+        services.AddHostedService<RappelExpirationRoleService>();     // L11 — rappel expiration rôle
 
         return services;
     }

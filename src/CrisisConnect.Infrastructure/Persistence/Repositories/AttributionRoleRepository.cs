@@ -28,6 +28,17 @@ public class AttributionRoleRepository : IAttributionRoleRepository
             .Where(a => a.TypeRole == typeRole && a.Statut == StatutRole.Actif)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<AttributionRole>> GetRappelsDusAsync(CancellationToken cancellationToken = default)
+    {
+        var maintenant = DateTime.UtcNow;
+        return await _context.AttributionsRoles
+            .Where(a => a.Statut == StatutRole.Actif
+                     && a.DateRappel.HasValue
+                     && a.DateRappel.Value <= maintenant
+                     && !a.RappelEnvoye)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task AddAsync(AttributionRole attribution, CancellationToken cancellationToken = default)
     {
         await _context.AttributionsRoles.AddAsync(attribution, cancellationToken);
