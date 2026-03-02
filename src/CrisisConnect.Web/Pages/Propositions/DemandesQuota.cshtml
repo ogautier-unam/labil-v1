@@ -92,11 +92,11 @@ else
                     </div>
                     @if (d.AdresseDepot is not null)
                     {
-                        <div class="col-auto text-muted small">📍 @d.AdresseDepot</div>
+                        <div class="col-auto text-muted small"><span aria-hidden="true">📍</span> @d.AdresseDepot</div>
                     }
                     @if (d.DateLimit is not null)
                     {
-                        <div class="col-auto text-muted small">🗓 @d.DateLimit.Value.ToString("dd/MM/yyyy")</div>
+                        <div class="col-auto text-muted small"><span aria-hidden="true">🗓</span> @d.DateLimit.Value.ToString("dd/MM/yyyy")</div>
                     }
                 </div>
 
@@ -153,11 +153,11 @@ else
                                         {
                                             <form method="post" asp-page-handler="Accepter"
                                                   asp-route-demandeId="@d.Id" asp-route-intentionId="@i.Id">
-                                                <button type="submit" class="btn btn-sm btn-success">✓</button>
+                                                <button type="submit" class="btn btn-sm btn-success">✓ Accepter</button>
                                             </form>
                                             <form method="post" asp-page-handler="Refuser"
                                                   asp-route-demandeId="@d.Id" asp-route-intentionId="@i.Id">
-                                                <button type="submit" class="btn btn-sm btn-danger">✗</button>
+                                                <button type="submit" class="btn btn-sm btn-danger">✗ Refuser</button>
                                             </form>
                                         }
                                     </div>
