@@ -10,6 +10,10 @@ public class Demande : Proposition
     public NiveauUrgence Urgence { get; private set; } = NiveauUrgence.Moyen;
     public string? RegionSeverite { get; private set; }
     public Guid? ParentId { get; private set; }
+    /// <summary>Indique si la demande doit se renouveler périodiquement (scénario Grosemilo — ROADMAP §4.7).</summary>
+    public bool EstRecurrente { get; private set; }
+    /// <summary>Description libre de la fréquence de récurrence (ex. "Hebdomadaire", "Mensuel").</summary>
+    public string? FrequenceRecurrence { get; private set; }
 
     private readonly List<Demande> _sousDemandes = [];
     public IReadOnlyCollection<Demande> SousDemandes => _sousDemandes.AsReadOnly();
@@ -36,6 +40,13 @@ public class Demande : Proposition
         ModifierContenu(titre, description, localisation);
         Urgence = urgence;
         RegionSeverite = regionSeverite;
+    }
+
+    /// <summary>Configure la récurrence de la demande (scénario Grosemilo — ROADMAP §4.7).</summary>
+    public void ConfigurerRecurrence(bool estRecurrente, string? frequenceRecurrence = null)
+    {
+        EstRecurrente = estRecurrente;
+        FrequenceRecurrence = estRecurrente ? frequenceRecurrence : null;
     }
 
     public override void Clore()

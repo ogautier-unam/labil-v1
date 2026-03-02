@@ -1128,3 +1128,14 @@ packages/
 ✅ NF-10 Documentation : /doc/architecture.md + api-reference.md + setup.md (anglais) — commit e0acfe7
 ✅ Total : 433 tests, 0 échec (Domain 117, Application 256, Infrastructure 60) — inchangé
 ✅ Build : 0 erreur, 44 warnings RMG020
+
+#### Session 28 — 2026-03-02 — L7 + NF-05 + L1/NF-04 + L10 + L8 + NF-02 (tous les remains)
+✅ L7 Recherche fulltext ?q= : GetOffresQuery.Recherche + GetDemandesQuery.Recherche ; handlers Contains(q, OrdinalIgnoreCase) sur Titre+Description ; PropositionsController [FromQuery] string? q — commit 572acb3
+✅ NF-05 WCAG : 13 problèmes corrigés — aria-hidden sur emojis décoratifs, textes visibles descriptifs sur boutons actions (Confirmer/Annuler/Accepter/Refuser), associations label/for sur 4 formulaires admin — commit ca7295a
+✅ L1/NF-04 Multilingue : CategorieTaxonomieDto + Nom + Description ; AppMapper.ExtractI18n (JSON i18n {"fr":"…","en":"…"} → repli fr → premier) ; GetCategoriesQuery.Langue? ; TaxonomieController ?langue= ; Web : sélecteur 5 langues + affichage Nom localisé + badge langue ; 1 test ajouté (langue "en")
+✅ L10 Demande récurrente : Demande.EstRecurrente + FrequenceRecurrence + ConfigurerRecurrence() ; CreateDemandeCommand + UpdateDemandeCommand + handlers mis à jour ; DemandeDto + DemandeModel + CreateDemandeRequest (S107) ; DemandeConfiguration +2 cols ; migration AddDemandeRecurrente ; Web : checkbox + champ fréquence + badge "Récurrent" dans tableau
+✅ L8 GitHub Actions : .github/workflows/docker-publish.yml — build+push API+Web vers GHCR (ghcr.io/{owner}/crisisconnect-{api|web}) ; triggers push/main + tags v*.*.* ; cache GHA ; metadata-action tags (branch, semver, sha)
+✅ NF-02 Responsive : Bootstrap 5.3.3 en place — navbar-expand-md + toggler, col-md-x, table-responsive, flex-wrap. Aucun correctif nécessaire.
+✅ Fix AppMapper : ToDto(CategorieTaxonomie) remplacé partial → static manuel ; CreateCategorieCommandHandler + GetCategoriesQueryHandler : _mapper supprimé (S4487) ; tests mis à jour
+✅ Total : 434 tests, 0 échec (Domain 117, Application 257, Infrastructure 60)
+✅ Build : 0 erreur, 0 warning

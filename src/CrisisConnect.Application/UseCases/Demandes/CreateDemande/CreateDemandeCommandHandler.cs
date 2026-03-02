@@ -33,6 +33,9 @@ public class CreateDemandeCommandHandler : IRequestHandler<CreateDemandeCommand,
             localisation,
             request.RegionSeverite);
 
+        if (request.EstRecurrente)
+            demande.ConfigurerRecurrence(true, request.FrequenceRecurrence);
+
         await _repository.AddAsync(demande, cancellationToken);
 
         return _mapper.ToDto(demande);

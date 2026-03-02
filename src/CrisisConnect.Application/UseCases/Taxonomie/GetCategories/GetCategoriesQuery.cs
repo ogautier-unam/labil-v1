@@ -3,4 +3,4 @@ using Mediator;
 
 namespace CrisisConnect.Application.UseCases.Taxonomie.GetCategories;
 
-public record GetCategoriesQuery(Guid ConfigId) : IRequest<IReadOnlyList<CategorieTaxonomieDto>>;
+public record GetCategoriesQuery(Guid ConfigId, string? Langue = "fr") : IRequest<IReadOnlyList<CategorieTaxonomieDto>>;

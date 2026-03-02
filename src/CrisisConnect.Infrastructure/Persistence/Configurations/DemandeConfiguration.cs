@@ -11,6 +11,8 @@ public class DemandeConfiguration : IEntityTypeConfiguration<Demande>
         builder.Property(d => d.OperateurLogique).HasConversion<string>().IsRequired();
         builder.Property(d => d.Urgence).HasConversion<string>().IsRequired();
         builder.Property(d => d.RegionSeverite).HasMaxLength(200);
+        builder.Property(d => d.EstRecurrente).IsRequired().HasDefaultValue(false);
+        builder.Property(d => d.FrequenceRecurrence).HasMaxLength(100);
 
         // Composite pattern : auto-référence parent/sous-demandes
         builder.HasMany(d => d.SousDemandes)

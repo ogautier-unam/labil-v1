@@ -29,6 +29,7 @@ public class UpdateDemandeCommandHandler : IRequestHandler<UpdateDemandeCommand,
             localisation = new Localisation(request.Latitude.Value, request.Longitude.Value);
 
         demande.Modifier(request.Titre, request.Description, request.Urgence, request.RegionSeverite, localisation);
+        demande.ConfigurerRecurrence(request.EstRecurrente, request.FrequenceRecurrence);
         await _repository.UpdateAsync(demande, cancellationToken);
 
         return _mapper.ToDto(demande);

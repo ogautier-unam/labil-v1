@@ -7,4 +7,8 @@ public record CategorieTaxonomieDto(
     string DescriptionJson,
     bool EstActive,
     Guid? ParentId,
-    Guid ConfigId);
+    Guid ConfigId,
+    /// <summary>Nom localisé selon la langue demandée (extrait de NomJson).</summary>
+    string Nom,
+    /// <summary>Description localisée selon la langue demandée (extraite de DescriptionJson).</summary>
+    string Description);

@@ -19,12 +19,14 @@ public class TaxonomieController : ControllerBase
         _mediator = mediator;
     }
 
-    /// <summary>Retourne les catégories racines d'une configuration de crise.</summary>
+    /// <summary>Retourne les catégories racines d'une configuration de crise, avec noms localisés (NF-04).</summary>
+    /// <param name="configId">Identifiant de la configuration de crise.</param>
+    /// <param name="langue">Code langue ISO 639-1 (ex. "fr", "en"). Défaut : "fr".</param>
     [HttpGet("config/{configId:guid}")]
     [ProducesResponseType<IReadOnlyList<CategorieTaxonomieDto>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetRacines(Guid configId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetRacines(Guid configId, [FromQuery] string? langue, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetCategoriesQuery(configId), cancellationToken);
+        var result = await _mediator.Send(new GetCategoriesQuery(configId, langue), cancellationToken);
         return Ok(result);
     }
 

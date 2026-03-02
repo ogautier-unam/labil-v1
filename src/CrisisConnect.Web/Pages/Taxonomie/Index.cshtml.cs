@@ -18,6 +18,9 @@ public class TaxonomieIndexModel : PageModel
     [BindProperty(SupportsGet = true)]
     public Guid? ConfigId { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public string Langue { get; set; } = "fr";
+
     public IReadOnlyList<CategorieTaxonomieModel> Categories { get; private set; } = [];
 
     [BindProperty] public string CreerCode { get; set; } = string.Empty;
@@ -31,7 +34,7 @@ public class TaxonomieIndexModel : PageModel
         {
             try
             {
-                Categories = await _api.GetCategoriesAsync(id, ct) ?? [];
+                Categories = await _api.GetCategoriesAsync(id, Langue, ct) ?? [];
             }
             catch (HttpRequestException)
             {

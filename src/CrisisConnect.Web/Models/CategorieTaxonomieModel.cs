@@ -7,4 +7,6 @@ public record CategorieTaxonomieModel(
     string DescriptionJson,
     bool EstActive,
     Guid? ParentId,
-    Guid ConfigId);
+    Guid ConfigId,
+    string Nom = "",
+    string Description = "");

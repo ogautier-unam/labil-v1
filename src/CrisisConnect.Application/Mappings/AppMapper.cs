@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CrisisConnect.Application.DTOs;
 using CrisisConnect.Domain.Entities;
 using Riok.Mapperly.Abstractions;
@@ -79,9 +80,35 @@ public partial class AppMapper
     public partial MandatDto ToDto(Mandat mandat);
     public partial List<MandatDto> ToDto(List<Mandat> mandats);
 
-    // Taxonomie & Entités
-    public partial CategorieTaxonomieDto ToDto(CategorieTaxonomie categorie);
-    public partial List<CategorieTaxonomieDto> ToDto(List<CategorieTaxonomie> categories);
+    // Taxonomie — mapping manuel : NomJson/DescriptionJson désérialisés selon la langue (NF-04)
+    public static CategorieTaxonomieDto ToDto(CategorieTaxonomie cat, string langue = "fr")
+    {
+        var nom = ExtractI18n(cat.NomJson, langue);
+        var desc = ExtractI18n(cat.DescriptionJson, langue);
+        return new(cat.Id, cat.Code, cat.NomJson, cat.DescriptionJson, cat.EstActive,
+                   cat.ParentId, cat.ConfigId, nom, desc);
+    }
+    public static List<CategorieTaxonomieDto> ToDto(List<CategorieTaxonomie> cats, string langue = "fr")
+        => cats.ConvertAll(c => ToDto(c, langue));
+
+    /// <summary>
+    /// Extrait une valeur localisée depuis un JSON multilingue {"fr":"…","en":"…"}.
+    /// Repli : langue demandée → "fr" → première valeur → json brut.
+    /// </summary>
+    private static string ExtractI18n(string json, string langue)
+    {
+        try
+        {
+            var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+            if (dict is null) return json;
+            if (dict.TryGetValue(langue, out var val)) return val;
+            if (dict.TryGetValue("fr", out val)) return val;
+            return dict.Values.FirstOrDefault() ?? json;
+        }
+        catch { return json; }
+    }
+
+    // Entités
     public partial EntiteDto ToDto(Entite entite);
     public partial List<EntiteDto> ToDto(List<Entite> entites);
 
@@ -112,6 +139,8 @@ public partial class AppMapper
     public List<AttributionRoleDto> ToDto(IReadOnlyList<AttributionRole> items) => ToDto(items as List<AttributionRole> ?? items.ToList());
     public List<MandatDto> ToDto(IReadOnlyList<Mandat> items) => ToDto(items as List<Mandat> ?? items.ToList());
     public List<CategorieTaxonomieDto> ToDto(IReadOnlyList<CategorieTaxonomie> items) => ToDto(items as List<CategorieTaxonomie> ?? items.ToList());
+    public static IReadOnlyList<CategorieTaxonomieDto> ToDto(IReadOnlyList<CategorieTaxonomie> items, string langue)
+        => items.Select(c => ToDto(c, langue)).ToList();
     public List<EntiteDto> ToDto(IReadOnlyList<Entite> items) => ToDto(items as List<Entite> ?? items.ToList());
     public List<MethodeIdentificationDto> ToDto(IReadOnlyList<MethodeIdentification> items) => ToDto(items as List<MethodeIdentification> ?? items.ToList());
     public List<PropositionDto> ToDto(IReadOnlyList<Proposition> items) => items.Select(ToDto).ToList();

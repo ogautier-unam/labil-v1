@@ -1,4 +1,3 @@
-using CrisisConnect.Application.Mappings;
 using CrisisConnect.Application.UseCases.Taxonomie.CreateCategorie;
 using CrisisConnect.Domain.Entities;
 using CrisisConnect.Domain.Interfaces.Repositories;
@@ -9,9 +8,8 @@ namespace CrisisConnect.Application.Tests;
 public class CreateCategorieCommandHandlerTests
 {
     private readonly ICategorieTaxonomieRepository _categorieRepo = Substitute.For<ICategorieTaxonomieRepository>();
-    private readonly AppMapper _mapper = AutoMapperFixture.Créer();
 
-    private CreateCategorieCommandHandler CréerHandler() => new(_categorieRepo, _mapper);
+    private CreateCategorieCommandHandler CréerHandler() => new(_categorieRepo);
 
     [Fact]
     public async Task CreateCategorie_SansParent_CatégorieRacineCréée()

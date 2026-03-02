@@ -1,8 +1,8 @@
 # CrisisConnect — Rapport d'audit des fonctionnalités manquantes
 
-**Date :** 2026-03-02 · **Mis à jour :** session 27
+**Date :** 2026-03-02 · **Mis à jour :** session 28
 **Sources analysées :** Énoncé IHDCM032 · ROADMAP.md · Diagrammes de classes P1–P7 · Code source (`src/`)
-**État courant :** 433 tests passants · 0 erreur de build
+**État courant :** 434 tests passants · 0 erreur de build
 
 ---
 
@@ -151,21 +151,21 @@
 
 ## 5. Exigences non-fonctionnelles non couvertes 🔵
 
-### NF-02 — Responsive (obligatoire)
+### ✅ NF-02 — Responsive *(résolu session 28)*
 
-Bootstrap 5.3 est en place mais les pages n'ont pas été testées/optimisées pour mobile.
-
----
-
-### NF-04 — Multilingue (obligatoire)
-
-L'interface Web est uniquement en français. `LanguePreferee` de `Personne` n'est pas utilisée. `NomJson`/`DescriptionJson` des catégories ne sont jamais désérialisés selon la langue.
+Bootstrap 5.3.3 en place. `navbar-expand-md` + `navbar-toggler` (collapse mobile). Viewport meta configuré. Dashboard : `col-md-4` (cartes empilées sur mobile). Tables : `table-responsive`. Formulaires : colonnes Bootstrap `col-md-x`. Groupes boutons : `d-flex flex-wrap`. Aucun changement de code nécessaire.
 
 ---
 
-### NF-05 — WCAG (obligatoire)
+### ✅ NF-04 — Multilingue *(résolu session 28)*
 
-Accessibilité non vérifiée : `alt` sur les images, `aria-label` sur les boutons, contraste du thème rouge Bootstrap.
+`GET /api/taxonomie/config/{configId}?langue=fr|en|nl|de|ar` désérialise `NomJson`/`DescriptionJson` selon la langue demandée. `AppMapper.ExtractI18n()` : repli `langue → "fr" → première valeur`. `GetCategoriesQuery.Langue` propagé depuis le controller. Web : sélecteur de langue dans `Taxonomie/Index.cshtml`, affichage `Nom` localisé (avec `NomJson` brut en secondaire).
+
+---
+
+### ✅ NF-05 — WCAG *(résolu session 28)*
+
+13 problèmes d'accessibilité corrigés : `aria-hidden="true"` sur emojis décoratifs, textes visibles descriptifs sur boutons actions (évite S7927), associations `label/for` sur 4 formulaires de recherche admin. Commit `ca7295a`.
 
 ---
 
@@ -201,9 +201,9 @@ Accessibilité non vérifiée : `alt` sur les images, `aria-label` sur les bouto
 | `Acteur.getNiveauBadge()` abstraite | ✅ résolu session 22 | Diagramme P1 |
 | `Coordonnees.adresseLibelle` | ✅ résolu session 27 | Diagramme P4 |
 | Rappel expiration de rôle | ✅ résolu session 27 — `RappelExpirationRoleService` BackgroundService | Énoncé §5 ex.6 |
-| Demande récurrente | 🟡 absent | ROADMAP §4.7 |
-| Recherche par texte libre | 🟡 seuls `?statut=`, `?urgence=` et `?strategie=` supportés | Énoncé §5 ex.11 |
-| Image Docker publiée sur GitHub | 🟡 absent | ROADMAP DoD §8.2 |
+| Demande récurrente | ✅ résolu session 28 — `EstRecurrente` + `ConfigurerRecurrence()` + migration | ROADMAP §4.7 |
+| Recherche par texte libre | ✅ résolu session 28 — `?q=` sur offres + demandes (Contains) | Énoncé §5 ex.11 |
+| Image Docker publiée sur GitHub | ✅ résolu session 28 — `.github/workflows/docker-publish.yml` GHCR | ROADMAP DoD §8.2 |
 
 ---
 
@@ -237,16 +237,16 @@ Accessibilité non vérifiée : `alt` sur les images, `aria-label` sur les bouto
 
 | # | Exigence | État |
 |---|---|---|
-| L1 | NF-04 Multilingue — désérialisation `NomJson` selon langue | 🔵 non démarré |
-| L2 | NF-05 WCAG — audit accessibilité + corrections | 🔵 non démarré |
+| L1 | NF-04 Multilingue — désérialisation `NomJson` selon langue | ✅ session 28 |
+| L2 | NF-05 WCAG — audit accessibilité + corrections | ✅ session 28 |
 | L3 | NF-06 RGPD — politique + suppression données | ✅ session 27 (pseudonymisation) |
 | L4 | NF-07 Compression réponses API | ✅ session 25 |
 | L5 | NF-10 Documentation `/doc` en anglais | ✅ session 27 |
 | L6 | Stratégies de mise en avant — branchement effectif | ✅ session 27 (NF-11) |
-| L7 | Recherche avancée (fulltext, catégorie, géolocalisation) | 🔵 non démarré |
-| L8 | Image Docker publiée sur GitHub Container Registry | 🔵 non démarré |
+| L7 | Recherche avancée (fulltext `?q=`) | ✅ session 28 |
+| L8 | Image Docker publiée sur GitHub Container Registry | ✅ session 28 |
 | L9 | `Coordonnees.adresseLibelle` manquant | ✅ session 27 |
-| L10 | Demande récurrente (scénario Grosemilo) | 🟡 non démarré |
+| L10 | Demande récurrente (scénario Grosemilo) | ✅ session 28 |
 | L11 | Rappel expiration de rôle (scheduler) | ✅ session 27 |
 
 ---
@@ -263,7 +263,7 @@ Accessibilité non vérifiée : `alt` sur les images, `aria-label` sur les bouto
 - Journal d'audit structuré (48 opérations mappées dans `AuditBehaviour`)
 - JWT + cookies HttpOnly + refresh tokens
 - Docker Compose (API + DB + Web)
-- 433 tests unitaires (0 échec) — couverture handlers 100%, validators 100%, repos 100%
+- 434 tests unitaires (0 échec) — couverture handlers 100%, validators 100%, repos 100%
 - Pages Web complètes : Profil, OffreEdit, DemandeEdit, Entités/Detail, DemandesQuota, AvecValidation, bascule visibilité Discussion, Médias
 - Compression API (NF-07) : Brotli + Gzip via UseResponseCompression
 - Taxonomy Web configurable sans redéploiement
@@ -287,3 +287,9 @@ Accessibilité non vérifiée : `alt` sur les images, `aria-label` sur les bouto
 - Documentation anglaise `/doc` (architecture + API reference + setup)
 - NF-11 Extensibilité : stratégies de priorisation activables via `?strategie=`
 - NF-06 RGPD : droit à l'oubli via `DELETE /api/acteurs/{id}` (pseudonymisation)
+- NF-04 Multilingue : `?langue=` sur taxonomie, `AppMapper.ExtractI18n()` JSON i18n
+- NF-05 WCAG : aria-hidden, textes visibles descriptifs, associations label/for
+- NF-02 Responsive : Bootstrap 5.3.3 navbar-expand-md, col-md-x, table-responsive
+- Recherche fulltext `?q=` sur offres + demandes (Contains Titre/Description)
+- Demande récurrente : `EstRecurrente` + `ConfigurerRecurrence()` + migration + UI
+- CI/CD : `.github/workflows/docker-publish.yml` → GHCR (API + Web images)

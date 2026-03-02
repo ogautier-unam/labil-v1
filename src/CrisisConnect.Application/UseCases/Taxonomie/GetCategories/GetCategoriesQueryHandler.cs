@@ -8,17 +8,15 @@ namespace CrisisConnect.Application.UseCases.Taxonomie.GetCategories;
 public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, IReadOnlyList<CategorieTaxonomieDto>>
 {
     private readonly ICategorieTaxonomieRepository _repository;
-    private readonly AppMapper _mapper;
 
-    public GetCategoriesQueryHandler(ICategorieTaxonomieRepository repository, AppMapper mapper)
+    public GetCategoriesQueryHandler(ICategorieTaxonomieRepository repository)
     {
         _repository = repository;
-        _mapper = mapper;
     }
 
     public async ValueTask<IReadOnlyList<CategorieTaxonomieDto>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
     {
         var categories = await _repository.GetRacinesAsync(request.ConfigId, cancellationToken);
-        return _mapper.ToDto(categories);
+        return AppMapper.ToDto(categories, request.Langue ?? "fr");
     }
 }

@@ -118,12 +118,11 @@ public class ApiClient
         return response.IsSuccessStatusCode;
     }
 
-    public async Task<DemandeModel?> CreateDemandeAsync(
-        string titre, string description, Guid creePar, string urgence, string? regionSeverite = null,
-        CancellationToken ct = default)
+    public async Task<DemandeModel?> CreateDemandeAsync(CreateDemandeRequest req, CancellationToken ct = default)
     {
         var response = await _http.PostAsJsonAsync("api/propositions/demandes",
-            new { Titre = titre, Description = description, CreePar = creePar, Urgence = urgence, RegionSeverite = regionSeverite }, ct);
+            new { req.Titre, req.Description, CreePar = req.CreePar, req.Urgence,
+                  req.RegionSeverite, req.EstRecurrente, req.FrequenceRecurrence }, ct);
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadFromJsonAsync<DemandeModel>(ct);
     }
@@ -290,8 +289,12 @@ public class ApiClient
 
     // ── Taxonomie ─────────────────────────────────────────────────────────────
 
-    public Task<IReadOnlyList<CategorieTaxonomieModel>?> GetCategoriesAsync(Guid configId, CancellationToken ct = default)
-        => _http.GetFromJsonAsync<IReadOnlyList<CategorieTaxonomieModel>>($"api/taxonomie/config/{configId}", ct);
+    public Task<IReadOnlyList<CategorieTaxonomieModel>?> GetCategoriesAsync(Guid configId, string? langue = null, CancellationToken ct = default)
+    {
+        var url = $"api/taxonomie/config/{configId}";
+        if (!string.IsNullOrEmpty(langue)) url += $"?langue={langue}";
+        return _http.GetFromJsonAsync<IReadOnlyList<CategorieTaxonomieModel>>(url, ct);
+    }
 
     public async Task<CategorieTaxonomieModel?> CreateCategorieAsync(
         string code, string nomJson, Guid configId, Guid? parentId = null,

@@ -43,6 +43,16 @@
                         <label for="RegionSeverite" class="form-label">Région / Zone <span class="text-muted">(optionnel)</span></label>
                         <input asp-for="RegionSeverite" id="RegionSeverite" class="form-control" />
                     </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input asp-for="EstRecurrente" id="EstRecurrente" class="form-check-input" type="checkbox" />
+                            <label for="EstRecurrente" class="form-check-label">Demande récurrente</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4" id="recurrenceRow">
+                        <label for="FrequenceRecurrence" class="form-label">Fréquence <span class="text-muted">(ex. Hebdomadaire)</span></label>
+                        <input asp-for="FrequenceRecurrence" id="FrequenceRecurrence" class="form-control" maxlength="100" />
+                    </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-success btn-sm w-100">Publier</button>
                     </div>
@@ -98,7 +108,13 @@ else
                     };
                     <tr>
                         <td>
-                            <div class="fw-semibold">@d.Titre</div>
+                            <div class="fw-semibold">
+                                @d.Titre
+                                @if (d.EstRecurrente)
+                                {
+                                    <span class="badge bg-info text-dark ms-1" title="@d.FrequenceRecurrence">Récurrent</span>
+                                }
+                            </div>
                             <div class="text-muted small">@d.Description</div>
                         </td>
                         <td><span class="badge @urgenceCss">@d.Urgence</span></td>

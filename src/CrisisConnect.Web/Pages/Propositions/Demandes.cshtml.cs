@@ -24,6 +24,8 @@ public class DemandesModel : PageModel
     [BindProperty] public string Description { get; set; } = string.Empty;
     [BindProperty] public string Urgence { get; set; } = "Moyen";
     [BindProperty] public string? RegionSeverite { get; set; }
+    [BindProperty] public bool EstRecurrente { get; set; }
+    [BindProperty] public string? FrequenceRecurrence { get; set; }
 
     private static Guid? GetUserId(ClaimsPrincipal user)
     {
@@ -49,7 +51,8 @@ public class DemandesModel : PageModel
 
         try
         {
-            var demande = await _api.CreateDemandeAsync(Titre, Description, userId, Urgence, RegionSeverite, ct);
+            var demande = await _api.CreateDemandeAsync(
+                new CreateDemandeRequest(Titre, Description, userId, Urgence, RegionSeverite, EstRecurrente, FrequenceRecurrence), ct);
             TempData[demande is not null ? KeySuccess : KeyError] = demande is not null
                 ? $"Demande « {demande.Titre} » publiée avec succès."
                 : "Impossible de créer la demande.";

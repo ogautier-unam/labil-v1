@@ -31,6 +31,16 @@
                         <input id="configIdRecherche" name="ConfigId" type="text" class="form-control"
                                value="@Model.ConfigId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
                     </div>
+                    <div class="mb-3">
+                        <label for="langueSelect" class="form-label">Langue</label>
+                        <select id="langueSelect" name="Langue" class="form-select form-select-sm">
+                            <option value="fr" selected="@(Model.Langue == "fr")">Français</option>
+                            <option value="en" selected="@(Model.Langue == "en")">English</option>
+                            <option value="nl" selected="@(Model.Langue == "nl")">Nederlands</option>
+                            <option value="de" selected="@(Model.Langue == "de")">Deutsch</option>
+                            <option value="ar" selected="@(Model.Langue == "ar")">العربية</option>
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-primary">Rechercher</button>
                 </form>
             </div>
@@ -71,7 +81,7 @@
     <div class="col-md-8">
         @if (Model.ConfigId.HasValue)
         {
-            <h5>Catégories de la configuration <code>@Model.ConfigId</code></h5>
+            <h5>Catégories de la configuration <code>@Model.ConfigId</code> <span class="badge bg-secondary">@Model.Langue.ToUpper()</span></h5>
             @if (Model.Categories.Count == 0)
             {
                 <div class="alert alert-info">Aucune catégorie trouvée.</div>
@@ -83,7 +93,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Code</th>
-                                <th>Nom (JSON)</th>
+                                <th>Nom</th>
                                 <th>Parent</th>
                                 <th>Statut</th>
                                 @if (isAdmin) { <th></th> }
@@ -94,7 +104,7 @@
                             {
                                 <tr class="@(cat.EstActive ? "" : "table-secondary text-muted")">
                                     <td><strong>@cat.Code</strong></td>
-                                    <td><small>@cat.NomJson</small></td>
+                                    <td>@cat.Nom <small class="text-muted ms-1">@cat.NomJson</small></td>
                                     <td>@(cat.ParentId.HasValue ? cat.ParentId.Value.ToString()[..8] + "…" : "—")</td>
                                     <td>
                                         <span class="badge bg-@(cat.EstActive ? "success" : "secondary")">

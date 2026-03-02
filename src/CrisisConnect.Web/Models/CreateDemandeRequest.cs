@@ -1,14 +1,10 @@
 namespace CrisisConnect.Web.Models;
 
-public record DemandeModel(
-    Guid Id,
+public record CreateDemandeRequest(
     string Titre,
     string Description,
-    string Statut,
     Guid CreePar,
-    DateTime CreeLe,
-    string OperateurLogique,
     string Urgence,
-    string? RegionSeverite,
+    string? RegionSeverite = null,
     bool EstRecurrente = false,
     string? FrequenceRecurrence = null);

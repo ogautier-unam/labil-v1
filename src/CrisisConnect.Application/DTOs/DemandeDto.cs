@@ -11,4 +11,6 @@ public record DemandeDto(
     DateTime CreeLe,
     OperateurLogique OperateurLogique,
     NiveauUrgence Urgence,
-    string? RegionSeverite);
+    string? RegionSeverite,
+    bool EstRecurrente,
+    string? FrequenceRecurrence);

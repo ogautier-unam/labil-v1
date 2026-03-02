@@ -12,4 +12,6 @@ public record CreateDemandeCommand(
     NiveauUrgence Urgence = NiveauUrgence.Moyen,
     string? RegionSeverite = null,
     double? Latitude = null,
-    double? Longitude = null) : IRequest<DemandeDto>;
+    double? Longitude = null,
+    bool EstRecurrente = false,
+    string? FrequenceRecurrence = null) : IRequest<DemandeDto>;

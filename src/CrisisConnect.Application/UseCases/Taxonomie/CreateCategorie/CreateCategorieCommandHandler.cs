@@ -9,12 +9,10 @@ namespace CrisisConnect.Application.UseCases.Taxonomie.CreateCategorie;
 public class CreateCategorieCommandHandler : IRequestHandler<CreateCategorieCommand, CategorieTaxonomieDto>
 {
     private readonly ICategorieTaxonomieRepository _repository;
-    private readonly AppMapper _mapper;
 
-    public CreateCategorieCommandHandler(ICategorieTaxonomieRepository repository, AppMapper mapper)
+    public CreateCategorieCommandHandler(ICategorieTaxonomieRepository repository)
     {
         _repository = repository;
-        _mapper = mapper;
     }
 
     public async ValueTask<CategorieTaxonomieDto> Handle(CreateCategorieCommand request, CancellationToken cancellationToken)
@@ -27,6 +25,6 @@ public class CreateCategorieCommandHandler : IRequestHandler<CreateCategorieComm
             request.DescriptionJson);
 
         await _repository.AddAsync(categorie, cancellationToken);
-        return _mapper.ToDto(categorie);
+        return AppMapper.ToDto(categorie);
     }
 }
