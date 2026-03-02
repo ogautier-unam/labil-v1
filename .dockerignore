@@ -1,0 +1,25 @@
+**/.vs
+**/.vscode
+**/.idea
+**/*.user
+
+# Build output — CRITIQUE : évite de copier les obj/ Windows dans le container Linux
+**/bin/
+**/obj/
+
+# Secrets
+.env
+
+# Logs
+**/*.log
+
+# Tests
+**/tests/
+
+# Git
+.git
+.gitignore
+
+# Docker
+**/Dockerfile
+docker-compose*.yml

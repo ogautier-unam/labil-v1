@@ -3,10 +3,12 @@ using CrisisConnect.Application.Common.Behaviours;
 using CrisisConnect.Application.Common.Interfaces;
 using CrisisConnect.Application.Mappings;
 using CrisisConnect.Infrastructure;
+using CrisisConnect.Infrastructure.Persistence;
 using CrisisConnect.API.Services;
 using FluentValidation;
 using Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
@@ -96,6 +98,14 @@ if (builder.Environment.IsDevelopment())
 }
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+    var seederLogger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await DataSeeder.SeedAsync(db, seederLogger);
+}
 
 if (app.Environment.IsDevelopment())
 {

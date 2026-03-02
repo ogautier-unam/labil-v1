@@ -17,16 +17,20 @@ public class IndexModel(ApiClient api) : PageModel
     {
         try
         {
-            var offres      = await api.GetOffresAsync(ct);
-            var demandes    = await api.GetDemandesAsync(ct);
-            var transactions = await api.GetTransactionsAsync(ct);
+            var offres   = await api.GetOffresAsync(ct);
+            var demandes = await api.GetDemandesAsync(ct);
 
-            NombreOffres         = offres?.Count ?? 0;
-            NombreOffresActives  = offres?.Count(o => o.Statut == "Active") ?? 0;
-            NombreDemandes       = demandes?.Count ?? 0;
+            NombreOffres          = offres?.Count ?? 0;
+            NombreOffresActives   = offres?.Count(o => o.Statut == "Active") ?? 0;
+            NombreDemandes        = demandes?.Count ?? 0;
             NombreDemandesActives = demandes?.Count(d => d.Statut == "Active") ?? 0;
-            NombreTransactions   = transactions?.Count ?? 0;
-            NombreTransactionsEnCours = transactions?.Count(t => t.Statut == "EnCours") ?? 0;
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var transactions = await api.GetTransactionsAsync(ct);
+                NombreTransactions        = transactions?.Count ?? 0;
+                NombreTransactionsEnCours = transactions?.Count(t => t.Statut == "EnCours") ?? 0;
+            }
         }
         catch (HttpRequestException)
         {
