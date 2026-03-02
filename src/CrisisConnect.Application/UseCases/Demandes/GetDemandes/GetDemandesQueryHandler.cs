@@ -32,6 +32,13 @@ public class GetDemandesQueryHandler : IRequestHandler<GetDemandesQuery, IReadOn
         if (request.Urgence.HasValue)
             demandes = demandes.Where(d => d.Urgence == request.Urgence.Value).ToList();
 
+        // L7 — recherche par texte libre (titre ou description, insensible à la casse)
+        if (request.Recherche is { Length: > 0 } q)
+            demandes = demandes
+                .Where(d => d.Titre.Contains(q, StringComparison.OrdinalIgnoreCase)
+                         || d.Description.Contains(q, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
         // NF-11 — appliquer la stratégie de priorisation si spécifiée
         if (request.Strategie is not null)
         {

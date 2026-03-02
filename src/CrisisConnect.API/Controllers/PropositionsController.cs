@@ -61,9 +61,10 @@ public class PropositionsController : ControllerBase
     [ProducesResponseType<IReadOnlyList<OffreDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllOffres(
         [FromQuery] StatutProposition? statut,
+        [FromQuery] string? q,
         CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetOffresQuery(statut), cancellationToken);
+        var result = await _mediator.Send(new GetOffresQuery(statut, q), cancellationToken);
         return Ok(result);
     }
 
@@ -110,9 +111,10 @@ public class PropositionsController : ControllerBase
         [FromQuery] StatutProposition? statut,
         [FromQuery] NiveauUrgence? urgence,
         [FromQuery] string? strategie,
+        [FromQuery] string? q,
         CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(new GetDemandesQuery(statut, urgence, strategie), cancellationToken);
+        var result = await _mediator.Send(new GetDemandesQuery(statut, urgence, strategie, q), cancellationToken);
         return Ok(result);
     }
 

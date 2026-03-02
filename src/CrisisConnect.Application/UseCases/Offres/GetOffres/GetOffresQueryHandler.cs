@@ -21,6 +21,13 @@ public class GetOffresQueryHandler : IRequestHandler<GetOffresQuery, IReadOnlyLi
         if (request.Statut.HasValue)
             offres = offres.Where(o => o.Statut == request.Statut.Value).ToList();
 
+        // L7 — recherche par texte libre (titre ou description, insensible à la casse)
+        if (request.Recherche is { Length: > 0 } q)
+            offres = offres
+                .Where(o => o.Titre.Contains(q, StringComparison.OrdinalIgnoreCase)
+                         || o.Description.Contains(q, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
         return AppMapper.ToDto(offres.ToList());
     }
 }
